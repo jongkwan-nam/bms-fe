@@ -1,3 +1,5 @@
+const CSS = ``;
+
 export default class FeDocNumber extends HTMLElement {
   constructor() {
     super();

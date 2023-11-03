@@ -8,6 +8,7 @@
     <script type="text/javascript" src="https://fe.handysoft.co.kr/webhwpctrl/js/hwpctrlapp/utils/util.js"></script>
     <script type="text/javascript" src="https://fe.handysoft.co.kr/webhwpctrl/js/hwpctrlapp/hwpCtrlApp.js"></script>
     <script type="text/javascript" src="https://fe.handysoft.co.kr/webhwpctrl/js/webhwpctrl.js"></script>
+    <script type="text/javascript" src="/bms/js/com/hs/gwweb/appr/retrieveMessage.act"></script>
     <script defer type="text/javascript" src="index.js"></script>
   </head>
   <body>
@@ -25,10 +26,27 @@
     </main>
     <aside id="approvalBox">
       <div>
-        <article class="title-wrap">
-          <fe-title></fe-title>
-          <fe-docnumber></fe-docnumber>
-        </article>
+        <table>
+          <tr>
+            <th>제목</th>
+            <td><fe-title></fe-title></td>
+          </tr>
+          <tr>
+            <th>문서번호</th>
+            <td><fe-docnumber></fe-docnumber></td>
+          </tr>
+          <tr>
+            <th>문서종류</th>
+            <td><fe-approvaltype></fe-approvaltype></td>
+          </tr>
+          <tr>
+            <th>기록물철</th>
+            <td>
+              <fe-folder></fe-folder>
+              <div id="tree"></div>
+            </td>
+          </tr>
+        </table>
         <div>
           <button type="button" id="btnVerify">확인</button>
           <button type="button" id="btnCancel">취소</button>

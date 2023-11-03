@@ -1,8 +1,11 @@
 let workingHox;
 
+let feEditor1 = document.querySelector('fe-editor#editor1');
+
 let feTitle = document.querySelector('fe-title');
 let feDocNumber = document.querySelector('fe-docnumber');
-let feEditor1 = document.querySelector('fe-editor#editor1');
+let feApprovalType = document.querySelector('fe-approvaltype');
+let feFolder = document.querySelector('fe-folder');
 
 export const show = (hox) => {
   //
@@ -11,6 +14,8 @@ export const show = (hox) => {
   feTitle.title = feEditor1.title;
 
   feDocNumber.set(workingHox);
+  feApprovalType.set(workingHox);
+  feFolder.set(workingHox);
 
   document.querySelector('body aside').classList.add('show');
 };
