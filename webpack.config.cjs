@@ -20,15 +20,15 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/*.html',
+          from: 'src/**/*.html',
           to({ context, absoluteFilename }) {
             return '[name][ext]';
           },
         },
-        // {
-        //   from: 'src/css',
-        //   to: 'css',
-        // },
+        {
+          from: 'src/css',
+          to: 'css',
+        },
         // {
         //   from: 'src/img',
         //   to: 'img',

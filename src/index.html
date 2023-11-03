@@ -4,6 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <script type="text/javascript" src="https://fe.handysoft.co.kr/webhwpctrl/js/hwpctrlapp/utils/util.js"></script>
+    <script type="text/javascript" src="https://fe.handysoft.co.kr/webhwpctrl/js/hwpctrlapp/hwpCtrlApp.js"></script>
+    <script type="text/javascript" src="https://fe.handysoft.co.kr/webhwpctrl/js/webhwpctrl.js"></script>
+    <script defer type="text/javascript" src="index.js"></script>
   </head>
-  <body></body>
+  <body>
+    <main>
+      <header>
+        <button type="button" id="btnApprovalBox">결재정보</button>
+      </header>
+      <article class="attach-wrap">
+        <div>첨부 영역</div>
+      </article>
+      <article class="editor-wrap">
+        <fe-editor id="editor1"></fe-editor>
+        <fe-editor id="editor2" style="display: none"></fe-editor>
+      </article>
+    </main>
+    <aside id="approvalBox">
+      <div>
+        <article class="title-wrap">
+          <fe-title></fe-title>
+          <fe-docnumber></fe-docnumber>
+        </article>
+        <div>
+          <button type="button" id="btnVerify">확인</button>
+          <button type="button" id="btnCancel">취소</button>
+        </div>
+      </div>
+    </aside>
+  </body>
 </html>

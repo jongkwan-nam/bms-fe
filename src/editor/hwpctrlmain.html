@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="https://fe.handysoft.co.kr/webhwpctrl/" />
+    <meta charset="utf-8" />
+    <script type="text/javascript" data-type="css/app" data-framework="aori|lab" src="js/loadVersion.js"></script>
+    <script type="text/javascript" data-type="css/app" data-framework="aori|lab" src="js/loadHead.js"></script>
+    <script type="text/javascript">
+      window.serverProps = { skin: 'default' };
+      window.BaseUrl = getUrlParameter('baseurl');
+    </script>
+    <script type="text/javascript">
+      var require = { urlArgs: 'version=' + window.__hctfwoVersion };
+    </script>
+    <script type="text/javascript" src="js/libs/require/require.js"></script>
+    <script type="text/javascript" src="js/require_config.js"></script>
+    <script type="text/javascript">
+      require(['main-hwpapp']);
+    </script>
+  </head>
+  <body></body>
+</html>
