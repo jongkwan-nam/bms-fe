@@ -3,3 +3,13 @@
 ::before {
   box-sizing: border-box;
 }
+
+/* FeFolder - dynatree folder */
+.folder.dynatree {
+  position: fixed;
+  width: 300px;
+  height: 400px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  box-shadow: 2px 2px 4px 0 #aaa;
+}

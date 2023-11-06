@@ -1,9 +1,9 @@
-// import $ from 'jquery';
-import { createTree } from 'jquery.fancytree';
-import './FeFolder.scss';
-// import '../../node_modules/jquery.fancytree/dist/skin-lion/ui.fancytree.css';
+import $ from 'jquery';
+import '../_open_sources/dynatree';
 
 const CSS = ``;
+
+const ROOT_FOLDER_ID = '00000000000000000001';
 
 export default class FeFolder extends HTMLElement {
   constructor() {
@@ -19,6 +19,10 @@ export default class FeFolder extends HTMLElement {
     LINK.setAttribute('rel', 'stylesheet');
     LINK.setAttribute('href', './css/common.css');
 
+    const LINK2 = document.createElement('link');
+    LINK2.setAttribute('rel', 'stylesheet');
+    LINK2.setAttribute('href', './css/dynatree.css');
+
     const STYLE = document.createElement('style');
     STYLE.innerHTML = CSS;
 
@@ -27,10 +31,13 @@ export default class FeFolder extends HTMLElement {
 
     const tree = document.createElement('div');
     tree.id = 'tree';
+    tree.classList.add('folder', 'dynatree');
 
-    this.shadowRoot.append(LINK, STYLE, wrapper, tree);
+    this.shadowRoot.append(LINK, LINK2, STYLE, wrapper, tree);
 
     this.select = wrapper.appendChild(document.createElement('select'));
+    this.select.innerHTML = `<option>${GWWEBMessage.cmsg_2500}</option>`;
+
     this.button = wrapper.appendChild(document.createElement('button'));
     this.button.innerText = '선택';
     this.button.addEventListener('click', (e) => {
@@ -38,10 +45,10 @@ export default class FeFolder extends HTMLElement {
       const params = {
         APPLID: '',
         SEARCH_F: 0,
-        deptId: '000010100',
+        userId: rInfo.user.ID,
+        deptId: rInfo.user.deptID,
         TYPES: 'REGT',
         exids: '1000,2000,2500,3000,4000,5000,11000,8000,7100,7200,6000',
-        userId: '001000001',
         FLDRID: '',
         FPARID: '00000000000000000009',
         BASEAPPLID: 7010,
@@ -52,51 +59,59 @@ export default class FeFolder extends HTMLElement {
         .then((res) => res.json())
         .then((data) => {
           console.log(JSON.parse(data.treeValue));
-        });
 
-      createTree(tree, {
-        source: [
-          { title: 'Node 1', key: '1' },
-          {
-            title: 'Folder 2',
-            key: '2',
-            folder: true,
-            children: [
-              { title: 'Node 2.1', key: '3' },
-              { title: 'Node 2.2', key: '4' },
-            ],
-          },
-        ],
-        checkbox: true,
-        checkbox: function (event, data) {
-          // Hide checkboxes for folders
-          return data.node.isFolder() ? false : true;
-        },
-        tooltip: function (event, data) {
-          // Create dynamic tooltips
-          return data.node.title + ' (' + data.node.key + ')';
-        },
-        icon: function (event, data) {
-          var node = data.node;
-          // Create custom icons
-          if (node.data.refType === 'foo') {
-            return 'foo-icon-class';
-          }
-          // Exit without returning a value: continue with default processing.
-        },
-        activate: function (event, data) {
-          // A node was activated: display its title:
-          var node = data.node;
-          // $('#echoActive').text(node.title);
-          console.log('activate', node);
-        },
-        beforeSelect: function (event, data) {
-          // A node is about to be selected: prevent this, for folder-nodes:
-          if (data.node.isFolder()) {
-            return false;
-          }
-        },
-      });
+          $(tree).dynatree({
+            title: 'tree',
+            persist: false,
+            clickFolderMode: 1,
+            key: ROOT_FOLDER_ID,
+            fx: { height: 'toggle', duration: 200 },
+            children: JSON.parse(data.treeValue),
+            onCustomRender: function (dtnode) {
+              console.log('[dynatree] onCustomRender', dtnode.data?.title, dtnode.data?.noLink);
+
+              const deptData = dtnode.data;
+              let title = deptData.title.replace(/\\/g, '');
+              let tooltip = deptData.tooltip?.replace(/\"/g, '&quot;').replace(/\\/g, '');
+              let dynatreeTitle = '';
+              if (deptData.noLink) {
+                dynatreeTitle = `
+                    <span class="dynatree-title" title="${tooltip}">
+                      <span class="node-folder ${deptData.viewDepth < 5 ? 'ableadd' : 'unableadd'}" id="${deptData.fldrId}">${title}</span>
+                    </span>`;
+              } else {
+                dynatreeTitle = `
+                    <a href="${deptData.href || '#'}" class="dynatree-title" title="${tooltip}">
+                      <span class="node-folder ${deptData.viewDepth < 5 ? 'ableadd' : 'unableadd'}" id="${deptData.fldrId}">${title}</span>
+                    </a>`;
+              }
+              return dynatreeTitle;
+            },
+            onClick: function (dtnode, event) {
+              console.log('[dynatree] onClick', 'event.target.className=', event.target.className, 'dtnode.data.noLink=', dtnode.data.noLink, 'dtnode.data.title=', dtnode.data.title);
+
+              if (event.target.className != 'dynatree-expander' && !dtnode.data.noLink) {
+                PopApprTree.selectFldr(dtnode.data, event);
+              } else {
+                if (event.target.className != 'dynatree-expander') {
+                  dtnode.deactivate();
+                  return false;
+                }
+              }
+            },
+            onQueryActivate: function (activate, node) {
+              console.log('[dynatree] onQueryActivate', activate, 'node.data.fldrApplId=', node.data.fldrApplId);
+
+              if (node.data.fldrApplId == FD_APPLID_DEPTCABINET_FLDR) {
+                return false;
+              }
+            },
+          });
+
+          $(tree)
+            .dynatree('getRoot')
+            .visit((dtnode) => dtnode.expand(true));
+        });
     });
   }
 

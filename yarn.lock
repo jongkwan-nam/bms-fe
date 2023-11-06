@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"0@underscore":
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/0/-/0-0.0.0.tgz#beabacb0a099c1dd215eaec15bb201318db7de6a"
-  integrity sha512-MDyEAJPNr2B9fKHdpmTRgGDNSnQvxSVr0FmXkhqWmhdqKoKvUpK+yTrM5mw2jULlNrhKPwnlMQsvUjC7pAuOmQ==
-
 "@aashutoshrathi/word-wrap@^1.2.3":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
@@ -177,28 +172,6 @@
   resolved "https://registry.yarnpkg.com/@types/html-minifier-terser/-/html-minifier-terser-6.1.0.tgz#4fc33a00c1d0c16987b1a20cf92d20614c55ac35"
   integrity sha512-oh/6byDPnL1zeNXFrDXFLyZjkr1MsBG667IM792caf1L2UPOOMf65NFzjUH/ltyfwjAGfs1rsX1eftK0jC/KIg==
 
-"@types/jquery.dynatree@^1.2.32":
-  version "1.2.32"
-  resolved "https://registry.yarnpkg.com/@types/jquery.dynatree/-/jquery.dynatree-1.2.32.tgz#db7c90a7e0958d3bebf52e24d35490e047e56bcf"
-  integrity sha512-5QbgJtxvfHR69vG9KBXC+E0PqSjb5nzsBwR6iaUQCb8wbX9hJ2E2gcJ7C1Ey1vKBRYjI55E0KyCtXwTQdg6c3w==
-  dependencies:
-    "@types/jquery" "*"
-    "@types/jqueryui" "*"
-
-"@types/jquery@*":
-  version "3.5.25"
-  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.5.25.tgz#c817c71d414855f7d71f46da39f43e6b9579b0b9"
-  integrity sha512-gykx2c+OZf5nx2tv/5fDQqmvGgTiXshELy5jf9IgXPtVfSBl57IUYByN4osbwMXwJijWGOEYQABzGaFZE79A0Q==
-  dependencies:
-    "@types/sizzle" "*"
-
-"@types/jqueryui@*":
-  version "1.12.19"
-  resolved "https://registry.yarnpkg.com/@types/jqueryui/-/jqueryui-1.12.19.tgz#7897253f1dbcfe14840e546fddd08c7371c3953a"
-  integrity sha512-pbjCT91/GB3kbJ9R2VeCfgTgHnqCrDG7FhLC7jeRnOsUJBxBX4VzTYPwF/qdRDxt7AHwaCzeuIM7IEPdYpfNvg==
-  dependencies:
-    "@types/jquery" "*"
-
 "@types/json-schema@*", "@types/json-schema@^7.0.8", "@types/json-schema@^7.0.9":
   version "7.0.14"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.14.tgz#74a97a5573980802f32c8e47b663530ab3b6b7d1"
@@ -210,11 +183,6 @@
   integrity sha512-TlgT8JntpcbmKUFzjhsyhGfP2fsiz1Mv56im6enJ905xG1DAYesxJaeSbGqQmAw8OWPdhyJGhGSQGKRNJ45u9w==
   dependencies:
     undici-types "~5.26.4"
-
-"@types/sizzle@*":
-  version "2.3.5"
-  resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.5.tgz#d93dd29cdcd5801d90be968073b09a6b370780e4"
-  integrity sha512-tAe4Q+OLFOA/AMD+0lq8ovp8t3ysxAOeaScnfNdZpUxaGl51ZMDEITxkvFl1STudQ58mz6gzVGl9VhMKhwRnZQ==
 
 "@ungap/structured-clone@^1.2.0":
   version "1.2.0"
@@ -1256,12 +1224,14 @@ jiti@^1.18.2:
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-1.21.0.tgz#7c97f8fe045724e136a397f7340475244156105d"
   integrity sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==
 
-jquery.fancytree@^2.38.3:
-  version "2.38.3"
-  resolved "https://registry.yarnpkg.com/jquery.fancytree/-/jquery.fancytree-2.38.3.tgz#20ffee0ee07ffdb99621ce0c7305a82f67c0c2f1"
-  integrity sha512-C3CJcp4sPThy497YBXZNrDSVn/B34sv6kB+toC8gfHrPvJWgYkL3NSMovBxXo6fN6yXUnvWhWaON/ejG3Nsxdg==
+jquery-ui@^1.13.2:
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/jquery-ui/-/jquery-ui-1.13.2.tgz#de03580ae6604773602f8d786ad1abfb75232034"
+  integrity sha512-wBZPnqWs5GaYJmo1Jj0k/mrSkzdQzKDwhXNtHKcBdAcKVxMM3KNYFq+iJ2i1rwiG53Z8M4mTn3Qxrm17uH1D4Q==
+  dependencies:
+    jquery ">=1.8.0 <4.0.0"
 
-jquery@^3.7.1:
+"jquery@>=1.8.0 <4.0.0", jquery@^3.7.1:
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.7.1.tgz#083ef98927c9a6a74d05a6af02806566d16274de"
   integrity sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==
@@ -1927,13 +1897,6 @@ to-regex-range@^5.0.1:
   integrity sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==
   dependencies:
     is-number "^7.0.0"
-
-tree@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/tree/-/tree-0.1.3.tgz#14fba573d7853009c4ccef44f7409fac7162938f"
-  integrity sha512-Ivzs8BGRW8kWt7V6hD2yJC0028eUkaLWfPcbhcA/1jitHQJReZRQ2x8zqf4MtU+cNNkFYnadqg7AWzMMvrW9vA==
-  dependencies:
-    "0" underscore
 
 tslib@^2.0.3:
   version "2.6.2"
