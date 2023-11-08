@@ -1,7 +1,27 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
+import feStorage from '../utils/FeStorage';
+import * as dateUtils from '../utils/dateUtils';
 
-const CSS = ``;
+const CSS = `
+.folder-container {
+  position: fixed;
+  width: 300px;
+  height: 400px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  box-shadow: 2px 2px 4px 0 #aaa;  
+  padding: 8px;
+  display: grid;
+  grid-template-rows: 1fr 40px;
+}
+.folder-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;  
+}
+`;
 
 const ROOT_FOLDER_ID = '00000000000000000001';
 
@@ -27,21 +47,85 @@ export default class FeFolder extends HTMLElement {
     STYLE.innerHTML = CSS;
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('folder');
+    wrapper.classList.add('fe-folder');
+    wrapper.innerHTML = `
+      <div>
+        <select>
+          <option>${GWWEBMessage.cmsg_2500}</option>
+        </select>
+        <button type="button" id="btnFolderContainer">${'선택'}</button>
+      </div>
+      <div class="modal-container">
+        <div class="folder-container">
+          <div id="tree" class="folder"></div>
+          <div class="folder-btn">
+            <button type="button" id="btnFolderSelect">선택</button>
+            <button type="button" id="btnFolderCancel">취소</button>
+          </div>
+        </div>
+      </div>
+    `;
 
-    const tree = document.createElement('div');
-    tree.id = 'tree';
-    tree.classList.add('folder', 'dynatree');
+    this.shadowRoot.append(LINK, LINK2, STYLE, wrapper);
+  }
 
-    this.shadowRoot.append(LINK, LINK2, STYLE, wrapper, tree);
+  /**
+   *
+   * @param {XMLDocument} hox
+   */
+  set(hox) {
+    this.hox = hox;
+    this.fldrId = '';
+    this.fldrName = '';
 
-    this.select = wrapper.appendChild(document.createElement('select'));
-    this.select.innerHTML = `<option>${GWWEBMessage.cmsg_2500}</option>`;
+    const STORAGE_FOLDER_HISTORY_KEY = `folder_history_${rInfo.objForm1.formID}`;
 
-    this.button = wrapper.appendChild(document.createElement('button'));
-    this.button.innerText = '선택';
-    this.button.addEventListener('click', (e) => {
+    const fldrMap = new Map();
+
+    /* local storage의 해당 서식의 폴더 히스토리를 select > option 에 추가 */
+    let folderIdList = feStorage.local.getArray(STORAGE_FOLDER_HISTORY_KEY);
+    for (let folderId of folderIdList) {
+      if (folderId.trim().length === 0) {
+        continue;
+      }
+      // folderId 검증 후 option 추가
+      fetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${dateUtils.format(Date.now(), 'yyyy-mm-dd')}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.ok) {
+            //
+            fetch(`/bms/com/hs/gwweb/appr/retrieveFldrInfo.act?fldrID=${folderId}&applID=${7010}`)
+              .then((res) => res.json())
+              .then((data) => {
+                //
+                fldrMap.set(data.fldrId, data);
+                let option = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
+                option.value = data.fldrId;
+                option.innerHTML = `${data.fldrName} (${GWWEBMessage['keepPeriodRange_' + data.fldrKeepingPeriod]})`;
+              });
+          }
+        });
+    }
+
+    /*
+     * 기록물철 select 선택
+     */
+    this.shadowRoot.querySelector('select').addEventListener('change', (e) => {
       //
+      console.log('select change', e.target.value, e.target.innerHTML);
+      let fldrInfo = fldrMap.get(e.target.value);
+
+      this.hox.querySelector('docInfo folderInfo ID').textContent = fldrInfo.fldrId;
+      this.hox.querySelector('docInfo folderInfo name').textContent = fldrInfo.fldrName;
+
+      // 이벤트 전파
+      this.dispatchEvent(new CustomEvent('change', { detail: { folder: fldrInfo } }));
+    });
+
+    this.shadowRoot.querySelector('button#btnFolderContainer').addEventListener('click', (e) => {
+      //
+      this.shadowRoot.querySelector('.modal-container').classList.add('open');
+
       const params = {
         APPLID: '',
         SEARCH_F: 0,
@@ -59,6 +143,8 @@ export default class FeFolder extends HTMLElement {
         .then((res) => res.json())
         .then((data) => {
           console.log(JSON.parse(data.treeValue));
+
+          let tree = this.shadowRoot.querySelector('#tree');
 
           $(tree).dynatree({
             title: 'tree',
@@ -87,11 +173,14 @@ export default class FeFolder extends HTMLElement {
               }
               return dynatreeTitle;
             },
-            onClick: function (dtnode, event) {
+            onClick: (dtnode, event) => {
               console.log('[dynatree] onClick', 'event.target.className=', event.target.className, 'dtnode.data.noLink=', dtnode.data.noLink, 'dtnode.data.title=', dtnode.data.title);
 
               if (event.target.className != 'dynatree-expander' && !dtnode.data.noLink) {
-                PopApprTree.selectFldr(dtnode.data, event);
+                this.fldrId = dtnode.data.fldrId;
+                this.fldrName = dtnode.data.fldrName;
+                console.log(`[dynatree] selected fldrId: ${this.fldrId}, fldrName: ${this.fldrName}`);
+                // PopApprTree.selectFldr(dtnode.data, event);
               } else {
                 if (event.target.className != 'dynatree-expander') {
                   dtnode.deactivate();
@@ -99,12 +188,9 @@ export default class FeFolder extends HTMLElement {
                 }
               }
             },
-            onQueryActivate: function (activate, node) {
+            onQueryActivate: (activate, node) => {
               console.log('[dynatree] onQueryActivate', activate, 'node.data.fldrApplId=', node.data.fldrApplId);
-
-              if (node.data.fldrApplId == FD_APPLID_DEPTCABINET_FLDR) {
-                return false;
-              }
+              return true;
             },
           });
 
@@ -113,14 +199,34 @@ export default class FeFolder extends HTMLElement {
             .visit((dtnode) => dtnode.expand(true));
         });
     });
-  }
 
-  /**
-   *
-   * @param {XMLDocument} hox
-   */
-  set(hox) {
-    this.hox = hox;
+    /**
+     * 기록물철 트리에서 선택 버튼
+     */
+    this.shadowRoot.querySelector('button#btnFolderSelect').addEventListener('click', (e) => {
+      //
+      /* 기존 option에 있는 기록물철이면, 선택만 하고, 없으면 option 추가 및 선택, storage 저장 */
+      let existsOption = this.shadowRoot.querySelector(`select option[value="${this.fldrId}"`);
+      console.log('option is', existsOption);
+      if (existsOption !== null) {
+        existsOption.selected = true;
+      } else {
+        let newOption = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
+        newOption.value = this.fldrId;
+        newOption.innerHTML = this.fldrName;
+        newOption.selected = true;
+
+        let historyValue = feStorage.local.get(STORAGE_FOLDER_HISTORY_KEY);
+        feStorage.local.set(STORAGE_FOLDER_HISTORY_KEY, `${historyValue},${this.fldrId}`);
+      }
+
+      this.shadowRoot.querySelector('.modal-container').classList.remove('open');
+    });
+
+    this.shadowRoot.querySelector('button#btnFolderCancel').addEventListener('click', (e) => {
+      //
+      this.shadowRoot.querySelector('.modal-container').classList.remove('open');
+    });
   }
 }
 

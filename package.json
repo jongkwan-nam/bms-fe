@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "webpack",
+    "build": "webpack && node ./uploadServer.js",
     "watch": "webpack -w"
   },
   "devDependencies": {
@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "jquery": "^3.7.1",
-    "jquery-ui": "^1.13.2"
+    "jquery-ui": "^1.13.2",
+    "ssh2-sftp-client": "^9.1.0"
   }
 }

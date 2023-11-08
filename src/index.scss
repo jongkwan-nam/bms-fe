@@ -1,3 +1,5 @@
+@import "./css/common";
+
 html {
   font-size: 16px;
   font-family: "Malgun Gothic";
@@ -28,23 +30,12 @@ fe-editor {
 }
 
 body aside {
-  display: none;
-  position: fixed;
-  inset: 0;
-
-  justify-content: center;
-  align-items: center;
-  background-color: #0004;
-
   & > div {
     width: 800px;
     height: 1000px;
-    box-shadow: 0 0 4px 0px #000;
-    background-color: #fff;
-    padding: 8px;
   }
 
-  &.show {
-    display: flex;
+  table {
+    width: 100%;
   }
 }

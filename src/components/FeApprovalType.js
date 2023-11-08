@@ -18,7 +18,7 @@ export default class FeApprovalType extends HTMLElement {
     STYLE.innerHTML = CSS;
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('approvaltype');
+    wrapper.classList.add('fe-approvaltype');
     this.shadowRoot.append(LINK, STYLE, wrapper);
 
     this.label = wrapper.appendChild(document.createElement('label'));

@@ -11,14 +11,14 @@ div.title input {
 /**
  *
  */
-export default class FeTitle extends HTMLElement {
+export default class FeSecurityLevel extends HTMLElement {
   constructor() {
     super();
-    console.log('FeTitle init');
+    console.log('FeSecurityLevel init');
   }
 
   connectedCallback() {
-    console.log('FeTitle connected');
+    console.log('FeSecurityLevel connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
@@ -29,17 +29,24 @@ export default class FeTitle extends HTMLElement {
     STYLE.innerHTML = CSS;
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-title');
+    wrapper.classList.add('fe-securitylevel');
     this.shadowRoot.append(LINK, STYLE, wrapper);
 
     this.input = wrapper.appendChild(document.createElement('input'));
-    this.input.type = 'text';
+    this.input.type = 'number';
+    this.input.min = 1;
+    this.input.max = 99;
     this.input.addEventListener('change', (e) => {
-      let title = e.target.value;
       // set hox
-      this.hox.querySelector('docInfo title').textContent = title;
+      let level = e.target.value;
+      level = Math.max(level, 1);
+      level = Math.min(level, 99);
+      console.log('FeSecurityLevel change', e.target.value, level);
+      e.target.value = level;
 
-      this.dispatchEvent(new CustomEvent('change', { detail: { title: title } }));
+      this.hox.querySelector('docInfo securityLevel').textContent = level;
+
+      this.dispatchEvent(new CustomEvent('change', { detail: { securityLevel: level } }));
     });
   }
 
@@ -50,16 +57,9 @@ export default class FeTitle extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    this.input.value = hox.querySelector('docInfo title').textContent;
-  }
-
-  set title(title) {
-    this.input.value = title;
-  }
-  get title() {
-    return this.input.value;
+    this.input.value = hox.querySelector('docInfo securityLevel').textContent;
   }
 }
 
 // Define the new element
-customElements.define('fe-title', FeTitle);
+customElements.define('fe-securitylevel', FeSecurityLevel);

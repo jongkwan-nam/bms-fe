@@ -18,7 +18,7 @@ export default class FeDocNumber extends HTMLElement {
     STYLE.innerHTML = CSS;
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('docnumber');
+    wrapper.classList.add('fe-docnumber');
     this.shadowRoot.append(LINK, STYLE, wrapper);
 
     this.label = wrapper.appendChild(document.createElement('label'));

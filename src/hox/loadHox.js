@@ -6,5 +6,10 @@ export default async (trid) => {
   let xmlDoc = parser.parseFromString(xmlText, 'text/xml');
   console.log(xmlDoc);
 
+  // hox 정상인지 체크
+  if (xmlDoc.querySelector('docInfo title') === null) {
+    throw new Error('hox is not valid');
+  }
+
   return xmlDoc;
 };

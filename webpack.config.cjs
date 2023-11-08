@@ -26,6 +26,12 @@ module.exports = {
           },
         },
         {
+          from: 'src/**/*.jsp',
+          to({ context, absoluteFilename }) {
+            return '[name][ext]';
+          },
+        },
+        {
           from: 'src/css',
           to: 'css',
         },
