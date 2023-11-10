@@ -1,12 +1,4 @@
-const CSS = `
-div.title {
-  position: relative;
-  text-align: center;
-}
-div.title input {
-  display: block;
-}
-`;
+const CSS = ``;
 
 /**
  *

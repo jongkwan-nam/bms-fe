@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
 import feStorage from '../utils/FeStorage';
-import * as dateUtils from '../utils/dateUtils';
+import * as DateUtils from '../utils/dateUtils';
 
 const CSS = `
 .folder-container {
@@ -89,7 +89,7 @@ export default class FeFolder extends HTMLElement {
         continue;
       }
       // folderId 검증 후 option 추가
-      fetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${dateUtils.format(Date.now(), 'yyyy-mm-dd')}`)
+      fetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${DateUtils.format(Date.now(), 'yyyy-mm-dd')}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.ok) {

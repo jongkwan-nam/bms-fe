@@ -13,6 +13,8 @@ import '../components/FeSpecialDoc';
 import '../components/FePageCnt';
 import '../components/FeSpecialList';
 
+import '../components/FeFlow';
+
 let workingHox;
 
 let feEditor1 = document.querySelector('fe-editor#editor1');
@@ -31,6 +33,8 @@ let fePublication = document.querySelector('fe-publication');
 let feSpecialDoc = document.querySelector('fe-specialdoc');
 let fePageCnt = document.querySelector('fe-pagecnt');
 let feSpecialList = document.querySelector('fe-speciallist');
+
+let feFlow = document.querySelector('fe-flow');
 
 export const show = (hox) => {
   //
@@ -52,6 +56,8 @@ export const show = (hox) => {
   fePublication.set(workingHox);
   fePageCnt.set(workingHox);
   feSpecialList.set(workingHox);
+
+  feFlow.set(hox);
 
   document.querySelector('#approvalBox').classList.add('open');
 };

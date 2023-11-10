@@ -21,64 +21,79 @@
 </main>
 <aside id="approvalBox" class="modal-container">
   <div>
-    <table border="1">
-      <tr>
-        <th>발송종류</th>
-        <td><fe-enforcetype></fe-enforcetype></td>
-      </tr>
-      <tr>
-        <th>제목</th>
-        <td><fe-title></fe-title></td>
-      </tr>
-      <tr>
-        <th>flag</th>
-        <td><fe-flag></fe-flag></td>
-      </tr>
-      <tr>
-        <th>문서번호</th>
-        <td><fe-docnumber></fe-docnumber></td>
-      </tr>
-      <tr>
-        <th>문서종류</th>
-        <td><fe-approvaltype></fe-approvaltype></td>
-      </tr>
-      <tr>
-        <th>기록물철</th>
-        <td><fe-folder></fe-folder></td>
-      </tr>
-      <tr>
-        <th>보존기간</th>
-        <td><fe-keepperiod></fe-keepperiod></td>
-      </tr>
-      <tr>
-        <th>열람범위</th>
-        <td><fe-viewrange></fe-viewrange></td>
-      </tr>
-      <tr>
-        <th>열람제한</th>
-        <td><fe-viewrestriction></fe-viewrestriction></td>
-      </tr>
-      <tr>
-        <th>보안등급</th>
-        <td><fe-securitylevel></fe-securitylevel></td>
-      </tr>
-      <tr>
-        <th>공개여부</th>
-        <td><fe-publication></fe-publication></td>
-      </tr>
-      <tr>
-        <th>특수기록물</th>
-        <td><fe-specialdoc></fe-specialdoc></td>
-      </tr>
-      <tr>
-        <th>쪽수</th>
-        <td><fe-pagecnt></fe-pagecnt></td>
-      </tr>
-      <tr>
-        <th>검색어</th>
-        <td><fe-speciallist></fe-speciallist></td>
-      </tr>
-    </table>
+    <div class="tab-group" role="tablist">
+      <button type="button" class="tab-button" role="tab" target="#docInfo" active>문서정보</button>
+      <button type="button" class="tab-button" role="tab" target="#approvalFlow">결재경로</button>
+      <button type="button" class="tab-button" role="tab" target="#recipientInfo">수신부서</button>
+      <button type="button" class="tab-button" role="tab" target="#senderInfo">발송부서</button>
+    </div>
+    <div>
+      <div class="tab-content" role="tabpanel" id="docInfo">
+        <table border="1">
+          <tr>
+            <th>발송종류</th>
+            <td><fe-enforcetype></fe-enforcetype></td>
+          </tr>
+          <tr>
+            <th>제목</th>
+            <td><fe-title></fe-title></td>
+          </tr>
+          <tr>
+            <th>flag</th>
+            <td><fe-flag></fe-flag></td>
+          </tr>
+          <tr>
+            <th>문서번호</th>
+            <td><fe-docnumber></fe-docnumber></td>
+          </tr>
+          <tr>
+            <th>문서종류</th>
+            <td><fe-approvaltype></fe-approvaltype></td>
+          </tr>
+          <tr>
+            <th>기록물철</th>
+            <td><fe-folder></fe-folder></td>
+          </tr>
+          <tr>
+            <th>보존기간</th>
+            <td><fe-keepperiod></fe-keepperiod></td>
+          </tr>
+          <tr>
+            <th>열람범위</th>
+            <td><fe-viewrange></fe-viewrange></td>
+          </tr>
+          <tr>
+            <th>열람제한</th>
+            <td><fe-viewrestriction></fe-viewrestriction></td>
+          </tr>
+          <tr>
+            <th>보안등급</th>
+            <td><fe-securitylevel></fe-securitylevel></td>
+          </tr>
+          <tr>
+            <th>공개여부</th>
+            <td><fe-publication></fe-publication></td>
+          </tr>
+          <tr>
+            <th>특수기록물</th>
+            <td><fe-specialdoc></fe-specialdoc></td>
+          </tr>
+          <tr>
+            <th>쪽수</th>
+            <td><fe-pagecnt></fe-pagecnt></td>
+          </tr>
+          <tr>
+            <th>검색어</th>
+            <td><fe-speciallist></fe-speciallist></td>
+          </tr>
+        </table>
+      </div>
+      <div class="tab-content" role="tabpanel" id="approvalFlow">
+        <fe-flow></fe-flow>
+      </div>
+      <div class="tab-content" role="tabpanel" id="recipientInfo"></div>
+      <div class="tab-content" role="tabpanel" id="senderInfo"></div>
+    </div>
     <div>
       <button type="button" id="btnVerify">확인</button>
       <button type="button" id="btnCancel">취소</button>
