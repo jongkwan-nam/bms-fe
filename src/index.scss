@@ -1,8 +1,9 @@
-@import "./css/common";
+@import './style/root.scss';
+@import './css/common';
 
 html {
   font-size: 16px;
-  font-family: "Malgun Gothic";
+  font-family: 'Malgun Gothic';
 }
 
 main {

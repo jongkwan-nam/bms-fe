@@ -1,19 +1,21 @@
-import '../components/FeEnforceType';
-import '../components/FeTitle';
-import '../components/FeFlag';
-import '../components/FeDocNumber';
 import '../components/FeApprovalType';
+import '../components/FeDocNumber';
+import '../components/FeEnforceType';
+import '../components/FeFlag';
 import '../components/FeFolder';
 import '../components/FeKeepPeriod';
+import '../components/FePageCnt';
+import '../components/FePublication';
+import '../components/FeSecurityLevel';
+import '../components/FeSpecialDoc';
+import '../components/FeSpecialList';
+import '../components/FeTitle';
 import '../components/FeViewRange';
 import '../components/FeViewRestriction';
-import '../components/FeSecurityLevel';
-import '../components/FePublication';
-import '../components/FeSpecialDoc';
-import '../components/FePageCnt';
-import '../components/FeSpecialList';
 
 import '../components/FeFlow';
+import '../components/FeRecipient';
+import '../components/FeSender';
 
 let workingHox;
 
@@ -35,6 +37,8 @@ let fePageCnt = document.querySelector('fe-pagecnt');
 let feSpecialList = document.querySelector('fe-speciallist');
 
 let feFlow = document.querySelector('fe-flow');
+let feRecipient = document.querySelector('fe-recipient');
+let feSender = document.querySelector('fe-sender');
 
 export const show = (hox) => {
   //
@@ -58,6 +62,8 @@ export const show = (hox) => {
   feSpecialList.set(workingHox);
 
   feFlow.set(hox);
+  feRecipient.set(hox);
+  feSender.set(hox);
 
   document.querySelector('#approvalBox').classList.add('open');
 };

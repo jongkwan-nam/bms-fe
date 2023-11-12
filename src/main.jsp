@@ -91,8 +91,12 @@
       <div class="tab-content" role="tabpanel" id="approvalFlow">
         <fe-flow></fe-flow>
       </div>
-      <div class="tab-content" role="tabpanel" id="recipientInfo"></div>
-      <div class="tab-content" role="tabpanel" id="senderInfo"></div>
+      <div class="tab-content" role="tabpanel" id="recipientInfo">
+        <fe-recipient></fe-recipient>
+      </div>
+      <div class="tab-content" role="tabpanel" id="senderInfo">
+        <fe-sender></fe-sender>
+      </div>
     </div>
     <div>
       <button type="button" id="btnVerify">확인</button>
