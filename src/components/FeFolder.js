@@ -3,26 +3,6 @@ import '../_open_sources/dynatree';
 import feStorage from '../utils/FeStorage';
 import * as DateUtils from '../utils/dateUtils';
 
-const CSS = `
-.folder-container {
-  position: fixed;
-  width: 300px;
-  height: 400px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  box-shadow: 2px 2px 4px 0 #aaa;  
-  padding: 8px;
-  display: grid;
-  grid-template-rows: 1fr 40px;
-}
-.folder-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;  
-}
-`;
-
 const ROOT_FOLDER_ID = '00000000000000000001';
 
 export default class FeFolder extends HTMLElement {
@@ -37,14 +17,11 @@ export default class FeFolder extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
+    LINK.setAttribute('href', './index.css');
 
     const LINK2 = document.createElement('link');
     LINK2.setAttribute('rel', 'stylesheet');
     LINK2.setAttribute('href', './css/dynatree.css');
-
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-folder');
@@ -66,7 +43,7 @@ export default class FeFolder extends HTMLElement {
       </div>
     `;
 
-    this.shadowRoot.append(LINK, LINK2, STYLE, wrapper);
+    this.shadowRoot.append(LINK, LINK2, wrapper);
   }
 
   /**

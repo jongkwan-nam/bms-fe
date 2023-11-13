@@ -1,29 +1,6 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
 
-const CSS = `
-.fe-recipient {
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
-.fe-recipient .folder {
-  width: 49%;
-  height: 100%;
-  overflow: auto;
-  border: 1px solid #ccc;
-}
-.fe-recipient .list {
-  width: 49%;
-  height: 100%;
-  overflow: auto;
-  border: 1px solid #ccc;
-}
-
-`;
-
 export default class FeRecipient extends HTMLElement {
   constructor() {
     super();
@@ -36,23 +13,24 @@ export default class FeRecipient extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
+    LINK.setAttribute('href', './index.css');
 
     const LINK2 = document.createElement('link');
     LINK2.setAttribute('rel', 'stylesheet');
     LINK2.setAttribute('href', './css/dynatree.css');
 
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
-
     const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-recipient');
+    wrapper.classList.add('fe-recipient', 'tree-list');
     wrapper.innerHTML = `
-      <div id="tree" class="folder"></div>
-      <ul id="list" class="list sortable-list"></ul>
+      <div class="tree">
+        <div id="tree"></div>
+      </div>
+      <div class="list">
+        <ul id="list" class="sortable-list"></ul>
+      </div>
     `;
 
-    this.shadowRoot.append(LINK, LINK2, STYLE, wrapper);
+    this.shadowRoot.append(LINK, LINK2, wrapper);
   }
 
   /**

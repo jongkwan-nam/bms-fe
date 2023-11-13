@@ -2,76 +2,6 @@ import $ from 'jquery';
 import '../_open_sources/dynatree';
 import FeParticipant from './FeParticipant';
 
-const CSS = `
-.fe-flow {
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
-.fe-flow .folder {
-  width: 49%;
-  height: 100%;
-  overflow: auto;
-  border: 1px solid #ccc;
-}
-.fe-flow .list {
-  width: 49%;
-  height: 100%;
-  overflow: auto;
-  border: 1px solid #ccc;  
-}
-
-.sortable-list {
-  width: 425px;
-  padding: 25px;
-  background: #fff;
-  border-radius: 7px;
-  margin: 0;
-  padding: 30px 25px 20px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-.sortable-list .item {
-  list-style: none;
-  display: flex;
-  cursor: move;
-  background: #fff;
-  align-items: center;
-  border-radius: 5px;
-  padding: 10px 13px;
-  margin-bottom: 11px;
-  /* box-shadow: 0 2px 4px rgba(0,0,0,0.06); */
-  border: 1px solid #ccc;
-  justify-content: space-between;
-}
-.item .details {
-  display: flex;
-  align-items: center;
-}
-.item .details img {
-  height: 43px;
-  width: 43px;
-  pointer-events: none;
-  margin-right: 12px;
-  object-fit: cover;
-  border-radius: 50%;
-}
-.item .details span {
-  font-size: 1.13rem;
-}
-.item i {
-  color: #474747;
-  font-size: 1.13rem;
-}
-.item.dragging {
-  opacity: 0.6;
-}
-.item.dragging :where(.details, i) {
-  opacity: 0;
-}
-`;
-
 /**
  * 결재선 화면
  * 조직도 트리와 선택된 participant 관리
@@ -88,23 +18,24 @@ export default class FeFlow extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
+    LINK.setAttribute('href', './index.css');
 
     const LINK2 = document.createElement('link');
     LINK2.setAttribute('rel', 'stylesheet');
     LINK2.setAttribute('href', './css/dynatree.css');
 
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
-
     const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-flow');
+    wrapper.classList.add('fe-flow', 'tree-list');
     wrapper.innerHTML = `
-      <div id="tree" class="folder"></div>
-      <ul id="list" class="list sortable-list"></ul>
+      <div class="tree">
+        <div id="tree"></div>
+      </div>
+      <div class="list">
+        <ul id="list" class="sortable-list"></ul>
+      </div>
     `;
 
-    this.shadowRoot.append(LINK, LINK2, STYLE, wrapper);
+    this.shadowRoot.append(LINK, LINK2, wrapper);
   }
 
   /**

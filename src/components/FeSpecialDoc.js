@@ -1,7 +1,5 @@
 import * as stringUtils from '../utils/stringUtils';
 
-const CSS = ``;
-
 /**
  *
  */
@@ -37,14 +35,11 @@ export default class FeSpecialDoc extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
-
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
+    LINK.setAttribute('href', './index.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-specialdoc');
-    this.shadowRoot.append(LINK, STYLE, wrapper);
+    this.shadowRoot.append(LINK, wrapper);
 
     const pubspdoc = ['pubspdoc_present', 'pubspdoc_secret', 'pubspdoc_eachmng', 'pubspdoc_copyright', 'pubspdoc_specialspec'];
 

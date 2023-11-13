@@ -1,29 +1,6 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
 
-const CSS = `
-.fe-sender {
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
-.fe-sender .folder {
-  width: 49%;
-  height: 100%;
-  overflow: auto;
-  border: 1px solid #ccc;
-}
-.fe-sender .list {
-  width: 49%;
-  height: 100%;
-  overflow: auto;
-  border: 1px solid #ccc;
-}
-
-`;
-
 export default class FeSender extends HTMLElement {
   constructor() {
     super();
@@ -36,23 +13,24 @@ export default class FeSender extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
+    LINK.setAttribute('href', './index.css');
 
     const LINK2 = document.createElement('link');
     LINK2.setAttribute('rel', 'stylesheet');
     LINK2.setAttribute('href', './css/dynatree.css');
 
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
-
     const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-sender');
+    wrapper.classList.add('fe-sender', 'tree-list');
     wrapper.innerHTML = `
-      <div id="tree" class="folder"></div>
-      <ul id="list" class="list sortable-list"></ul>
+      <div class="tree">
+        <div id="tree"></div>
+      </div>
+      <div class="list>
+        <ul id="list"></ul>
+      </div>
     `;
 
-    this.shadowRoot.append(LINK, LINK2, STYLE, wrapper);
+    this.shadowRoot.append(LINK, LINK2, wrapper);
   }
 
   /**
@@ -68,7 +46,7 @@ export default class FeSender extends HTMLElement {
   renderTree() {
     let tree = this.shadowRoot.querySelector('#tree');
 
-    const params = {
+    const initParam = {
       acton: 'initOrgTree',
       baseDept: '000010100',
       startDept: '',
@@ -77,71 +55,98 @@ export default class FeSender extends HTMLElement {
       display: 'org',
       informalUser: false,
     };
-    const queryString = new URLSearchParams(params).toString();
-    fetch('/directory-web/org.do?' + queryString)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
 
-        const ROOT_FOLDER_ID = '00000000000000000001';
+    const ROOT_FOLDER_ID = '00000000000000000001';
+    $(tree)
+      .dynatree({
+        checkbox: true,
+        selectMode: 1,
+        classNames: { checkbox: 'dynatree-radio' },
+        clickFolderMode: 2,
+        fx: { height: 'toggle', duration: 200 },
+        /**
+         *
+         * @param {boolean} select 선택/해제 여부
+         * @param {*} dtnode 해당 노드
+         */
+        onSelect: (select, dtnode) => {
+          console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
+          if (select) {
+            // 결재선에 추가
+          } else {
+            // 결재선에서 제거
+          }
+        },
+        onClick: (dtnode, event) => {
+          console.debug('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
+          if (dtnode.getEventTargetType(event) === 'title') {
+            dtnode.toggleSelect();
+          }
+        },
+        onLazyRead: function (dtnode) {
+          console.debug('[dynatree] onLazyRead', dtnode);
+          const lazyParam = {
+            ...initParam,
+            ...{
+              acton: 'expandOrgTree',
+              deptID: dtnode.data.key,
+            },
+          };
 
-        $(tree)
-          .dynatree({
-            title: 'tree',
-            persist: false,
-            checkbox: true,
-            selectMode: 1,
-            classNames: { checkbox: 'dynatree-radio' },
-            clickFolderMode: 1,
-            key: ROOT_FOLDER_ID,
-            fx: { height: 'toggle', duration: 200 },
-            children: data,
-            /**
-             *
-             * @param {boolean} select 선택/해제 여부
-             * @param {*} dtnode 해당 노드
-             */
-            onSelect: (select, dtnode) => {
-              console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
-              if (select) {
-                // 결재선에 추가
-              } else {
-                // 결재선에서 제거
-              }
+          dtnode.appendAjax({
+            url: '/directory-web/org.do',
+            type: 'post',
+            data: lazyParam,
+            success: function (dtnode) {
+              console.debug('[dynatree] appendAjax', dtnode);
+              dtnode.visit((dtnode) => activeInController(dtnode));
             },
-            onClick: (dtnode, event) => {
-              console.log('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
+          });
+        },
+      })
+      .dynatree('getRoot')
+      .appendAjax({
+        url: '/directory-web/org.do',
+        type: 'post',
+        data: initParam,
+        success: function (dtnode) {
+          console.log('[dynatree] appendAjax', dtnode);
+          dtnode.visit((dtnode) => activeInController(dtnode));
 
-              if (dtnode.getEventTargetType(event) === 'title') {
-                dtnode.toggleSelect();
-              }
-            },
-            onLazyRead: function (dtnode) {
-              console.log('[dynatree] onLazyRead', dtnode.data.title, dtnode);
-              var params = {
-                acton: 'expandOrgTree',
-                deptID: dtnode.data.key,
-                notUseDept: '000000101',
-                checkbox: 'tree',
-                display: 'org',
-                informalUser: false,
-              };
-              dtnode.appendAjax({
-                url: '/directory-web/org.do',
-                type: 'post',
-                data: params,
-                success: function (dtnode) {
-                  console.log('[dynatree] appendAjax', dtnode.data.title, dtnode);
-                },
-              });
-            },
-          })
-          .dynatree('getRoot')
-          .tree.getNodeByKey(rInfo.user.deptID)
-          .activate();
+          dtnode.tree.getNodeByKey(rInfo.user.deptID).activate();
+
+          markDefaultInController(dtnode.tree.getNodeByKey(rInfo.user.deptID));
+        },
       });
   }
 }
 
 // Define the new element
 customElements.define('fe-sender', FeSender);
+
+/**
+ * 발송부서 아이콘 표시 및 비발송부서 선택 못하게 설정
+ * @param {*} dtnode
+ */
+function activeInController(dtnode) {
+  if (dtnode.data.inController === 'true') {
+    dtnode.data.addClass += ' ' + 'ui-dynatree-in-controller';
+    if (dtnode.isVisible()) {
+      dtnode.render();
+    }
+  } else {
+    dtnode.data.unselectable = true;
+  }
+}
+
+function markDefaultInController(dtnode) {
+  console.log('markDefaultInController', dtnode.data.title, dtnode);
+  if (dtnode.data.inController === 'true') {
+    dtnode.toggleSelect();
+    dtnode.activate();
+  } else {
+    if (dtnode.parent !== null) {
+      markDefaultInController(dtnode.parent);
+    }
+  }
+}

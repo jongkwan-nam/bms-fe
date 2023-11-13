@@ -1,0 +1,25 @@
+/*
+ * 왼쪽 조직도 트리, 오른쪽 선택된 목록 구조
+ */
+.tree-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+
+  .tree {
+    width: calc(35% - 0.5rem);
+    height: 100%;
+    overflow: auto;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+  }
+
+  .list {
+    width: calc(65% - 0.5rem);
+    height: 100%;
+    overflow: auto;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+  }
+}

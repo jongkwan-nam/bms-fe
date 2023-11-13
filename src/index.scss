@@ -1,10 +1,37 @@
-@import './style/root.scss';
-@import './css/common';
+@import "./css/root.scss";
+@import "./css/initiate.scss";
+@import "./css/modal.scss";
 
-html {
-  font-size: 16px;
-  font-family: 'Malgun Gothic';
-}
+// 문서정보
+@import "./components/FeApprovalType.scss";
+@import "./components/FeDocNumber.scss";
+@import "./components/FeEnforceType.scss";
+@import "./components/FeFlag.scss";
+@import "./components/FeFolder.scss";
+@import "./components/FeKeepPeriod.scss";
+@import "./components/FePageCnt.scss";
+@import "./components/FePublication.scss";
+@import "./components/FeSecurityLevel.scss";
+@import "./components/FeSpecialDoc.scss";
+@import "./components/FeSpecialList.scss";
+@import "./components/FeTitle.scss";
+@import "./components/FeViewRange.scss";
+@import "./components/FeViewRestriction.scss";
+
+// 결재경로
+@import "./components/FeFlow.scss";
+@import "./components/FeParticipant.scss";
+// 수신부서
+@import "./components/FeRecipient.scss";
+// 발송부서
+@import "./components/FeSender.scss";
+// 에디터
+@import "./components/FeEditor.scss";
+
+// 탭
+@import "./utils/TabUI.scss";
+// 트리,목록
+@import "./css/tree-list.scss";
 
 main {
   position: absolute;
@@ -19,30 +46,21 @@ main {
   }
 }
 
-fe-editor {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.title-wrap {
-  width: 100%;
-}
-
 body aside {
   & > div {
-    width: 800px;
-    height: 1000px;
+    width: 1020px;
+    height: 720px;
   }
 
   table {
     width: 100%;
-  }
-}
 
-fe-flow {
-  position: relative;
-  display: block;
-  height: 500px;
+    th {
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    td {
+      border-bottom: 1px solid var(--color-border);
+    }
+  }
 }

@@ -1,5 +1,3 @@
-const CSS = ``;
-
 /**
  *
  */
@@ -15,14 +13,11 @@ export default class FePageCnt extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
-
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
+    LINK.setAttribute('href', './index.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-pagecnt');
-    this.shadowRoot.append(LINK, STYLE, wrapper);
+    this.shadowRoot.append(LINK, wrapper);
 
     this.input = wrapper.appendChild(document.createElement('input'));
     this.input.type = 'number';

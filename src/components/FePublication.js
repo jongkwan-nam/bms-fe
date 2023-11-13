@@ -3,15 +3,6 @@ import * as StringUtils from '../utils/stringUtils';
 import * as ArrayUtils from '../utils/arrayUtils';
 import * as DateUtils from '../utils/dateUtils';
 
-const CSS = `
-.hidden-field {
-  display: none;
-}
-.hidden-field.open {
-  display: block;
-}
-`;
-
 const MaxLength_publicRestricReason = 10;
 const MaxLength_listPublicRestricReason = 10;
 
@@ -30,14 +21,11 @@ export default class FePublication extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
-
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
+    LINK.setAttribute('href', './index.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-publication');
-    this.shadowRoot.append(LINK, STYLE, wrapper);
+    this.shadowRoot.append(LINK, wrapper);
 
     let publicTypes = [
       ['pubtype_open', 'publicflag_public'],

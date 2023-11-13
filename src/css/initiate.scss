@@ -1,0 +1,41 @@
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  font-family: "Malgun Gothic";
+}
+
+[readonly] {
+  opacity: 0.4;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+li {
+  list-style: none;
+}
+
+input {
+  border: 0;
+  outline: none;
+}
+input[type="text"] {
+  border: 0;
+}
+
+select {
+  border: 0;
+  outline: none;
+}
+
+button {
+  border: 0;
+  background-color: #fff;
+  font-size: 1rem;
+}

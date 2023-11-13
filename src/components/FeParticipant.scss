@@ -1,0 +1,9 @@
+fe-participant {
+  position: relative;
+  display: block;
+}
+
+.fe-participant {
+  display: grid;
+  grid-template-columns: 70px 1fr 60px;
+}

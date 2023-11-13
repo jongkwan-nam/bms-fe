@@ -1,11 +1,7 @@
 /**
  * 탭 UI 처리
  *
- * <button role="tab" target="#studioActress" [active] ...>
- * <div role="tabpanel" id="studioActress" ...>
  */
-
-import './TabUI.scss';
 
 const tablistNodeList = document.querySelectorAll('[role="tablist"]');
 console.debug('tablistNodeList', tablistNodeList);

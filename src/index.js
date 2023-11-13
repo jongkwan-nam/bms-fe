@@ -1,5 +1,5 @@
 import './index.scss';
-import loadHox from './hox/loadHox';
+import loadHox from './biz/loadHox';
 import './components/FeEditor';
 import * as approvalBox from './biz/approvalBox';
 import './utils/TabUI';

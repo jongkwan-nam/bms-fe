@@ -1,10 +1,3 @@
-const CSS = `
-.fe-participant {
-  display: grid;
-  grid-template-columns: 70px 1fr 60px;
-}
-`;
-
 /**
  *
  */
@@ -18,14 +11,11 @@ export default class FeParticipant extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
-
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
+    LINK.setAttribute('href', './index.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-participant');
-    this.shadowRoot.append(LINK, STYLE, wrapper);
+    this.shadowRoot.append(LINK, wrapper);
   }
 
   /**

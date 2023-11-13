@@ -20,16 +20,18 @@
   </article>
 </main>
 <aside id="approvalBox" class="modal-container">
-  <div>
-    <div class="tab-group" role="tablist">
-      <button type="button" class="tab-button" role="tab" target="#docInfo" active>문서정보</button>
-      <button type="button" class="tab-button" role="tab" target="#approvalFlow">결재경로</button>
-      <button type="button" class="tab-button" role="tab" target="#recipientInfo">수신부서</button>
-      <button type="button" class="tab-button" role="tab" target="#senderInfo">발송부서</button>
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="tab-group" role="tablist">
+        <button type="button" class="tab-button" role="tab" target="#docInfo" active>문서정보</button>
+        <button type="button" class="tab-button" role="tab" target="#approvalFlow">결재경로</button>
+        <button type="button" class="tab-button" role="tab" target="#recipientInfo">수신부서</button>
+        <button type="button" class="tab-button" role="tab" target="#senderInfo">발송부서</button>
+      </div>
     </div>
-    <div>
+    <div class="modal-body">
       <div class="tab-content" role="tabpanel" id="docInfo">
-        <table border="1">
+        <table>
           <tr>
             <th>발송종류</th>
             <td><fe-enforcetype></fe-enforcetype></td>
@@ -98,7 +100,7 @@
         <fe-sender></fe-sender>
       </div>
     </div>
-    <div>
+    <div class="modal-footer">
       <button type="button" id="btnVerify">확인</button>
       <button type="button" id="btnCancel">취소</button>
     </div>

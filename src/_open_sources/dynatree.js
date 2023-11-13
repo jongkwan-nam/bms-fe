@@ -2477,10 +2477,10 @@ var DTNodeStatus_Ok = 0;
       // Convert a <UL>...</UL> list into children of the parent tree node.
       var self = this;
       /*
-TODO: better?
-		this.$lis = $("li:has(a[href])", this.element);
-		this.$tabs = this.$lis.map(function() { return $("a", this)[0]; });
- */
+      TODO: better?
+          this.$lis = $("li:has(a[href])", this.element);
+          this.$tabs = this.$lis.map(function() { return $("a", this)[0]; });
+      */
       $ulParent.find('>li').each(function () {
         var $li = $(this),
           $liSpan = $li.find('>span:first'),
@@ -2572,12 +2572,12 @@ TODO: better?
         //          console.log("Creating marker: %o", this.$dndMarker);
       }
       /*
-		if(hitMode === "start"){
-		}
-		if(hitMode === "stop"){
-//          sourceNode.removeClass("dynatree-drop-target");
-		}
-*/
+          if(hitMode === "start"){
+          }
+          if(hitMode === "stop"){
+      //          sourceNode.removeClass("dynatree-drop-target");
+          }
+      */
       if (hitMode === 'after' || hitMode === 'before' || hitMode === 'over') {
         //          $source && $source.addClass("dynatree-drag-source");
         //          $target.addClass("dynatree-drop-target");
@@ -2882,10 +2882,10 @@ TODO: better?
 
       var divTree = this.element.get(0);
       /*      // Clear container, in case it contained some 'waiting' or 'error' text
-		// for clients that don't support JS
-		if( opts.children || (opts.initAjax && opts.initAjax.url) || opts.initId )
-			$(divTree).empty();
-*/
+          // for clients that don't support JS
+          if( opts.children || (opts.initAjax && opts.initAjax.url) || opts.initId )
+            $(divTree).empty();
+      */
       // Create the DynaTree object
       this.tree = new DynaTree(this);
       this.tree._load();
@@ -2968,10 +2968,10 @@ TODO: better?
     },
 
     /* TODO: we could handle option changes during runtime here (maybe to re-render, ...)
-	setData: function(key, value) {
-		console.debug("dynatree.setData('" + key + "', '" + value + "')");
-	},
-*/
+      setData: function(key, value) {
+        console.debug("dynatree.setData('" + key + "', '" + value + "')");
+      },
+    */
     enable: function () {
       this.bind();
       // Call default disable(): remove -disabled from css:

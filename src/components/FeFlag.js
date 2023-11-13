@@ -8,8 +8,6 @@ const data = [
   { flag: 'apprflag_password', msgCode: 'cmsg_639' }, // 열람시 암호 확인
 ];
 
-const CSS = ``;
-
 /**
  *
  */
@@ -25,14 +23,11 @@ export default class FeFlag extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './css/common.css');
-
-    const STYLE = document.createElement('style');
-    STYLE.innerHTML = CSS;
+    LINK.setAttribute('href', './index.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-flag');
-    this.shadowRoot.append(LINK, STYLE, wrapper);
+    this.shadowRoot.append(LINK, wrapper);
 
     data.forEach((item) => {
       //
