@@ -23,9 +23,12 @@ export default class FeSender extends HTMLElement {
     wrapper.classList.add('fe-sender', 'tree-list');
     wrapper.innerHTML = `
       <div class="tree">
-        <div id="tree"></div>
+        <div class="search-input">
+          <input type="search" />
+        </div>
+        <div id="tree" class="folder"></div>
       </div>
-      <div class="list>
+      <div class="list">
         <ul id="list"></ul>
       </div>
     `;
@@ -56,13 +59,12 @@ export default class FeSender extends HTMLElement {
       informalUser: false,
     };
 
-    const ROOT_FOLDER_ID = '00000000000000000001';
     $(tree)
       .dynatree({
         checkbox: true,
         selectMode: 1,
         classNames: { checkbox: 'dynatree-radio' },
-        clickFolderMode: 2,
+        clickFolderMode: 1,
         fx: { height: 'toggle', duration: 200 },
         /**
          *
@@ -71,6 +73,7 @@ export default class FeSender extends HTMLElement {
          */
         onSelect: (select, dtnode) => {
           console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
+          this.selectSender(dtnode, select);
           if (select) {
             // 결재선에 추가
           } else {
@@ -119,6 +122,40 @@ export default class FeSender extends HTMLElement {
         },
       });
   }
+
+  selectSender(dtnode, select) {
+    let deptData = dtnode.data;
+    const LIST = this.shadowRoot.querySelector('#list');
+
+    // 기존 부서 제거
+    LIST.textContent = null;
+    this.hox.querySelector('examRequest exam examiner department ID').textContent = '';
+    this.hox.querySelector('examRequest exam examiner department name').textContent = '';
+
+    if (select) {
+      // 선택 부서 추가
+      const LI = LIST.appendChild(document.createElement('li'));
+      const DIV = LI.appendChild(document.createElement('div'));
+      DIV.classList.add('sender-bar');
+      const LABEL = DIV.appendChild(document.createElement('label'));
+      LABEL.innerHTML = deptData.title;
+      const BUTTON = DIV.appendChild(document.createElement('button'));
+      BUTTON.innerHTML = '&times;';
+      BUTTON.addEventListener('click', () => {
+        //
+        dtnode.toggleSelect();
+      });
+
+      // examRequest exam examiner participantID
+      // examRequest exam examiner position
+      // examRequest exam examiner ID
+      // examRequest exam examiner name
+      // examRequest exam examiner department ID
+      // examRequest exam examiner department name
+      this.hox.querySelector('examRequest exam examiner department ID').textContent = deptData.key;
+      this.hox.querySelector('examRequest exam examiner department name').textContent = deptData.title;
+    }
+  }
 }
 
 // Define the new element
@@ -130,7 +167,7 @@ customElements.define('fe-sender', FeSender);
  */
 function activeInController(dtnode) {
   if (dtnode.data.inController === 'true') {
-    dtnode.data.addClass += ' ' + 'ui-dynatree-in-controller';
+    dtnode.data.addClass = 'ui-dynatree-in-controller';
     if (dtnode.isVisible()) {
       dtnode.render();
     }

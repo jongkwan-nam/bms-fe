@@ -13,6 +13,7 @@ html {
   opacity: 0.4;
 }
 
+ol,
 ul {
   margin: 0;
   padding: 0;
@@ -25,17 +26,27 @@ input {
   border: 0;
   outline: none;
 }
-input[type="text"] {
-  border: 0;
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="date"] {
+  border-bottom: 1px solid var(--color-border);
 }
 
 select {
   border: 0;
+  border-bottom: 1px solid var(--color-border);
   outline: none;
 }
 
 button {
   border: 0;
   background-color: #fff;
+  cursor: pointer;
   font-size: 1rem;
+}
+
+p {
+  margin: 0;
+  padding: 0;
 }

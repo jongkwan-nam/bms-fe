@@ -6,4 +6,15 @@ fe-sender {
 
 .fe-sender {
   height: 100%;
+
+  .sender-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 8px 20px 7px 20px;
+    line-height: 26px;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
 }

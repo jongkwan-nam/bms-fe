@@ -28,7 +28,7 @@ export default class FeFlow extends HTMLElement {
     wrapper.classList.add('fe-flow', 'tree-list');
     wrapper.innerHTML = `
       <div class="tree">
-        <div id="tree"></div>
+        <div id="tree" class="folder"></div>
       </div>
       <div class="list">
         <ul id="list" class="sortable-list"></ul>

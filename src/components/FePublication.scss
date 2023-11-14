@@ -9,3 +9,21 @@ fe-publication {
 .hidden-field.open {
   display: block;
 }
+
+.sub-field {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+#publicationFlag5Detail {
+  padding-left: 1.5rem;
+}
+#openstartDetail {
+  padding-left: 1.5rem;
+}
+
+#listOpenDetail > div {
+  padding-left: 7rem;
+}

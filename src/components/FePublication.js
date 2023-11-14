@@ -27,13 +27,18 @@ export default class FePublication extends HTMLElement {
     wrapper.classList.add('fe-publication');
     this.shadowRoot.append(LINK, wrapper);
 
-    let publicTypes = [
+    const publicTypes = [
       ['pubtype_open', 'publicflag_public'],
       ['pubtype_partial', 'publicflag_partial'],
       ['pubtype_not', 'publicflag_private'],
     ];
+
+    const pubTypeWrap = wrapper.appendChild(document.createElement('div'));
+    pubTypeWrap.id = 'pubtypeField';
+
+    // 공개, 부분공개, 비공개
     for (let publicType of publicTypes) {
-      let input = wrapper.appendChild(document.createElement('input'));
+      let input = pubTypeWrap.appendChild(document.createElement('input'));
       input.type = 'radio';
       input.name = 'publictype';
       input.id = 'publictype_' + publicType[0];
@@ -60,12 +65,13 @@ export default class FePublication extends HTMLElement {
         this.dispatchEvent(new CustomEvent('change', { detail: { pubtype: e.target.value } }));
       });
 
-      let label = wrapper.appendChild(document.createElement('label'));
+      let label = pubTypeWrap.appendChild(document.createElement('label'));
       label.setAttribute('for', 'publictype_' + publicType[0]);
       label.innerHTML = GWWEBMessage[publicType[1]];
     }
-    // 정보공개 원문
-    let input = wrapper.appendChild(document.createElement('input'));
+
+    // 정보공개(원문)
+    let input = pubTypeWrap.appendChild(document.createElement('input'));
     input.type = 'checkbox';
     input.id = 'openBody';
     input.addEventListener('change', (e) => {
@@ -78,65 +84,75 @@ export default class FePublication extends HTMLElement {
 
       this.hox.querySelector('docInfo approvalFlag').textContent = flagArray.join(' ');
     });
-
-    let label = wrapper.appendChild(document.createElement('label'));
+    let label = pubTypeWrap.appendChild(document.createElement('label'));
     label.setAttribute('for', 'openBody');
     label.innerHTML = GWWEBMessage.cmsg_308;
 
-    let subWrap = wrapper.appendChild(document.createElement('div'));
+    // 비공개사유, 공개제한부분표시, 공개제한사유, 목록공개여부, 목록비공개사유
+    const subWrap = wrapper.appendChild(document.createElement('div'));
     subWrap.innerHTML = `
-      <fieldset id="privateField" class="hidden-field">
-        <legend>비공개사유</legend>
-        <ol>
-          ${data.publicationFlag
-            .map((publication) => {
-              let html = `<li>
-                <input type="checkbox" id="publicationFlag_${publication.no}" value="${publication.no}">
-                <label for="publicationFlag_${publication.no}" title="${publication.description}">${publication.no}호 ${publication.content}</label>`;
-              if (publication.no === 5) {
-                html += `
-                  <div id="publicationFlag5Detail" class="hidden-field">
-                    <p><input type="radio" name="openstart" id="openstart_0" value="0"><label for="openstart_0">감사, 감독, 검사, 시험 등</label></p>
-                    <p><input type="radio" name="openstart" id="openstart_1" value="1"><label for="openstart_1">의사결정 또는 내부검토</label></p>
-                    <p id="openstartDetail" class="hidden-field">
-                      <label for="openstartdate">공개제한종료일</label><input type="date" id="openstartdate">
-                      <input type="checkbox" id="openstartdate_permanent"/><label for="openstartdate_permanent">영구</label>
-                    </p>
-                  </div>
-                `;
-              }
-              html += '</li>';
-              return html;
-            })
-            .join('')}
-        </ol>
-        <div>
+      <div id="privateField" class="hidden-field">
+        <div class="sub-field">
+          <label>비공개사유</label>
+          <ol>
+            ${data.publicationFlag
+              .map((publication) => {
+                let html = `<li>
+                  <input type="checkbox" id="publicationFlag_${publication.no}" value="${publication.no}">
+                  <label for="publicationFlag_${publication.no}" title="${publication.description}">${publication.no}호 ${publication.content}</label>`;
+                if (publication.no === 5) {
+                  html += `
+                    <div id="publicationFlag5Detail" class="hidden-field">
+                      <p><input type="radio" name="openstart" id="openstart_0" value="0"><label for="openstart_0">감사, 감독, 검사, 시험 등</label></p>
+                      <p><input type="radio" name="openstart" id="openstart_1" value="1"><label for="openstart_1">의사결정 또는 내부검토</label></p>
+                      <p id="openstartDetail" class="hidden-field">
+                        <label for="openstartdate">공개제한종료일</label><input type="date" id="openstartdate">
+                        <input type="checkbox" id="openstartdate_permanent"/><label for="openstartdate_permanent">영구</label>
+                      </p>
+                    </div>
+                  `;
+                }
+                html += '</li>';
+                return html;
+              })
+              .join('')}
+          </ol>
+        </div>
+        <div class="sub-field">
           <label for="publicRestric">공개제한부분표시</label>
-          <input type="text" id="publicRestric" placeHolder="${GWWEBMessage.W1093}" />
+          <div>
+            <input type="text" id="publicRestric" placeHolder="${GWWEBMessage.W1093}" />
+          </div>
         </div>
-        <div>
+        <div class="sub-field">
           <label for="publicRestricReason">공개제한사유</label>
-          <input type="text" id="publicRestricReason" />
+          <div>
+            <input type="text" id="publicRestricReason" />
+          </div>
         </div>
-      </fieldset>
-      <fieldset id="listOpenField" class="hidden-field">
-        <legend>목록공개여부</legend>
-        <div>
-          <input type="radio" name="openlist" id="openlist_0" value="0"><label for="openlist_0">목록공개</label>
-          <input type="radio" name="openlist" id="openlist_1" value="1"><label for="openlist_1">목록비공개</label>
+      </div>
+      <div id="listOpenField" class="hidden-field">
+        <div class="sub-field">
+          <label>목록공개여부</label>
+          <div>
+            <div>
+              <input type="radio" name="openlist" id="openlist_0" value="0"><label for="openlist_0">목록공개</label>
+              <input type="radio" name="openlist" id="openlist_1" value="1"><label for="openlist_1">목록비공개</label>
+            </div>
+            <div id="listOpenDetail" class="hidden-field">
+              <div>
+              ${Array.from({ length: 8 })
+                .map((v, i) => `<input type="checkbox" id="listPublicationFlag_${i + 1}" value="${i + 1}"><label for="listPublicationFlag_${i + 1}">${i + 1}호</label>`)
+                .join('')}
+              </div>
+              <div>
+                <lebel for="listPublicRestricReason">목록비공개사유</lebel>
+                <input type="text" id="listPublicRestricReason" placeholder="목록비공개사유"/>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="listOpenDetail" class="hidden-field">
-          <p>
-          ${Array.from({ length: 8 })
-            .map((v, i) => `<input type="checkbox" id="listPublicationFlag_${i + 1}" value="${i + 1}"><label for="listPublicationFlag_${i + 1}">${i + 1}호</label>`)
-            .join('')}
-          </p>
-          <p>
-            <lebel for="listPublicRestricReason">공개제한사유</lebel>
-            <input type="text" id="listPublicRestricReason" placeholder="목록비공개사유"/>
-          </p>
-        </div>
-      </fieldset>
+      </div>
     `;
 
     // 비공개사유 이벤트
