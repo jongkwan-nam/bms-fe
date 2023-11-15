@@ -1,6 +1,6 @@
-let Client = require('ssh2-sftp-client');
-let fs = require('fs');
-let path = require('path');
+const Client = require('ssh2-sftp-client');
+const fs = require('fs');
+const path = require('path');
 
 class SFTPClient {
   constructor() {

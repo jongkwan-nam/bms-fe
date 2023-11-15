@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>결재정보</title>
+    <link rel="stylesheet" type="text/css" href="/bms/fe/approvalBox.css" />
+    <script defer type="text/javascript" src="/bms/fe/approvalBox.js"></script>
+    <script type="text/javascript">
+      var GWWEBMessage = opener.GWWEBMessage;
+      var doccfg = opener.doccfg;
+      var rInfo = opener.rInfo;
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <div class="tab-group" role="tablist">
+        <button type="button" class="tab-button" role="tab" target="#docInfo" active>문서정보</button>
+        <button type="button" class="tab-button" role="tab" target="#flowInfo">결재경로</button>
+        <button type="button" class="tab-button" role="tab" target="#recipientInfo">수신부서</button>
+        <button type="button" class="tab-button" role="tab" target="#senderInfo">발송부서</button>
+      </div>
+    </div>
+    <div class="body">
+      <div class="tab-content" role="tabpanel" id="docInfo">
+        <fe-docinfo></fe-docinfo>
+      </div>
+      <div class="tab-content" role="tabpanel" id="flowInfo">
+        <fe-flow></fe-flow>
+      </div>
+      <div class="tab-content" role="tabpanel" id="recipientInfo">
+        <fe-recipient></fe-recipient>
+      </div>
+      <div class="tab-content" role="tabpanel" id="senderInfo">
+        <fe-sender></fe-sender>
+      </div>
+    </div>
+    <div class="footer">
+      <button type="button" id="btnVerify">확인</button>
+      <button type="button" id="btnCancel">취소</button>
+    </div>
+  </body>
+</html>

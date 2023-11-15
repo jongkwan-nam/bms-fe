@@ -1,7 +1,7 @@
 import data from './FePublication.json';
-import * as StringUtils from '../utils/stringUtils';
-import * as ArrayUtils from '../utils/arrayUtils';
-import * as DateUtils from '../utils/dateUtils';
+import * as StringUtils from '../../utils/stringUtils';
+import * as ArrayUtils from '../../utils/arrayUtils';
+import * as DateUtils from '../../utils/dateUtils';
 
 const MaxLength_publicRestricReason = 10;
 const MaxLength_listPublicRestricReason = 10;
@@ -12,16 +12,16 @@ const MaxLength_listPublicRestricReason = 10;
 export default class FePublication extends HTMLElement {
   constructor() {
     super();
-    console.log('FePublication init');
+    console.debug('FePublication init');
   }
 
   connectedCallback() {
-    console.log('FePublication connected');
+    console.debug('FePublication connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-publication');

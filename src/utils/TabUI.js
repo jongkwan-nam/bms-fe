@@ -3,13 +3,11 @@
  *
  */
 
-const tablistNodeList = document.querySelectorAll('[role="tablist"]');
-console.debug('tablistNodeList', tablistNodeList);
-tablistNodeList.forEach((group) => {
+document.querySelectorAll('[role="tablist"]').forEach((tablist) => {
   //
-  const tabNodeList = group.querySelectorAll('[role="tab"]');
-  console.debug('tabNodeList', tabNodeList);
-  tabNodeList.forEach((tab) => {
+  const tabList = tablist.querySelectorAll('[role="tab"]');
+  console.debug('tabNodeList', tabList);
+  tabList.forEach((tab) => {
     //
     const target = tab.getAttribute('target');
     const active = tab.hasAttribute('active');
@@ -17,28 +15,27 @@ tablistNodeList.forEach((group) => {
     console.debug('tab', tab, targetPanel, active);
 
     if (active) {
-      targetPanel.setAttribute('active', true);
-    } else {
-      targetPanel.removeAttribute('active');
+      activateTab(tab, tabList);
     }
 
     tab.addEventListener('click', () => {
-      activateTab(tab, tabNodeList);
+      activateTab(tab, tabList);
     });
   });
 });
 
-function activateTab(checkedTab, tabNodeList) {
-  console.debug('activateTab args', checkedTab, tabNodeList);
-  tabNodeList.forEach((tab) => {
+function activateTab(selectedTab, tabList) {
+  console.log('activateTab', selectedTab);
+  tabList.forEach((tab) => {
     //
     const target = tab.getAttribute('target');
     const targetPanel = document.querySelector(target);
-    console.debug('activateTab', checkedTab, tab);
+    console.debug('tab', selectedTab === tab, tab, targetPanel);
 
-    if (tab === checkedTab) {
+    if (tab === selectedTab) {
       tab.setAttribute('active', true);
       targetPanel.setAttribute('active', true);
+      targetPanel.dispatchEvent(new Event('active'));
     } else {
       tab.removeAttribute('active');
       targetPanel.removeAttribute('active');

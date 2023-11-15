@@ -4,16 +4,16 @@
 export default class FeSecurityLevel extends HTMLElement {
   constructor() {
     super();
-    console.log('FeSecurityLevel init');
+    console.debug('FeSecurityLevel init');
   }
 
   connectedCallback() {
-    console.log('FeSecurityLevel connected');
+    console.debug('FeSecurityLevel connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-securitylevel');

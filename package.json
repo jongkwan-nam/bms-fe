@@ -6,7 +6,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "webpack && node ./uploadServer.js",
+    "deploy": "webpack && node ./deployServer.js",
+    "build": "webpack",
     "watch": "webpack -w"
   },
   "devDependencies": {

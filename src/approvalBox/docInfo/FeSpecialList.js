@@ -4,16 +4,16 @@
 export default class FeSpecialList extends HTMLElement {
   constructor() {
     super();
-    console.log('FeSpecialList init');
+    console.debug('FeSpecialList init');
   }
 
   connectedCallback() {
-    console.log('FeSpecialList connected');
+    console.debug('FeSpecialList connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-speciallist');

@@ -1,0 +1,21 @@
+@import "./css/root.scss";
+@import "./css/initiate.scss";
+@import "./css/modal.scss";
+
+// 에디터
+@import "./main/FeEditor.scss";
+
+main {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  display: grid;
+  grid-template-rows: 60px 1fr 100px;
+
+  .editor-wrap {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    width: 100%;
+  }
+}

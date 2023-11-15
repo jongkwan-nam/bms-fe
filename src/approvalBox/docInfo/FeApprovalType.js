@@ -1,16 +1,16 @@
 export default class FeApprovalType extends HTMLElement {
   constructor() {
     super();
-    console.log('FeApprovalType init');
+    console.debug('FeApprovalType init');
   }
 
   connectedCallback() {
-    console.log('FeApprovalType connected');
+    console.debug('FeApprovalType connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-approvaltype');

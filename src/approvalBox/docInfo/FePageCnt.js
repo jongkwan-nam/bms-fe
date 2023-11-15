@@ -4,16 +4,16 @@
 export default class FePageCnt extends HTMLElement {
   constructor() {
     super();
-    console.log('FePageCnt init');
+    console.debug('FePageCnt init');
   }
 
   connectedCallback() {
-    console.log('FePageCnt connected');
+    console.debug('FePageCnt connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-pagecnt');

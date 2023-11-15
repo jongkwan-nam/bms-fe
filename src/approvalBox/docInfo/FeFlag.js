@@ -1,5 +1,5 @@
-import * as StringUtils from '../utils/stringUtils';
-import * as ArrayUtils from '../utils/arrayUtils';
+import * as StringUtils from '../../utils/stringUtils';
+import * as ArrayUtils from '../../utils/arrayUtils';
 
 const data = [
   { flag: 'apprflag_temporary_work', msgCode: 'cmsg_2748' }, // 비정규직 열람
@@ -14,16 +14,16 @@ const data = [
 export default class FeFlag extends HTMLElement {
   constructor() {
     super();
-    console.log('FeFlag init');
+    console.debug('FeFlag init');
   }
 
   connectedCallback() {
-    console.log('FeFlag connected');
+    console.debug('FeFlag connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-flag');

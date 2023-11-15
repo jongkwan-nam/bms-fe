@@ -4,7 +4,7 @@ export default async (trid) => {
 
   let parser = new DOMParser();
   let xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-  console.log(xmlDoc);
+  console.debug(xmlDoc);
 
   // hox 정상인지 체크
   if (xmlDoc.querySelector('docInfo title') === null) {

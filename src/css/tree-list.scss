@@ -11,15 +11,13 @@
     width: calc(35% - 0.5rem);
     height: 100%;
     overflow: auto;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+    background-color: #fff;
   }
 
   .list {
     width: calc(65% - 0.5rem);
     height: 100%;
     overflow: auto;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+    background-color: #fff;
   }
 }

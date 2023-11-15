@@ -1,23 +1,23 @@
 import $ from 'jquery';
-import '../_open_sources/dynatree';
-import feStorage from '../utils/FeStorage';
-import * as DateUtils from '../utils/dateUtils';
+import '../../_open_sources/dynatree';
+import feStorage from '../../utils/FeStorage';
+import * as DateUtils from '../../utils/dateUtils';
 
 const ROOT_FOLDER_ID = '00000000000000000001';
 
 export default class FeFolder extends HTMLElement {
   constructor() {
     super();
-    console.log('FeFolder init');
+    console.debug('FeFolder init');
   }
 
   connectedCallback() {
-    console.log('FeFolder connected');
+    console.debug('FeFolder connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const LINK2 = document.createElement('link');
     LINK2.setAttribute('rel', 'stylesheet');

@@ -6,7 +6,8 @@ module.exports = {
   /* mode: development, production, none */
   mode: 'production',
   entry: {
-    index: './src/index.js',
+    main: './src/main.js',
+    approvalBox: './src/approvalBox.js',
   },
   devtool: 'source-map',
   output: {

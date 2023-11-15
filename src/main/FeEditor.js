@@ -15,7 +15,7 @@ export default class FeEditor extends HTMLElement {
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './main.css');
 
     this.shadowRoot.append(LINK);
   }
@@ -33,14 +33,14 @@ export default class FeEditor extends HTMLElement {
 
     console.time('hwpctrl_init');
     const wrapper = document.createElement('iframe');
+    this.shadowRoot.append(wrapper);
+
     wrapper.classList.add('fe-editor');
     wrapper.src = './hwpctrlframe.html?id=' + this.id;
     wrapper.onload = () => {
       console.log('hwpctrlframe loaded');
       this.active = true;
     };
-
-    this.shadowRoot.append(wrapper);
   }
 
   /**

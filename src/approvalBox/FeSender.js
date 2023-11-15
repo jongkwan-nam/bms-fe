@@ -2,18 +2,20 @@ import $ from 'jquery';
 import '../_open_sources/dynatree';
 
 export default class FeSender extends HTMLElement {
+  active = false;
+
   constructor() {
     super();
-    console.log('FeSender init');
+    console.debug('FeSender init');
   }
 
   connectedCallback() {
-    console.log('FeSender connected');
+    console.debug('FeSender connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const LINK2 = document.createElement('link');
     LINK2.setAttribute('rel', 'stylesheet');
@@ -41,9 +43,14 @@ export default class FeSender extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    if (this.active) {
+      return;
+    }
 
+    this.hox = hox;
     this.renderTree();
+
+    this.active = true;
   }
 
   renderTree() {

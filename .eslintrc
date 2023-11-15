@@ -25,8 +25,20 @@
     "browser": true,
     // node.js에서 console과 같은 전역변수 사용 여부
     "node": true,
-    "es6": true,
+    "es6": true
+  },
+  "globals": {
+    "rInfo": true,
     "GWWEBMessage": true
+  },
+  "rules": {
+    "no-unused-vars": 0,
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ]
   },
   // ESLint가 무시할 디렉토리, 파일을 설정
   "ignorePatterns": [

@@ -4,16 +4,16 @@
 export default class FeKeepPeriod extends HTMLElement {
   constructor() {
     super();
-    console.log('FeKeepPeriod init');
+    console.debug('FeKeepPeriod init');
   }
 
   connectedCallback() {
-    console.log('FeKeepPeriod connected');
+    console.debug('FeKeepPeriod connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-keepperiod');

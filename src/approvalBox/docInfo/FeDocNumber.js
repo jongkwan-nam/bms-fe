@@ -4,16 +4,16 @@
 export default class FeDocNumber extends HTMLElement {
   constructor() {
     super();
-    console.log('FeDocNumber init');
+    console.debug('FeDocNumber init');
   }
 
   connectedCallback() {
-    console.log('FeDocNumber connected');
+    console.debug('FeDocNumber connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-docnumber');

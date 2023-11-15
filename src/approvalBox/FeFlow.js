@@ -1,26 +1,33 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
+import FeParticipant from './flowInfo/FeParticipant';
 
-export default class FeRecipient extends HTMLElement {
+/**
+ * 결재선 화면
+ * 조직도 트리와 선택된 participant 관리
+ */
+export default class FeFlow extends HTMLElement {
+  active = false;
+
   constructor() {
     super();
-    console.log('FeRecipient init');
+    console.debug('FeFlow init');
   }
 
   connectedCallback() {
-    console.log('FeRecipient connected');
+    console.debug('FeFlow connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const LINK2 = document.createElement('link');
     LINK2.setAttribute('rel', 'stylesheet');
     LINK2.setAttribute('href', './css/dynatree.css');
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-recipient', 'tree-list');
+    wrapper.classList.add('fe-flow', 'tree-list');
     wrapper.innerHTML = `
       <div class="tree">
         <div id="tree" class="folder"></div>
@@ -38,9 +45,15 @@ export default class FeRecipient extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    if (this.active) {
+      return;
+    }
 
+    this.hox = hox;
     this.renderTree();
+    this.renderFlow();
+
+    this.active = true;
   }
 
   renderTree() {
@@ -114,11 +127,56 @@ export default class FeRecipient extends HTMLElement {
             },
           })
           .dynatree('getRoot')
-          .tree.getNodeByKey(rInfo.user.deptID)
+          .tree.getNodeByKey(rInfo.user.ID)
           .activate();
       });
+  }
+
+  renderFlow() {
+    //
+
+    this.hox.querySelectorAll('approvalFlow participant').forEach((participant, idx) => {
+      console.log('[FeFlow]', idx, participant);
+      //
+
+      const item = document.createElement('li');
+      item.classList.add('item');
+      item.setAttribute('draggable', true);
+
+      this.shadowRoot.querySelector('#list').prepend(item);
+
+      let feParticipant = item.appendChild(new FeParticipant());
+      feParticipant.set(participant);
+    });
+
+    const sortableList = this.shadowRoot.querySelector('.sortable-list');
+    const items = sortableList.querySelectorAll('.item');
+
+    items.forEach((item) => {
+      item.addEventListener('dragstart', () => {
+        // Adding dragging class to item after a delay
+        setTimeout(() => item.classList.add('dragging'), 0);
+      });
+      // Removing dragging class from item on dragend event
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    });
+    const initSortableList = (e) => {
+      e.preventDefault();
+      const draggingItem = this.shadowRoot.querySelector('.dragging');
+      // Getting all items except currently dragging and making array of them
+      let siblings = [...sortableList.querySelectorAll('.item:not(.dragging)')];
+      // Finding the sibling after which the dragging item should be placed
+      let nextSibling = siblings.find((sibling) => {
+        console.log(sibling, e.clientY, sibling.offsetTop, sibling.offsetHeight);
+        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+      });
+      // Inserting the dragging item before the found sibling
+      sortableList.insertBefore(draggingItem, nextSibling);
+    };
+    sortableList.addEventListener('dragover', initSortableList);
+    sortableList.addEventListener('dragenter', (e) => e.preventDefault());
   }
 }
 
 // Define the new element
-customElements.define('fe-recipient', FeRecipient);
+customElements.define('fe-flow', FeFlow);

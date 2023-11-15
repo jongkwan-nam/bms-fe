@@ -4,16 +4,16 @@
 export default class FeViewRestriction extends HTMLElement {
   constructor() {
     super();
-    console.log('FeViewRestriction init');
+    console.debug('FeViewRestriction init');
   }
 
   connectedCallback() {
-    console.log('FeViewRestriction connected');
+    console.debug('FeViewRestriction connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
     LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './index.css');
+    LINK.setAttribute('href', './approvalBox.css');
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-viewrestriction');
@@ -22,8 +22,8 @@ export default class FeViewRestriction extends HTMLElement {
     let viewRestrictions = [
       ['none', 'cmsg_292'],
       ['beforeComplete', 'cmsg_2147'],
-      ['expireDate', 'cmsg_2148'],
       ['permanent', 'cmsg_1804'],
+      ['expireDate', 'cmsg_2148'],
     ];
     for (let viewRestriction of viewRestrictions) {
       let input = wrapper.appendChild(document.createElement('input'));
