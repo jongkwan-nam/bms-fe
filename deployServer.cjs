@@ -61,15 +61,6 @@ class SFTPClient {
       console.error('Downloading failed:', err);
     }
   }
-
-  async deleteFile(remoteFile) {
-    console.log(`Deleting ${remoteFile}`);
-    try {
-      await this.client.delete(remoteFile);
-    } catch (err) {
-      console.error('Deleting failed:', err);
-    }
-  }
 }
 
 const getAllFiles = (dir) =>
@@ -79,36 +70,26 @@ const getAllFiles = (dir) =>
     return isDirectory ? [...files, ...getAllFiles(name)] : [...files, name];
   }, []);
 
+const ftpServerUrl = 'sftp://hso10:handy21@123.212.190.176';
+const bmsFePath = './webapps/bms/fe';
+const localDistName = 'dist';
+
 (async () => {
-  const parsedURL = new URL('sftp://hso10:handy21@123.212.190.176');
+  const parsedURL = new URL(ftpServerUrl);
   const port = parsedURL.port || 22;
   const { host, username, password } = parsedURL;
 
-  //* Open the connection
   const client = new SFTPClient();
   await client.connect({ host, port, username, password });
 
-  //* List working directory files
-  // await client.listFiles('.');
-
-  const files = getAllFiles('./dist');
+  const files = getAllFiles('./' + localDistName);
   for (let file of files) {
-    let serverPath = './webapps/bms/fe' + file.replace('dist', '').replace(/\\/gi, '/');
-    // console.log(file, serverPath);
+    let serverPath = bmsFePath + file.replace(localDistName, '').replace(/\\/gi, '/');
 
     await client.uploadFile(file, serverPath);
   }
+  console.log(`Uploaded ${files.length} files`);
 
-  //* Upload local file to remote file
-  // await client.uploadFile('./local.txt', './remote.txt');
-
-  //* Download remote file to local file
-  // await client.downloadFile('./remote.txt', './download.txt');
-
-  //* Delete remote file
-  // await client.deleteFile('./remote.txt');
-
-  //* Close the connection
   await client.disconnect();
 
   console.log('Completed', new Date());

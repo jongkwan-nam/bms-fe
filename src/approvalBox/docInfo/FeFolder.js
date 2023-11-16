@@ -135,7 +135,7 @@ export default class FeFolder extends HTMLElement {
 
               const deptData = dtnode.data;
               let title = deptData.title.replace(/\\/g, '');
-              let tooltip = deptData.tooltip?.replace(/\"/g, '&quot;').replace(/\\/g, '');
+              let tooltip = deptData.tooltip?.replace(/"/g, '&quot;').replace(/\\/g, '');
               let dynatreeTitle = '';
               if (deptData.noLink) {
                 dynatreeTitle = `

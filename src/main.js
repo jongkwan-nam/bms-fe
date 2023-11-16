@@ -1,28 +1,67 @@
 import './main.scss';
 import loadHox from './main/loadHox';
+import reflectHoxInBody from './main/reflectHoxInBody';
 import './main/FeEditor';
-import './main/menu';
 
-let trid = rInfo.hoxFileTRID; // '2f32303233313130362f31302f35332f313030363464623639343330383539623762383866663632316464613861396433363535366536343134363435633766316336336538356362376333616233306634646333';
-
-let docUrl = 'https://fe.handysoft.co.kr/bms/com/hs/gwweb/appr/downloadFormFile.act?K=00J2s33yr3&formID=JHOMS232880000001000&USERID=001000001&WORDTYPE=5&_NOARG=1698896160838';
+let trid = rInfo.hoxFileTRID;
+let docUrl = `https://fe.handysoft.co.kr/bms/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
 
 let hox;
 
 let feEditor1 = document.querySelector('fe-editor#editor1');
 let feEditor2 = document.querySelector('fe-editor#editor2');
 
-loadHox(trid).then((doc) => {
-  hox = doc;
-  console.log(hox);
+console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
+/*
+ *            rInfo.appType   rInfo.cltType   rInfo.applID
+ * 기안       sancgian        draft
+ * 결재       sanckyul        kyul
+ * 보기       sancview        view
+ * 접수       sancgian        accept
+ * 발송의뢰   ctrlmana        request
+ * 발송처리   ctrlmana        control
+ */
 
-  feEditor1.set(hox, docUrl);
+(async () => {
+  //
+  hox = await loadHox(trid);
+
+  await feEditor1.init();
+  await feEditor1.open(docUrl);
+
+  reflectHoxInBody(hox, feEditor1);
+})().catch((error) => {
+  console.error(error);
+  alert(JSON.stringify(error));
 });
 
 window.hox = () => {
   return hox;
 };
 
+window.receiveHox = (modifiedHox) => {
+  // modifiedHox 검증
+
+  hox = modifiedHox;
+
+  reflectHoxInBody(hox, feEditor1);
+
+  return {
+    ok: true,
+  };
+};
+
 window.hoxToText = () => {
   return new XMLSerializer().serializeToString(hox);
 };
+
+/* 상단 메뉴 버튼 --------------------------------------------------------- */
+
+// 결재정보 팝업 호출
+document.getElementById('btnApprovalBox').addEventListener('click', (e) => {
+  console.log('approvalBox show');
+
+  hox.querySelector('docInfo title').textContent = feEditor1.title;
+
+  window.open('./approvalBox.html', 'approvalBox', 'width=1020px,height=720px');
+});

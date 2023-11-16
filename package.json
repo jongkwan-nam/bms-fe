@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "deploy": "webpack && node ./deployServer.js",
+    "deploy": "webpack && node ./deployServer.cjs",
     "build": "webpack",
     "watch": "webpack -w"
   },

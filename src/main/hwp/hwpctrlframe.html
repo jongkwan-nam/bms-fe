@@ -28,35 +28,30 @@
 
     <script>
       // Set onreisze event
-      var resize = function (e) {
-        var windowWidth = document.body.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        var windowHeight = document.body.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-        var hwpctrl_panel = document.getElementById('hwpctrl');
+      const resize = (e) => {
+        let windowWidth = document.body.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        let windowHeight = document.body.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        let hwpctrl_panel = document.getElementById('hwpctrl');
         hwpctrl_panel.style.width = parseInt(windowWidth) + 'px';
         hwpctrl_panel.style.height = parseInt(windowHeight) + 'px';
 
-        var hwpctrl_frame = document.getElementById('hwpctrl_frame');
-        if (hwpctrl_frame != null) {
+        let hwpctrl_frame = document.getElementById('hwpctrl_frame');
+        if (hwpctrl_frame !== null) {
           hwpctrl_frame.width = parseInt(hwpctrl_panel.style.width);
           hwpctrl_frame.style.width = hwpctrl_panel.style.width;
           hwpctrl_frame.height = parseInt(hwpctrl_panel.style.height);
           hwpctrl_frame.style.height = hwpctrl_panel.style.height;
         }
       };
-
       window.onresize = resize;
 
-      let id = getUrlParameter('id');
-      console.log('BuildWebHwpCtrl id', id);
-
       // Initialize WEBHWP
-      var HwpCtrl = BuildWebHwpCtrl('hwpctrl', 'https://fe.handysoft.co.kr/webhwpctrl/', function () {
-        console.log('BuildWebHwpCtrl completed');
-        // window.parent.hanCreateEditor('webhwpctrl loaded', '*');
-        let myParentComponent = window.parent.document.querySelector('#' + id);
-        console.log('BuildWebHwpCtrl myParentComponent', myParentComponent);
+      const hwpCtrl = BuildWebHwpCtrl('hwpctrl', 'https://fe.handysoft.co.kr/webhwpctrl/', () => {
+        const id = getUrlParameter('id');
+        const parentComponent = window.parent.document.querySelector('#' + id);
+        console.log(`BuildWebHwpCtrl completed. ${id} parentComponent`, parentComponent);
 
-        myParentComponent.setHwpCtrl(HwpCtrl);
+        parentComponent.buildWebHwpCtrlCallback(hwpCtrl);
 
         resize();
       });

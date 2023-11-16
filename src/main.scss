@@ -1,6 +1,7 @@
 @import "./css/root.scss";
 @import "./css/initiate.scss";
 @import "./css/modal.scss";
+@import "./css/button.scss";
 
 // 에디터
 @import "./main/FeEditor.scss";
@@ -12,6 +13,10 @@ main {
 
   display: grid;
   grid-template-rows: 60px 1fr 100px;
+
+  .menu-wrap {
+    padding: 20px 30px 12px;
+  }
 
   .editor-wrap {
     border-top: 1px solid #ccc;

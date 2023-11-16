@@ -29,7 +29,8 @@
   },
   "globals": {
     "rInfo": true,
-    "GWWEBMessage": true
+    "GWWEBMessage": true,
+    "szKEY": true
   },
   "rules": {
     "no-unused-vars": 0,

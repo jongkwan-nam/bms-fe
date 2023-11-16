@@ -6,7 +6,8 @@
 
 <main>
   <header class="menu-wrap">
-    <button type="button" id="btnApprovalBox">결재정보</button>
+    <button type="button" id="btnDraft" class="btn btn-primary">결재올림</button>
+    <button type="button" id="btnApprovalBox" class="btn">결재정보</button>
   </header>
   <article class="editor-wrap">
     <fe-editor id="editor1"></fe-editor>

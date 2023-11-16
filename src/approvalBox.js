@@ -51,9 +51,13 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
   // hox 검증
 
   // opener에 hox 전달
-
-  // 닫기
-  close();
+  let ret = opener.receiveHox(hox);
+  if (ret.ok) {
+    // 닫기
+    close();
+  } else {
+    alert(ret.message);
+  }
 });
 
 document.getElementById('btnCancel').addEventListener('click', (e) => {

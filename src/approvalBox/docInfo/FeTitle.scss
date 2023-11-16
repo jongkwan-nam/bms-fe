@@ -3,10 +3,8 @@ fe-title {
   display: block;
 }
 
-div.title {
-  position: relative;
-  text-align: center;
-}
-div.title input {
-  display: block;
+.fe-title {
+  input {
+    width: 100%;
+  }
 }
