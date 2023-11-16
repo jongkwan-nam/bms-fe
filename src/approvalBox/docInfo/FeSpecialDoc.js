@@ -1,4 +1,4 @@
-import * as stringUtils from '../../utils/stringUtils';
+import { getFlagList, setText } from '../../utils/hoxUtils';
 
 /**
  *
@@ -57,7 +57,7 @@ export default class FeSpecialDoc extends HTMLElement {
           .map((input) => input.value)
           .join(' ');
 
-        this.hox.querySelector('docInfo publication specialDoc').textContent = pubspdocValue;
+        setText(this.hox, 'docInfo publication specialDoc', pubspdocValue);
       });
 
       let label = wrapper.appendChild(document.createElement('label'));
@@ -74,14 +74,12 @@ export default class FeSpecialDoc extends HTMLElement {
     this.hox = hox;
 
     // hox값 화면 표시
-    let specialDoc = this.hox.querySelector('docInfo publication specialDoc').textContent;
-    specialDoc
-      .split(' ')
-      .filter((flag) => stringUtils.isNotBlank(flag))
-      .forEach((flag) => {
-        //
-        this.shadowRoot.querySelector('#' + flag).checked = true;
-      });
+    console.log('docInfo publication specialDoc', getFlagList(this.hox, 'docInfo publication specialDoc'));
+    getFlagList(this.hox, 'docInfo publication specialDoc').forEach((flag) => {
+      console.log('specialDoc', flag);
+      //
+      this.shadowRoot.querySelector('#' + flag).checked = true;
+    });
   }
 }
 

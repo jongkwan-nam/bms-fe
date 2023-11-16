@@ -1,3 +1,5 @@
+import { getText, setText } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -31,7 +33,7 @@ export default class FeSecurityLevel extends HTMLElement {
       console.log('FeSecurityLevel change', e.target.value, level);
       e.target.value = level;
 
-      this.hox.querySelector('docInfo securityLevel').textContent = level;
+      setText(this.hox, 'docInfo securityLevel', level);
 
       this.dispatchEvent(new CustomEvent('change', { detail: { securityLevel: level } }));
     });
@@ -44,7 +46,7 @@ export default class FeSecurityLevel extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    this.input.value = hox.querySelector('docInfo securityLevel').textContent;
+    this.input.value = getText(hox, 'docInfo securityLevel');
   }
 }
 

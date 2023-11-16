@@ -1,3 +1,5 @@
+import { getText, setText } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -24,8 +26,8 @@ export default class FePageCnt extends HTMLElement {
     this.input.min = 0;
     this.input.addEventListener('change', (e) => {
       console.log('FePageCnt change', e.target.value);
-      //
-      this.hox.querySelector('docInfo pageCnt').textContent = e.target.value;
+
+      setText(this.hox, 'docInfo pageCnt', e.target.value);
     });
   }
 
@@ -36,7 +38,7 @@ export default class FePageCnt extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    this.input.value = this.hox.querySelector('docInfo pageCnt').textContent;
+    this.input.value = getText(this.hox, 'docInfo pageCnt');
   }
 }
 

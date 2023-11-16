@@ -1,7 +1,8 @@
-import data from './FePublication.json';
-import * as StringUtils from '../../utils/stringUtils';
 import * as ArrayUtils from '../../utils/arrayUtils';
 import * as DateUtils from '../../utils/dateUtils';
+import { addNode, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
+import * as StringUtils from '../../utils/stringUtils';
+import data from './FePublication.json';
 
 const MaxLength_publicRestricReason = 10;
 const MaxLength_listPublicRestricReason = 10;
@@ -46,7 +47,7 @@ export default class FePublication extends HTMLElement {
       input.addEventListener('change', (e) => {
         console.log('FePublication change', e.target.value);
         //
-        this.hox.querySelector('docInfo publication').setAttribute('type', e.target.value);
+        setAttr(this.hox, 'docInfo publication', 'type', e.target.value);
         // 공개여부 값에 따라, UI 조정. open/close 등
         if (e.target.value === 'pubtype_open') {
           // 공개
@@ -77,12 +78,7 @@ export default class FePublication extends HTMLElement {
     input.addEventListener('change', (e) => {
       console.log(e.target.id, 'change', e.target.checked);
       // hox 반영
-      let approvalFlag = this.hox.querySelector('docInfo approvalFlag').textContent;
-      let flagArray = approvalFlag.split(' ').filter((flag) => StringUtils.isNotBlank(flag));
-
-      ArrayUtils.toggle(flagArray, 'apprflag_open_body', e.target.checked);
-
-      this.hox.querySelector('docInfo approvalFlag').textContent = flagArray.join(' ');
+      toggleFlag(this.hox, 'docInfo approvalFlag', 'apprflag_open_body', e.target.checked);
     });
     let label = pubTypeWrap.appendChild(document.createElement('label'));
     label.setAttribute('for', 'openBody');
@@ -163,7 +159,8 @@ export default class FePublication extends HTMLElement {
           .filter((i) => i.checked)
           .map((i) => i.value)
           .join(' ');
-        this.hox.querySelector('docInfo publication publicationFlag').textContent = val;
+
+        setText(this.hox, 'docInfo publication publicationFlag', val);
 
         // 5일때, 상세 표시
         if (e.target.value === '5') {
@@ -180,7 +177,7 @@ export default class FePublication extends HTMLElement {
         // 시, 공개제한종료일 초기값 설정
         if (e.target.value === '0') {
           // '감사,감독,검사, 시험 등' 선택
-          this.hox.querySelector('docInfo publication openStartDate').textContent = '1970-01-01T09:00:00';
+          setText(this.hox, 'docInfo publication openStartDate', '1970-01-01T09:00:00');
         } else if (e.target.value === '1') {
           // '의사결정 또는 내부검토' 선택
           // 공개제한종료일 초기값
@@ -200,7 +197,7 @@ export default class FePublication extends HTMLElement {
       console.log('#openstartdate change', e.target.value);
       this.openstartdateValue = e.target.value;
       // hox 적용
-      this.hox.querySelector('docInfo publication openStartDate').textContent = e.target.value + 'T00:00:00';
+      setText(this.hox, 'docInfo publication openStartDate', e.target.value + 'T00:00:00');
     });
 
     // 공개제한종료일 영구 checkbox 이벤트
@@ -213,7 +210,7 @@ export default class FePublication extends HTMLElement {
         this.openstartdateValue = this.shadowRoot.querySelector('#openstartdate').value;
         this.shadowRoot.querySelector('#openstartdate').value = null;
         // hox에 영구 날짜 설정
-        this.hox.querySelector('docInfo publication openStartDate').textContent = '9999-12-31T09:00:00';
+        setText(this.hox, 'docInfo publication openStartDate', '9999-12-31T09:00:00');
       } else {
         // 해제인 경우, 공개제한종료일 date에 기존 값 설정
         this.shadowRoot.querySelector('#openstartdate').value = this.openstartdateValue;
@@ -225,7 +222,7 @@ export default class FePublication extends HTMLElement {
     this.shadowRoot.querySelector('#publicRestric').addEventListener('change', (e) => {
       console.log('#publicRestric change', e.target.value);
       // hox 반영
-      this.hox.querySelector('docInfo publication publicRestric').textContent = e.target.value;
+      setText(this.hox, 'docInfo publication publicRestric', e.target.value);
     });
 
     // 공개제한부분표시 입력 제한 이벤트
@@ -239,7 +236,7 @@ export default class FePublication extends HTMLElement {
     this.shadowRoot.querySelector('#publicRestricReason').addEventListener('change', (e) => {
       console.log('#publicRestricReason change', e.target.value);
       // hox 반영
-      this.hox.querySelector('docInfo publication publicRestricReason').textContent = e.target.value;
+      setText(this.hox, 'docInfo publication publicRestricReason', e.target.value);
     });
 
     // 공개제한사유 글자제한 이벤트
@@ -256,13 +253,7 @@ export default class FePublication extends HTMLElement {
         // 비공개이면 상세 표시
         this.shadowRoot.querySelector('#listOpenDetail').classList.toggle('open', e.target.value === '1');
         // hox 반영
-        let approvalFlag = this.hox.querySelector('docInfo approvalFlag').textContent;
-        let flagArray = approvalFlag.split(' ').filter((flag) => StringUtils.isNotBlank(flag));
-
-        // 공개이면 flag 추가
-        ArrayUtils.toggle(flagArray, 'apprflag_open_list', e.target.value === '0');
-
-        this.hox.querySelector('docInfo approvalFlag').textContent = flagArray.join(' ');
+        toggleFlag(this.hox, 'docInfo approvalFlag', 'apprflag_open_list', e.target.value === '0');
       });
     });
 
@@ -275,7 +266,7 @@ export default class FePublication extends HTMLElement {
           .map((i) => i.value)
           .join(' ');
         console.log('#listPublicationFlag_ change', val);
-        this.hox.querySelector('docInfo publication listPublicationFlag').textContent = val;
+        setText(this.hox, 'docInfo publication listPublicationFlag', val);
       });
     });
 
@@ -290,7 +281,7 @@ export default class FePublication extends HTMLElement {
     this.shadowRoot.querySelector('#listPublicRestricReason').addEventListener('change', (e) => {
       console.log('#listPublicRestricReason change', e.target.value);
       // hox 반영
-      this.hox.querySelector('docInfo publication listPublicRestricReason').textContent = e.target.value;
+      setText(this.hox, 'docInfo publication listPublicRestricReason', e.target.value);
     });
   }
 
@@ -304,65 +295,55 @@ export default class FePublication extends HTMLElement {
     // hox값으로, 화면에 값 설정
 
     // 공개여부
-    let publicflag = this.hox.querySelector('docInfo publication').getAttribute('type');
+    let publicflag = getAttr(this.hox, 'docInfo publication', 'type');
     let input = this.shadowRoot.querySelector(`#publictype_${publicflag}`);
     input.checked = true;
     input.dispatchEvent(new Event('change'));
 
     // docInfo publication openStartDate 추가
-    this.hox.querySelector('docInfo publication').appendChild(this.hox.createElement('openStartDate'));
+    addNode(this.hox, 'docInfo publication', 'openStartDate');
 
     // 비공개사유 1~8호
-    let publicationFlag = this.hox.querySelector('docInfo publication publicationFlag').textContent;
-    publicationFlag
-      .split(' ')
-      .filter((flag) => StringUtils.isNotBlank(flag))
-      .forEach((flag) => {
-        this.shadowRoot.querySelector('#publicationFlag_' + flag).checked = true;
+    let publicationFlag = getText(this.hox, 'docInfo publication publicationFlag');
+    ArrayUtils.split(publicationFlag).forEach((flag) => {
+      this.shadowRoot.querySelector('#publicationFlag_' + flag).checked = true;
 
-        // 비공개사유 5호 - 공개제한종료일
-        if (flag === '5') {
-          let openStartDate = this.hox.querySelector('docInfo publication openStartDate').textContent;
-          if (StringUtils.isBlank(openStartDate)) {
-            this.shadowRoot.querySelector('#openstart_0').checked = true;
-            this.shadowRoot.querySelector('#openstartdate').textContent = null;
-            this.shadowRoot.querySelector('#openstartdate_permanent').checked = false;
-          } else if (openStartDate === '9999-12-31T09:00:00') {
-            this.shadowRoot.querySelector('#openstart_1').checked = true;
-            this.shadowRoot.querySelector('#openstartdate').textContent = null;
-            this.shadowRoot.querySelector('#openstartdate_permanent').checked = true;
-          } else {
-            this.shadowRoot.querySelector('#openstart_1').checked = true;
-            this.shadowRoot.querySelector('#openstartdate').value = openStartDate;
-            this.shadowRoot.querySelector('#openstartdate_permanent').checked = false;
-          }
+      // 비공개사유 5호 - 공개제한종료일
+      if (flag === '5') {
+        let openStartDate = getText(this.hox, 'docInfo publication openStartDate');
+        if (StringUtils.isBlank(openStartDate)) {
+          this.shadowRoot.querySelector('#openstart_0').checked = true;
+          this.shadowRoot.querySelector('#openstartdate').textContent = null;
+          this.shadowRoot.querySelector('#openstartdate_permanent').checked = false;
+        } else if (openStartDate === '9999-12-31T09:00:00') {
+          this.shadowRoot.querySelector('#openstart_1').checked = true;
+          this.shadowRoot.querySelector('#openstartdate').textContent = null;
+          this.shadowRoot.querySelector('#openstartdate_permanent').checked = true;
+        } else {
+          this.shadowRoot.querySelector('#openstart_1').checked = true;
+          this.shadowRoot.querySelector('#openstartdate').value = openStartDate;
+          this.shadowRoot.querySelector('#openstartdate_permanent').checked = false;
         }
-      });
+      }
+    });
 
     // 공개제한부분표시
-    let publicRestric = this.hox.querySelector('docInfo publication publicRestric').textContent;
-    this.shadowRoot.querySelector('#publicRestric').value = publicRestric;
+    this.shadowRoot.querySelector('#publicRestric').value = getText(this.hox, 'docInfo publication publicRestric');
 
     // 공개제한사유
-    let publicRestricReason = this.hox.querySelector('docInfo publication publicRestricReason').textContent;
-    this.shadowRoot.querySelector('#publicRestricReason').value = publicRestricReason;
+    this.shadowRoot.querySelector('#publicRestricReason').value = getText(this.hox, 'docInfo publication publicRestricReason');
 
     // 목록공개여부
-    let approvalFlag = this.hox.querySelector('docInfo approvalFlag').textContent;
-    this.shadowRoot.querySelector(`#openlist_${approvalFlag.indexOf('apprflag_open_list') > -1 ? '0' : '1'}`).checked = true;
+    this.shadowRoot.querySelector(`#openlist_${existsFlag(this.hox, 'docInfo approvalFlag', 'apprflag_open_list') ? '0' : '1'}`).checked = true;
 
     // 목록비공개근거 1~8호
-    let listPublicationFlag = this.hox.querySelector('docInfo publication listPublicationFlag').textContent;
-    listPublicationFlag
-      .split(' ')
-      .filter((flag) => StringUtils.isNotBlank(flag))
-      .forEach((flag) => {
-        this.shadowRoot.querySelector('#listPublicationFlag_' + flag).checked = true;
-      });
+    let listPublicationFlag = getText(this.hox, 'docInfo publication listPublicationFlag');
+    ArrayUtils.split(listPublicationFlag).forEach((flag) => {
+      this.shadowRoot.querySelector('#listPublicationFlag_' + flag).checked = true;
+    });
 
     // 목록비공개사유
-    let listPublicRestricReason = this.hox.querySelector('docInfo publication listPublicRestricReason').textContent;
-    this.shadowRoot.querySelector('#listPublicRestricReason').value = listPublicRestricReason;
+    this.shadowRoot.querySelector('#listPublicRestricReason').value = getText(this.hox, 'docInfo publication listPublicRestricReason');
   }
 }
 

@@ -1,4 +1,5 @@
 import * as DateUtils from '../utils/dateUtils';
+import { getAttr, getNodes, getText } from '../utils/hoxUtils';
 import Cell from './CellNames';
 import FeEditor from './FeEditor';
 
@@ -38,7 +39,7 @@ export default (hox, editor) => {
   // 기안자
   editor.putFieldText(Cell.DRAFTER, rInfo.user.name);
   // 기안일자
-  editor.putFieldText('기안일자', DateUtils.format(hoxText(hox, 'draftDate'), 'yyyy.mm.dd'));
+  editor.putFieldText('기안일자', DateUtils.format(getText(hox, 'draftDate'), 'yyyy.mm.dd'));
   // 머리표어
   // 로고
   // 발신기관명
@@ -46,7 +47,7 @@ export default (hox, editor) => {
   // 수신
   // 경유
   // 결재제목
-  editor.putFieldText(Cell.DOC_TITLE, hoxText(hox, 'docInfo title'));
+  editor.putFieldText(Cell.DOC_TITLE, getText(hox, 'docInfo title'));
   // 발신명의
   // 관인생략
   // 수신처캡션
@@ -54,11 +55,11 @@ export default (hox, editor) => {
   // 직위.1 ~ .n
   // 서명.1 ~ .n
   let signCellIndex = 0;
-  hox.querySelectorAll('approvalFlow participant').forEach((paricipant) => {
+  getNodes(hox, 'approvalFlow participant').forEach((paricipant) => {
     //
-    let approvalType = paricipant.querySelector('approvalType').textContent;
-    let position = paricipant.querySelector('position').textContent;
-    let name = paricipant.querySelector('name').textContent;
+    let approvalType = getText(paricipant, 'approvalType');
+    let position = getText(paricipant, 'position');
+    let name = getText(paricipant, 'name');
 
     if (approvalType === 'user_approval') {
       ++signCellIndex;
@@ -80,27 +81,6 @@ export default (hox, editor) => {
   // 전송
   // 이메일
   // 공개여부
-  editor.putFieldText(Cell.DOC_PUBLIC, hoxAttr(hox, 'publication', 'type'));
+  editor.putFieldText(Cell.DOC_PUBLIC, getAttr(hox, 'publication', 'type'));
   // 관인
 };
-
-/**
- *
- * @param {Document} hox
- * @param {string} selectors
- * @returns
- */
-function hoxText(hox, selectors) {
-  return hox.querySelector(selectors)?.textContent;
-}
-
-/**
- *
- * @param {Document} hox
- * @param {string} selectors
- * @param {string} attName
- * @returns
- */
-function hoxAttr(hox, selectors, attName) {
-  return hox.querySelector(selectors).getAttribute(attName);
-}

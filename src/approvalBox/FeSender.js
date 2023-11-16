@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
+import { setText } from '../utils/hoxUtils';
 
 export default class FeSender extends HTMLElement {
   active = false;
@@ -136,8 +137,8 @@ export default class FeSender extends HTMLElement {
 
     // 기존 부서 제거
     LIST.textContent = null;
-    this.hox.querySelector('examRequest exam examiner department ID').textContent = '';
-    this.hox.querySelector('examRequest exam examiner department name').textContent = '';
+    setText(this.hox, 'examRequest exam examiner department ID', '');
+    setText(this.hox, 'examRequest exam examiner department name', '');
 
     if (select) {
       // 선택 부서 추가
@@ -159,8 +160,8 @@ export default class FeSender extends HTMLElement {
       // examRequest exam examiner name
       // examRequest exam examiner department ID
       // examRequest exam examiner department name
-      this.hox.querySelector('examRequest exam examiner department ID').textContent = deptData.key;
-      this.hox.querySelector('examRequest exam examiner department name').textContent = deptData.title;
+      setText(this.hox, 'examRequest exam examiner department ID', deptData.key);
+      setText(this.hox, 'examRequest exam examiner department name', deptData.title);
     }
   }
 }

@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
+import { getNodes } from '../utils/hoxUtils';
 import FeParticipant from './flowInfo/FeParticipant';
 
 /**
@@ -134,8 +135,7 @@ export default class FeFlow extends HTMLElement {
 
   renderFlow() {
     //
-
-    this.hox.querySelectorAll('approvalFlow participant').forEach((participant, idx) => {
+    getNodes(this.hox, 'approvalFlow participant').forEach((participant, idx) => {
       console.log('[FeFlow]', idx, participant);
       //
 

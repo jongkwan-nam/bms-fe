@@ -1,3 +1,4 @@
+import { getText, setText } from '../../utils/hoxUtils';
 /**
  * 발송종류
  */
@@ -30,7 +31,7 @@ export default class FeEnforceType extends HTMLElement {
       input.addEventListener('change', (e) => {
         console.log(e.target.id, e.type, e.target.value);
         //
-        this.hox.querySelector('docInfo enforceType').textContent = e.target.value;
+        setText(this.hox, 'docInfo enforceType', e.target.value);
       });
 
       let label = wrapper.appendChild(document.createElement('label'));
@@ -46,7 +47,7 @@ export default class FeEnforceType extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    let enforceType = hox.querySelector('docInfo enforceType').textContent;
+    let enforceType = getText(hox, 'docInfo enforceType');
     let enforceTypeRadio = this.shadowRoot.querySelector('#' + enforceType);
     if (enforceTypeRadio) {
       enforceTypeRadio.checked = true;

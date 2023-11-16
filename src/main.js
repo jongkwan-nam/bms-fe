@@ -1,7 +1,8 @@
 import './main.scss';
-import loadHox from './main/loadHox';
-import reflectHoxInBody from './main/reflectHoxInBody';
 import './main/FeEditor';
+import { loadHox, setTextCDATA } from './utils/hoxUtils';
+
+import reflectHoxInBody from './main/reflectHoxInBody';
 
 let trid = rInfo.hoxFileTRID;
 let docUrl = `https://fe.handysoft.co.kr/bms/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
@@ -61,7 +62,16 @@ window.hoxToText = () => {
 document.getElementById('btnApprovalBox').addEventListener('click', (e) => {
   console.log('approvalBox show');
 
-  hox.querySelector('docInfo title').textContent = feEditor1.title;
+  setTextCDATA(hox, 'docInfo title', feEditor1.title);
 
   window.open('./approvalBox.html', 'approvalBox', 'width=1020px,height=720px');
+});
+
+// 결재올림 클릭
+document.getElementById('btnDraft').addEventListener('click', (e) => {
+  console.log('btnDraft click');
+  // appr id 채번
+  // participant id 채번
+  // 웹한글 본문 저장
+  // bms로 submit
 });

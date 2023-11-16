@@ -1,3 +1,5 @@
+import { addNode, existsNode, getNodes } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -27,7 +29,7 @@ export default class FeSpecialList extends HTMLElement {
       this.input.addEventListener('change', (e) => {
         console.log(e.target.id, 'change', e.target.value);
         // set hox
-        this.hox.querySelectorAll('docInfo specialList specialItem')[i].textContent = e.target.value;
+        getNodes(this.hox, 'docInfo specialList specialItem')[i].textContent = e.target.value;
       });
     }
   }
@@ -40,12 +42,15 @@ export default class FeSpecialList extends HTMLElement {
     this.hox = hox;
 
     // element 존재여부 체크
-    if (this.hox.querySelector('docInfo specialList') === null) {
-      let specialList = this.hox.querySelector('docInfo').appendChild(this.hox.createElement('specialList'));
-      specialList.append(this.hox.createElement('specialItem'), this.hox.createElement('specialItem'), this.hox.createElement('specialItem'));
+
+    if (!existsNode(this.hox, 'docInfo specialList')) {
+      addNode(this.hox, 'docInfo', 'specialList');
+      addNode(this.hox, 'docInfo specialList', 'specialItem');
+      addNode(this.hox, 'docInfo specialList', 'specialItem');
+      addNode(this.hox, 'docInfo specialList', 'specialItem');
     }
 
-    this.hox.querySelectorAll('docInfo specialList specialItem').forEach((item, i) => {
+    getNodes(this.hox, 'docInfo specialList specialItem').forEach((item, i) => {
       //
       this.shadowRoot.querySelector('#specialItem' + i).value = item.textContent;
     });

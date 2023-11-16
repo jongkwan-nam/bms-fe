@@ -1,3 +1,5 @@
+import { getText, setText } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -29,7 +31,7 @@ export default class FeKeepPeriod extends HTMLElement {
       input.addEventListener('change', (e) => {
         //
         console.log('FeKeepPeriod change', e.target.value);
-        this.hox.querySelector('docInfo keepPeriod').textContent = e.target.value;
+        setText(this.hox, 'docInfo keepPeriod', e.target.value);
       });
 
       let label = wrapper.appendChild(document.createElement('label'));
@@ -45,7 +47,7 @@ export default class FeKeepPeriod extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    let keepPeriod = this.hox.querySelector('docInfo keepPeriod').textContent;
+    let keepPeriod = getText(this.hox, 'docInfo keepPeriod');
     let input = this.shadowRoot.querySelector(`#keepPeriod_${keepPeriod}`);
     console.log('FeKeepPeriod set', input);
     if (input) {

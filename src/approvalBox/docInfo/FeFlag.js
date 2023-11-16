@@ -1,5 +1,4 @@
-import * as StringUtils from '../../utils/stringUtils';
-import * as ArrayUtils from '../../utils/arrayUtils';
+import { toggleFlag } from '../../utils/hoxUtils';
 
 const data = [
   { flag: 'apprflag_temporary_work', msgCode: 'cmsg_2748' }, // 비정규직 열람
@@ -37,13 +36,8 @@ export default class FeFlag extends HTMLElement {
       input.value = item.flag;
       input.addEventListener('change', (e) => {
         console.log(e.target.id, e.type, e.target.value);
-        //
-        let approvalFlag = this.hox.querySelector('docInfo approvalFlag').textContent;
-        let flagArray = approvalFlag.split(' ').filter((flag) => StringUtils.isNotBlank(flag));
 
-        ArrayUtils.toggle(flagArray, e.target.value, e.target.checked);
-
-        this.hox.querySelector('docInfo approvalFlag').textContent = flagArray.join(' ');
+        toggleFlag(this.hox, 'docInfo approvalFlag', e.target.value, e.target.checked);
       });
 
       let label = wrapper.appendChild(document.createElement('label'));

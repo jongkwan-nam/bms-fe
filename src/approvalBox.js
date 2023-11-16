@@ -71,3 +71,7 @@ function close() {
   //
   window.close();
 }
+
+window.hox = () => {
+  return hox;
+};

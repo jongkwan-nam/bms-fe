@@ -1,3 +1,5 @@
+import { getText, setText } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -34,7 +36,7 @@ export default class FeViewRestriction extends HTMLElement {
       input.addEventListener('change', (e) => {
         //
         console.log('FeViewRestriction change', e.target.value);
-        this.hox.querySelector('docInfo viewRestriction').textContent = e.target.value;
+        setText(this.hox, 'docInfo viewRestriction', e.target.value);
 
         this.shadowRoot.querySelector('#securityExpireDate').readOnly = e.target.value !== 'expireDate';
       });
@@ -49,7 +51,7 @@ export default class FeViewRestriction extends HTMLElement {
     input.id = 'securityExpireDate';
     input.addEventListener('change', (e) => {
       //
-      this.hox.querySelector('docInfo securityExpireDate').textContent = e.target.value;
+      setText(this.hox, 'docInfo securityExpireDate', e.target.value);
     });
   }
 
@@ -60,8 +62,8 @@ export default class FeViewRestriction extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    let viewRestriction = this.hox.querySelector('docInfo viewRestriction').textContent;
-    let securityExpireDate = this.hox.querySelector('docInfo securityExpireDate').textContent;
+    let viewRestriction = getText(this.hox, 'docInfo viewRestriction');
+    let securityExpireDate = getText(this.hox, 'docInfo securityExpireDate');
     let input = this.shadowRoot.querySelector(`#viewRestriction_${viewRestriction}`);
     console.log('FeViewRestriction set', input);
     if (input) {

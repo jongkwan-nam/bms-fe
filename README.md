@@ -10,3 +10,11 @@ https://github.com/mar10/fancytree/wiki
 dynatree
 https://www.ptj.de/c_media/modules/dynatree/doc/sample-select.html
 https://blog.naver.com/pupu902/150165373337
+
+# vscode setting
+
+```json
+"editor.codeActionsOnSave": {
+  "source.organizeImports": true
+},
+```

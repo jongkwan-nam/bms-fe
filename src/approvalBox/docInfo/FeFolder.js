@@ -2,6 +2,7 @@ import $ from 'jquery';
 import '../../_open_sources/dynatree';
 import feStorage from '../../utils/FeStorage';
 import * as DateUtils from '../../utils/dateUtils';
+import { setText } from '../../utils/hoxUtils';
 
 const ROOT_FOLDER_ID = '00000000000000000001';
 
@@ -92,8 +93,8 @@ export default class FeFolder extends HTMLElement {
       console.log('select change', e.target.value, e.target.innerHTML);
       let fldrInfo = fldrMap.get(e.target.value);
 
-      this.hox.querySelector('docInfo folderInfo ID').textContent = fldrInfo.fldrId;
-      this.hox.querySelector('docInfo folderInfo name').textContent = fldrInfo.fldrName;
+      setText(this.hox, 'docInfo folderInfo ID', fldrInfo.fldrId);
+      setText(this.hox, 'docInfo folderInfo name', fldrInfo.fldrName);
 
       // 이벤트 전파
       this.dispatchEvent(new CustomEvent('change', { detail: { folder: fldrInfo } }));

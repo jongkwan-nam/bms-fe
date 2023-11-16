@@ -1,3 +1,5 @@
+import { getText } from '../../utils/hoxUtils';
+
 export default class FeApprovalType extends HTMLElement {
   constructor() {
     super();
@@ -26,7 +28,7 @@ export default class FeApprovalType extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    let approvalTypeCode = hox.querySelector('docInfo approvalType').textContent;
+    let approvalTypeCode = getText(hox, 'docInfo approvalType');
     let approvalTypeText = getTextByCode(approvalTypeCode);
     this.label.innerHTML = approvalTypeText;
   }

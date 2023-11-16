@@ -1,3 +1,5 @@
+import { existsNode, getAttr, getText } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -29,12 +31,10 @@ export default class FeDocNumber extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    let expression = hox.querySelector('docInfo docNumber expression');
-    let format = expression.getAttribute('format');
+    let format = getAttr(hox, 'docInfo docNumber expression', 'format');
 
-    let expressionParams = hox.querySelectorAll('docInfo docNumber expression param');
-    if (expressionParams === null) {
-      /*
+    if (existsNode(hox, 'docInfo docNumber expression param')) {
+      /* TODO
        * 문서번호 채번형식 정의
        *   @D : 부서명,     @d : 부서약어,
        *   @Y : 년도4자리,  @y : 년도2자리,
@@ -43,7 +43,7 @@ export default class FeDocNumber extends HTMLElement {
        */
     }
 
-    this.label.innerHTML = hox.querySelector('docInfo docNumber displayDocNumber').textContent;
+    this.label.innerHTML = getText(hox, 'docInfo docNumber displayDocNumber');
   }
 }
 

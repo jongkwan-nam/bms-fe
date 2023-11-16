@@ -1,3 +1,8 @@
+/**
+ *
+ * @param {string} ch
+ * @returns
+ */
 function charByteSize(ch) {
   if (ch == null || ch.length == 0) {
     return 0;
@@ -18,6 +23,11 @@ function charByteSize(ch) {
   }
 }
 
+/**
+ * str이 몇 바이트인지 구하기
+ * @param {string} str
+ * @returns
+ */
 export function getBytesLength(str) {
   let l = 0;
   for (let i = 0; i < str.length; i++) {
@@ -26,6 +36,12 @@ export function getBytesLength(str) {
   return l;
 }
 
+/**
+ *
+ * @param {string} str
+ * @param {number} max
+ * @returns
+ */
 export function cutByMaxBytes(str, max) {
   let size = 0;
   for (let i = 0; i < str.length; i++) {
@@ -38,10 +54,20 @@ export function cutByMaxBytes(str, max) {
   return str;
 }
 
+/**
+ *
+ * @param {string} str
+ * @returns
+ */
 export function isBlank(str) {
   return typeof str === 'undefined' || str === null || str.trim() === '';
 }
 
+/**
+ *
+ * @param {string} str
+ * @returns
+ */
 export function isNotBlank(str) {
   return !isBlank(str);
 }

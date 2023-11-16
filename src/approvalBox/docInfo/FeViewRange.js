@@ -1,3 +1,5 @@
+import { getText, setText } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -33,7 +35,7 @@ export default class FeViewRange extends HTMLElement {
       input.addEventListener('change', (e) => {
         //
         console.log('FeViewRange change', e.target.value);
-        this.hox.querySelector('docInfo viewRange').textContent = e.target.value;
+        setText(this.hox, 'docInfo viewRange', e.target.value);
       });
 
       let label = wrapper.appendChild(document.createElement('label'));
@@ -49,7 +51,7 @@ export default class FeViewRange extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    let viewRange = this.hox.querySelector('docInfo viewRange').textContent;
+    let viewRange = getText(this.hox, 'docInfo viewRange');
     let input = this.shadowRoot.querySelector(`#viewRange_${viewRange}`);
     console.log('FeViewRange set', input);
     if (input) {

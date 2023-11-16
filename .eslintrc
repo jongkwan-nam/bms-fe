@@ -30,7 +30,8 @@
   "globals": {
     "rInfo": true,
     "GWWEBMessage": true,
-    "szKEY": true
+    "szKEY": true,
+    "doccfg": true
   },
   "rules": {
     "no-unused-vars": 0,

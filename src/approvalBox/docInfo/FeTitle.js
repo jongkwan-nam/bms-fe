@@ -1,3 +1,5 @@
+import { getText, setTextCDATA } from '../../utils/hoxUtils';
+
 /**
  *
  */
@@ -24,7 +26,7 @@ export default class FeTitle extends HTMLElement {
     this.input.addEventListener('change', (e) => {
       let title = e.target.value;
       // set hox
-      this.hox.querySelector('docInfo title').textContent = title;
+      setTextCDATA(this.hox, 'docInfo title', title);
 
       this.dispatchEvent(new CustomEvent('change', { detail: { title: title } }));
     });
@@ -37,7 +39,7 @@ export default class FeTitle extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
-    this.input.value = hox.querySelector('docInfo title').textContent;
+    this.input.value = getText(hox, 'docInfo title');
   }
 
   set title(title) {
