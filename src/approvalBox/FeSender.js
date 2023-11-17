@@ -82,11 +82,6 @@ export default class FeSender extends HTMLElement {
         onSelect: (select, dtnode) => {
           console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
           this.selectSender(dtnode, select);
-          if (select) {
-            // 결재선에 추가
-          } else {
-            // 결재선에서 제거
-          }
         },
         onClick: (dtnode, event) => {
           console.debug('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);

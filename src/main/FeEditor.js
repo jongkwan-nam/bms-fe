@@ -61,6 +61,11 @@ export default class FeEditor extends HTMLElement {
     });
   }
 
+  /**
+   *
+   * @param {string} docUrl
+   * @returns
+   */
   async open(docUrl) {
     console.time(TIME_LABEL_OPEN);
     return new Promise((resolve, reject) => {
@@ -77,8 +82,39 @@ export default class FeEditor extends HTMLElement {
     });
   }
 
+  /**
+   *
+   * @param {string} name
+   * @param {string} text
+   */
   putFieldText(name, text) {
     this.hwpCtrl.PutFieldText(name, text);
+  }
+
+  /**
+   * 화면 확대 종류. 0 = 사용자 정의, 1 = 쪽 맞춤, 2 = 폭 맞춤
+   * @param {number} ratio
+   */
+  setViewZoom(ratio) {
+    let act = this.hwpCtrl.CreateAction('ViewZoom');
+    let vp = this.hwpCtrl.CreateSet('ViewProperties');
+    act.GetDefault(vp);
+    if (ratio < 3) {
+      vp.SetItem('ZoomType', ratio);
+    } else {
+      vp.SetItem('ZoomType', 0);
+      vp.SetItem('ZoomRatio', ratio);
+    }
+    this.hwpCtrl.ViewProperties = vp;
+    act.Execute(vp);
+  }
+
+  /**
+   * 리본 메뉴 접기/펴기
+   * @param {boolean} force
+   */
+  foldRibbon(force) {
+    this.hwpCtrl.FoldRibbon(force);
   }
 
   set title(title) {

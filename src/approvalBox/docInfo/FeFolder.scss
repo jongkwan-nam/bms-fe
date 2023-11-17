@@ -5,18 +5,18 @@ fe-folder {
 
 .folder-container {
   position: fixed;
-  width: 300px;
-  height: 400px;
+  width: 22rem;
+  height: 28rem;
   border: 1px solid #ccc;
   background-color: #fff;
   box-shadow: 2px 2px 4px 0 #aaa;
-  padding: 8px;
+  padding: 0.5rem;
   display: grid;
-  grid-template-rows: 1fr 40px;
+  grid-template-rows: 1fr 3rem;
 }
 .folder-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 1rem;
 }

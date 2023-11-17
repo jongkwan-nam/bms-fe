@@ -29,7 +29,17 @@ export default class FeRecipient extends HTMLElement {
       </div>
       <div class="list">
         <ul id="list" class="sortable-list"></ul>
+        <div class="recipient-info">
+          <div>
+            <input type="checkbox" id="displayCheckbox" />
+            <label for="displayCheckbox">${GWWEBMessage.cmsg_1178}</label>
+          </div>
+          <input type="text" id="displayString" placeholder="${GWWEBMessage.W2850}" />
+          <label for="senderName">${GWWEBMessage.cmsg_759}</label>
+          <select id="senderName"></select>
+        </div>
       </div>
+
     `;
 
     this.shadowRoot.append(LINK, LINK2, wrapper);
@@ -89,12 +99,23 @@ export default class FeRecipient extends HTMLElement {
               console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
               if (select) {
                 // 결재선에 추가
+                this.addRecipient(dtnode);
               } else {
                 // 결재선에서 제거
+                this.removeRecipient(dtnode);
               }
             },
             onClick: (dtnode, event) => {
               console.log('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
+
+              if (!dtnode.data.isFolder) {
+                dtnode.parent.childList.forEach((child) => {
+                  console.log('onClick', child.isSelected(), child.data.title);
+                  if (!child.data.isFolder && child.isSelected()) {
+                    child.select(false);
+                  }
+                });
+              }
 
               if (dtnode.getEventTargetType(event) === 'title') {
                 dtnode.toggleSelect();
@@ -119,11 +140,70 @@ export default class FeRecipient extends HTMLElement {
                 },
               });
             },
+            onRender: function (dtnode, nodeSpan) {
+              console.log('onLoader', dtnode, nodeSpan);
+              if (!dtnode.data.isFolder) {
+                var res = $(nodeSpan).html().replace('dynatree-checkbox', 'dynatree-radio');
+                $(nodeSpan).html(res);
+              }
+
+              if (dtnode.data.rbox == 'false') {
+                dtnode.data.unselectable = true;
+                $(nodeSpan).addClass('ui-dynatree-notuse');
+              } else {
+                $(nodeSpan).addClass('ui-dynatree-rbox-have');
+              }
+            },
           })
           .dynatree('getRoot')
           .tree.getNodeByKey(rInfo.user.deptID)
           .activate();
       });
+  }
+
+  addRecipient(dtnode) {
+    let recData = dtnode.data;
+    const LIST = this.shadowRoot.querySelector('#list');
+    //
+    const LI = LIST.appendChild(document.createElement('li'));
+    LI.id = 'rec' + recData.key;
+    LI.innerHTML = `
+      <div class="recipient-bar">
+        <span class="rec-type">${recData.isFolder ? GWWEBMessage.hsappr_0164 : GWWEBMessage.W2440}</span>
+        <div class="rec-info">
+          <span class="img-profile" style="background-image: url('${recData.isFolder ? `/user/img/team_profile_blank.png` : `/jsp/org/view/ViewPicture.jsp?user_id=${recData.key}`}')"></span>
+          <span class="name">${recData.isFolder ? recData.title : recData.name}</span>
+          ${recData.isFolder ? '' : `<span class="rank">${recData.positionName}</span><span class="team">${recData.deptName}</span>`}
+        </div>
+        <div class="rec-close">
+          <button type="button">&times;</button>
+        </div>
+      </div>
+    `;
+    LI.querySelector('button').addEventListener('click', () => {
+      dtnode.toggleSelect();
+      LI.remove();
+    });
+
+    // const DIV = LI.appendChild(document.createElement('div'));
+    // DIV.classList.add('recipient-bar');
+    // const LABEL = DIV.appendChild(document.createElement('label'));
+    // LABEL.innerHTML = recData.title;
+    // const BUTTON = DIV.appendChild(document.createElement('button'));
+    // BUTTON.innerHTML = '&times;';
+    // BUTTON.addEventListener('click', () => {
+    //   //
+    //   dtnode.toggleSelect();
+
+    //   LI.remove();
+    // });
+  }
+
+  removeRecipient(dtnode) {
+    let recData = dtnode.data;
+    const LIST = this.shadowRoot.querySelector('#list');
+    //
+    LIST.querySelector('#rec' + recData.key).remove();
   }
 }
 

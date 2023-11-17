@@ -28,6 +28,10 @@ console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
   hox = await loadHox(trid);
 
   await feEditor1.init();
+
+  feEditor1.setViewZoom(doccfg.docViewRatio);
+  feEditor1.foldRibbon(false);
+
   await feEditor1.open(docUrl);
 
   reflectHoxInBody(hox, feEditor1);
