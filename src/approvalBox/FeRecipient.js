@@ -104,6 +104,7 @@ export default class FeRecipient extends HTMLElement {
                 // 결재선에서 제거
                 this.removeRecipient(dtnode);
               }
+              this.renderDisplayString();
             },
             onClick: (dtnode, event) => {
               console.log('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
@@ -184,19 +185,6 @@ export default class FeRecipient extends HTMLElement {
       dtnode.toggleSelect();
       LI.remove();
     });
-
-    // const DIV = LI.appendChild(document.createElement('div'));
-    // DIV.classList.add('recipient-bar');
-    // const LABEL = DIV.appendChild(document.createElement('label'));
-    // LABEL.innerHTML = recData.title;
-    // const BUTTON = DIV.appendChild(document.createElement('button'));
-    // BUTTON.innerHTML = '&times;';
-    // BUTTON.addEventListener('click', () => {
-    //   //
-    //   dtnode.toggleSelect();
-
-    //   LI.remove();
-    // });
   }
 
   removeRecipient(dtnode) {
@@ -204,6 +192,10 @@ export default class FeRecipient extends HTMLElement {
     const LIST = this.shadowRoot.querySelector('#list');
     //
     LIST.querySelector('#rec' + recData.key).remove();
+  }
+
+  renderDisplayString() {
+    //
   }
 }
 
