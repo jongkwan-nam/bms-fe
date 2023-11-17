@@ -3,6 +3,7 @@ import * as DateUtils from '../../utils/dateUtils';
 import { addNode, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import data from './FePublication.json';
+import './FePublication.scss';
 
 const MaxLength_publicRestricReason = 10;
 const MaxLength_listPublicRestricReason = 10;

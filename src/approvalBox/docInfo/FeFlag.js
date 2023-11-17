@@ -1,4 +1,5 @@
 import { toggleFlag } from '../../utils/hoxUtils';
+import './FeFlag.scss';
 
 const data = [
   { flag: 'apprflag_temporary_work', msgCode: 'cmsg_2748' }, // 비정규직 열람

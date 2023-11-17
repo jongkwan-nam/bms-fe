@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
+import './FeRecipient.scss';
 
 export default class FeRecipient extends HTMLElement {
   active = false;

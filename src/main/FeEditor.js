@@ -1,4 +1,5 @@
 import Cell from './CellNames';
+import './FeEditor.scss';
 
 const TIME_LABEL_INIT = 'Editor-init';
 const TIME_LABEL_OPEN = 'Editor-open';

@@ -12,6 +12,7 @@ import './docInfo/FeSpecialList';
 import './docInfo/FeTitle';
 import './docInfo/FeViewRange';
 import './docInfo/FeViewRestriction';
+import './FeDocInfo.scss';
 
 export default class FeDocInfo extends HTMLElement {
   active = false;

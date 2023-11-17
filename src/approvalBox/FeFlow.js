@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
 import { getNodes } from '../utils/hoxUtils';
+import './FeFlow.scss';
 import FeParticipant from './flowInfo/FeParticipant';
 
 /**

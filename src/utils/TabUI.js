@@ -1,3 +1,5 @@
+import './TabUi.scss';
+
 /**
  * 탭 UI 처리
  *

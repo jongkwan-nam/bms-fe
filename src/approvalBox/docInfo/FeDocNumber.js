@@ -1,4 +1,5 @@
 import { existsNode, getAttr, getText } from '../../utils/hoxUtils';
+import './FeDocNumber.scss';
 
 /**
  *

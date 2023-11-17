@@ -1,4 +1,5 @@
 import { getText } from '../../utils/hoxUtils';
+import './FeApprovalType.scss';
 
 export default class FeApprovalType extends HTMLElement {
   constructor() {

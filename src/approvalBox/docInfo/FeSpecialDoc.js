@@ -1,4 +1,5 @@
 import { getFlagList, setText } from '../../utils/hoxUtils';
+import './FeSpecialDoc.scss';
 
 /**
  *

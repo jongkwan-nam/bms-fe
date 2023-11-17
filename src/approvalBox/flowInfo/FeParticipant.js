@@ -1,3 +1,5 @@
+import './FeParticipant.scss';
+
 /**
  *
  */
@@ -29,7 +31,7 @@ export default class FeParticipant extends HTMLElement {
     <div>
       <select>
         <option>${this.participant.querySelector('displayApprovalType').textContent}</option>
-      </select>  
+      </select>
     </div>
     <div>
       ${this.participant.querySelector('department name').textContent}

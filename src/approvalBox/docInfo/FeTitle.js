@@ -1,4 +1,5 @@
 import { getText, setTextCDATA } from '../../utils/hoxUtils';
+import './FeTitle.scss';
 
 /**
  *

@@ -3,6 +3,7 @@ import '../../_open_sources/dynatree';
 import feStorage from '../../utils/FeStorage';
 import * as DateUtils from '../../utils/dateUtils';
 import { setText } from '../../utils/hoxUtils';
+import './FeFolder.scss';
 
 const ROOT_FOLDER_ID = '00000000000000000001';
 

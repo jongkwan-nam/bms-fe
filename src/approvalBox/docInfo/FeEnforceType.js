@@ -1,4 +1,6 @@
 import { getText, setText } from '../../utils/hoxUtils';
+import './FeEnforceType.scss';
+
 /**
  * 발송종류
  */

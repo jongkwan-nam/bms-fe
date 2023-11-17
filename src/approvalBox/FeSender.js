@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
 import { setText } from '../utils/hoxUtils';
+import './FeSender.scss';
 
 export default class FeSender extends HTMLElement {
   active = false;
