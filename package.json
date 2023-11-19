@@ -29,6 +29,7 @@
   "dependencies": {
     "jquery": "^3.7.1",
     "jquery-ui": "^1.13.2",
-    "ssh2-sftp-client": "^9.1.0"
+    "ssh2-sftp-client": "^9.1.0",
+    "sync-fetch": "^0.5.2"
   }
 }

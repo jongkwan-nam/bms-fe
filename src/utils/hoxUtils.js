@@ -22,6 +22,15 @@ export const loadHox = async (trid) => {
 };
 
 /**
+ *
+ * @param {string} xmlText
+ * @returns
+ */
+export const createNode = (xmlText) => {
+  return new DOMParser().parseFromString(xmlText, 'text/xml').childNodes[0];
+};
+
+/**
  * hox에 해당 노드가 존재하는지
  * @param {Element} hox
  * @param {string} selectors
@@ -35,11 +44,13 @@ export const existsNode = (hox, selectors) => {
  * 노드 추가
  * @param {Document} hox
  * @param {string} selectors
- * @param {string} newNodeName
+ * @param {string} newNodeNames
  */
-export const addNode = (hox, selectors, newNodeName) => {
+export const addNode = (hox, selectors, ...newNodeNames) => {
   hox.querySelectorAll(selectors).forEach((element) => {
-    element.appendChild(hox.createElement(newNodeName));
+    newNodeNames.forEach((newNodeName) => {
+      element.appendChild(hox.createElement(newNodeName));
+    });
   });
 };
 
@@ -104,7 +115,11 @@ export const setTextCDATA = (hox, selectors, text) => {
  * @returns
  */
 export const getAttr = (hox, selectors, attName) => {
-  return hox.querySelector(selectors)?.getAttribute(attName);
+  if (selectors === null) {
+    return hox.getAttribute(attName);
+  } else {
+    return hox.querySelector(selectors)?.getAttribute(attName);
+  }
 };
 
 /**

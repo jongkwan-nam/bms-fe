@@ -31,7 +31,8 @@
     "rInfo": true,
     "GWWEBMessage": true,
     "szKEY": true,
-    "doccfg": true
+    "doccfg": true,
+    "PROJECT_CODE": true
   },
   "rules": {
     "no-unused-vars": 0,

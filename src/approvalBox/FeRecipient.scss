@@ -15,49 +15,6 @@ fe-recipient {
       li {
         padding: 0.5rem 1rem;
         border-bottom: 1px solid var(--color-border);
-
-        .recipient-bar {
-          display: flex;
-          flex-direction: row;
-          flex-wrap: nowrap;
-          justify-content: space-between;
-          align-items: center;
-
-          .rec-type {
-            width: 5rem;
-            font-size: 0.75rem;
-          }
-          .rec-info {
-            flex: 1 1 auto;
-
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-
-            .img-profile {
-              display: inline-block;
-              width: 1.75rem;
-              height: 1.75rem;
-              border-radius: 50%;
-              background-size: contain;
-              background-position: 50% 15%;
-            }
-            .name {
-              font-weight: bold;
-            }
-            .rank {
-              font-weight: normal;
-              font-size: 0.75rem;
-            }
-            .team {
-              font-weight: normal;
-              font-size: 0.75rem;
-            }
-          }
-          .rec-close {
-            width: 2.5rem;
-          }
-        }
       }
     }
 

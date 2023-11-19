@@ -5,7 +5,7 @@ import './approvalBox/FeFlow';
 import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
 
-import './utils/TabUI';
+import tabUI from './utils/TabUI';
 
 let hox = opener.hox().cloneNode(true);
 
@@ -15,6 +15,8 @@ let feRecipient = document.querySelector('fe-recipient');
 let feSender = document.querySelector('fe-sender');
 
 feDocInfo.set(hox);
+
+tabUI(document);
 
 // 탭 선택 이벤트 리스너
 document.querySelectorAll('[role="tabpanel"]').forEach((tabpanel) => {

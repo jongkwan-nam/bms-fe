@@ -1,6 +1,10 @@
 import $ from 'jquery';
+import syncFetch from 'sync-fetch';
 import '../_open_sources/dynatree';
+import tagUi from '../utils/TabUI';
+import { addNode, createNode, existsNode, getNode, getNodes } from '../utils/hoxUtils';
 import './FeRecipient.scss';
+import FeRec from './recipientInfo/FeRec';
 
 export default class FeRecipient extends HTMLElement {
   active = false;
@@ -26,7 +30,26 @@ export default class FeRecipient extends HTMLElement {
     wrapper.classList.add('fe-recipient', 'tree-list');
     wrapper.innerHTML = `
       <div class="tree">
-        <div id="tree" class="folder"></div>
+        <div class="tab-group" role="tablist">
+          <button type="button" class="tab-button" role="tab" target="#orgTreePanel" active>${GWWEBMessage.cabinet_msg_48 /* 조직도 */}</button>
+          <button type="button" class="tab-button" role="tab" target="#groupTreePanel">${GWWEBMessage.cmsg_1166 /* 수신부서 그룹 */}</button>
+          <button type="button" class="tab-button" role="tab" target="#manualPanel">${GWWEBMessage.cmsg_1167 /* 외부 */}</button>
+          <button type="button" class="tab-button" role="tab" target="#ldapTreePanel">${GWWEBMessage.cmsg_2200 /* LDAP */}</button>
+        </div>
+        <div>
+          <div class="tab-content" role="tabpanel" id="orgTreePanel">
+            <div id="tree" class="folder"></div>
+          </div>
+          <div class="tab-content" role="tabpanel" id="groupTreePanel">
+            <div id="groupTree" class="folder"></div>
+          </div>
+          <div class="tab-content" role="tabpanel" id="manualPanel">
+            <div id="manual" class="folder"></div>
+          </div>
+          <div class="tab-content" role="tabpanel" id="ldapTreePanel">
+            <div id="ldapTree" class="folder"></div>
+          </div>
+        </div>
       </div>
       <div class="list">
         <ul id="list" class="sortable-list"></ul>
@@ -55,13 +78,42 @@ export default class FeRecipient extends HTMLElement {
       return;
     }
 
-    this.hox = hox;
-    this.renderTree();
+    tagUi(this.shadowRoot);
 
+    // 탭 선택 이벤트 리스너
+    this.shadowRoot.querySelectorAll('[role="tabpanel"]').forEach((tabpanel) => {
+      //
+      tabpanel.addEventListener('active', (e) => {
+        //
+        console.log('tabpanel active', e.target.id);
+        let id = e.target.id;
+
+        switch (id) {
+          case 'orgTreePanel':
+            this.renderOrgTree();
+            break;
+          case 'groupTreePanel':
+            this.renderGroupTree();
+            break;
+          case 'manualPanel':
+            this.renderManual();
+            break;
+          case 'ldapTreePanel':
+            this.renderLdapTree();
+            break;
+          default:
+            throw new Error('undefined tabId: ' + id);
+        }
+      });
+    });
+
+    this.hox = hox;
+    this.renderOrgTree(); // 첫탭. 조직도 트리 그리기
+    this.renderRec(); // hox기반 수신부서(fe-rec) 그리기
     this.active = true;
   }
 
-  renderTree() {
+  renderOrgTree() {
     let tree = this.shadowRoot.querySelector('#tree');
 
     const params = {
@@ -163,40 +215,148 @@ export default class FeRecipient extends HTMLElement {
       });
   }
 
+  renderGroupTree() {
+    //
+  }
+
+  renderManual() {
+    //
+  }
+
+  renderLdapTree() {
+    //
+  }
+
+  /**
+   * 트리에서 선택
+   * @param {Object} dtnode
+   */
   addRecipient(dtnode) {
+    let rec;
+    if (dtnode.data.isFolder) {
+      rec = this.#dtnodeToRecDept(dtnode);
+    } else {
+      rec = this.#dtnodeToRecUser(dtnode);
+    }
+
+    //
     let recData = dtnode.data;
     const LIST = this.shadowRoot.querySelector('#list');
-    //
     const LI = LIST.appendChild(document.createElement('li'));
-    LI.id = 'rec' + recData.key;
-    LI.innerHTML = `
-      <div class="recipient-bar">
-        <span class="rec-type">${recData.isFolder ? GWWEBMessage.hsappr_0164 : GWWEBMessage.W2440}</span>
-        <div class="rec-info">
-          <span class="img-profile" style="background-image: url('${recData.isFolder ? `/user/img/team_profile_blank.png` : `/jsp/org/view/ViewPicture.jsp?user_id=${recData.key}`}')"></span>
-          <span class="name">${recData.isFolder ? recData.title : recData.name}</span>
-          ${recData.isFolder ? '' : `<span class="rank">${recData.positionName}</span><span class="team">${recData.deptName}</span>`}
-        </div>
-        <div class="rec-close">
-          <button type="button">&times;</button>
-        </div>
-      </div>
-    `;
-    LI.querySelector('button').addEventListener('click', () => {
-      dtnode.toggleSelect();
+    // LI.id = 'rec' + recData.key;
+    let feRec = LI.appendChild(new FeRec());
+    feRec.set(rec);
+    feRec.addEventListener('delete', () => {
+      //
+      if (dtnode) {
+        dtnode.toggleSelect();
+      }
       LI.remove();
     });
+    dtnode['li'] = LI;
+
+    // LI.innerHTML = `
+    //   <div class="recipient-bar">
+    //     <span class="rec-type">${recData.isFolder ? GWWEBMessage.hsappr_0164 : GWWEBMessage.W2440}</span>
+    //     <div class="rec-info">
+    //       <span class="img-profile" style="background-image: url('${recData.isFolder ? `/user/img/team_profile_blank.png` : `/jsp/org/view/ViewPicture.jsp?user_id=${recData.key}`}')"></span>
+    //       <span class="name">${recData.isFolder ? recData.title : recData.name}</span>
+    //       ${recData.isFolder ? '' : `<span class="rank">${recData.positionName}</span><span class="team">${recData.deptName}</span>`}
+    //     </div>
+    //     <div class="rec-close">
+    //       <button type="button">&times;</button>
+    //     </div>
+    //   </div>
+    // `;
+    // LI.querySelector('button').addEventListener('click', () => {
+    //   dtnode.toggleSelect();
+    //   LI.remove();
+    // });
   }
 
   removeRecipient(dtnode) {
     let recData = dtnode.data;
     const LIST = this.shadowRoot.querySelector('#list');
     //
-    LIST.querySelector('#rec' + recData.key).remove();
+    // LIST.querySelector('#rec' + recData.key).remove();
+    dtnode.li.remove();
   }
 
   renderDisplayString() {
     //
+  }
+
+  renderRec() {
+    //
+    const LIST = this.shadowRoot.querySelector('#list');
+
+    getNodes(this.hox, 'docInfo content receiptInfo recipient rec').forEach((rec) => {
+      console.log('recipient rec', rec);
+      //
+      const LI = LIST.appendChild(document.createElement('li'));
+      let feRec = LI.appendChild(new FeRec());
+      feRec.set(rec);
+      feRec.addEventListener('delete', () => {
+        //
+        LI.remove();
+      });
+    });
+  }
+
+  #checkRecipientNode() {
+    if (!existsNode(this.hox, 'docInfo content receiptInfo recipient')) {
+      addNode(this.hox, 'docInfo content receiptInfo', 'recipient');
+    }
+  }
+
+  #dtnodeToRecDept(dtnode) {
+    this.#checkRecipientNode();
+    //
+
+    let xmlText = `
+    <rec type="rectype_dept">
+      <ID>${dtnode.data.key}</ID>
+      <name>${dtnode.data.title}</name>
+      <charger>
+        <ID/>
+        <name/>
+        <positionName/>
+        <department>
+          <ID/>
+          <name/>
+        </department>
+      </charger>
+      <displayString>${dtnode.data.title}${GWWEBMessage.cmsg_0034}</displayString>
+    </rec>
+    `;
+    return getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
+  }
+
+  #dtnodeToRecUser(dtnode) {
+    this.#checkRecipientNode();
+    //
+    let saveDeptInfo = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSaveDeptInfo.act?DID=${dtnode.data.deptID}`).json();
+    if (!saveDeptInfo.ok) {
+      throw new Error('notfound dept: ' + dtnode.data.deptID);
+    }
+    //
+    let xmlText = `
+    <rec type="rectype_dept">
+      <ID>${saveDeptInfo.dept.ID}</ID>
+      <name>${saveDeptInfo.dept.name}</name>
+      <charger>
+        <ID>${dtnode.data.key}</ID>
+        <name>${dtnode.data.name}</name>
+        <positionName>${dtnode.data.positionName}</positionName>
+        <department>
+          <ID>${dtnode.data.deptID}</ID>
+          <name>${dtnode.data.deptName}</name>
+        </department>
+      </charger>
+      <displayString>system${GWWEBMessage.cmsg_0034}</displayString>
+    </rec>
+    `;
+    return getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
   }
 }
 
