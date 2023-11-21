@@ -11,7 +11,7 @@ fe-rec {
   align-items: center;
 
   .rec-type {
-    width: 5rem;
+    width: 6rem;
     font-size: 0.75rem;
   }
   .rec-info {
@@ -19,7 +19,7 @@ fe-rec {
 
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 
     .img-profile {
       display: inline-block;

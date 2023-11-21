@@ -1,10 +1,10 @@
 import $ from 'jquery';
-import syncFetch from 'sync-fetch';
 import '../_open_sources/dynatree';
 import tagUi from '../utils/TabUI';
-import { addNode, createNode, existsNode, getNode, getNodes } from '../utils/hoxUtils';
+import { getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
+import * as StringUtils from '../utils/stringUtils';
 import './FeRecipient.scss';
-import FeRec from './recipientInfo/FeRec';
+import './recipientInfo/FeRecList';
 
 export default class FeRecipient extends HTMLElement {
   active = false;
@@ -35,6 +35,7 @@ export default class FeRecipient extends HTMLElement {
           <button type="button" class="tab-button" role="tab" target="#groupTreePanel">${GWWEBMessage.cmsg_1166 /* 수신부서 그룹 */}</button>
           <button type="button" class="tab-button" role="tab" target="#manualPanel">${GWWEBMessage.cmsg_1167 /* 외부 */}</button>
           <button type="button" class="tab-button" role="tab" target="#ldapTreePanel">${GWWEBMessage.cmsg_2200 /* LDAP */}</button>
+          <button type="button" class="tab-button" role="tab" target="#doc24TreePanel">${GWWEBMessage.appr_doc24 /* 문서24 */}</button>
         </div>
         <div>
           <div class="tab-content" role="tabpanel" id="orgTreePanel">
@@ -49,24 +50,88 @@ export default class FeRecipient extends HTMLElement {
           <div class="tab-content" role="tabpanel" id="ldapTreePanel">
             <div id="ldapTree" class="folder"></div>
           </div>
+          <div class="tab-content" role="tabpanel" id="doc24TreePanel">
+            <div id="doc24Tree" class="folder"></div>
+          </div>
         </div>
       </div>
       <div class="list">
-        <ul id="list" class="sortable-list"></ul>
+        <fe-reclist></fe-reclist>
         <div class="recipient-info">
           <div>
             <input type="checkbox" id="displayCheckbox" />
             <label for="displayCheckbox">${GWWEBMessage.cmsg_1178}</label>
           </div>
-          <input type="text" id="displayString" placeholder="${GWWEBMessage.W2850}" />
+          <input type="text" id="displayString" placeholder="${GWWEBMessage.W2850}" readOnly />
           <label for="senderName">${GWWEBMessage.cmsg_759}</label>
           <select id="senderName"></select>
         </div>
       </div>
-
     `;
 
     this.shadowRoot.append(LINK, LINK2, wrapper);
+
+    this.orgTree = this.shadowRoot.querySelector('#tree');
+    this.groupTree = this.shadowRoot.querySelector('#groupTree');
+
+    this.feRecList = this.shadowRoot.querySelector('fe-reclist');
+    this.displayCheckbox = this.shadowRoot.querySelector('#displayCheckbox');
+    this.displayString = this.shadowRoot.querySelector('#displayString');
+    this.senderName = this.shadowRoot.querySelector('#senderName');
+
+    // FeRec에서 x 삭제 이벤트
+    this.feRecList.addEventListener('deleteRec', (e) => {
+      console.log('Event', e.type, e.target, e);
+      let id = e.detail.id;
+      let chargerID = e.detail.chargerID;
+      let type = e.detail.type;
+
+      // 트리에서 선택 해제 시도
+      if (type === 'rectype_dept' || type === 'rectype_unifiedgroup') {
+        if (StringUtils.isBlank(chargerID)) {
+          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
+        } else {
+          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(chargerID)?._select(false, false);
+        }
+        //
+        try {
+          $(this.groupTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
+        } catch (error) {
+          // do nothing
+        }
+      } else if (type === 'rectype_ldap') {
+        // TODO
+      }
+
+      // 수신부서표기명 업데이트
+      this.#renderDisplayString();
+      // 발신명의 업데이트?
+      this.#renderSenderName();
+    });
+
+    // 수신부서표기명 체크박스 이벤트
+    this.displayCheckbox.addEventListener('change', (e) => {
+      console.log('Event', e.type, e.target, e.checked);
+      //
+      this.displayString.readOnly = !e.target.checked;
+      if (!e.target.checked) {
+        this.#renderDisplayString();
+      }
+    });
+
+    // 수신부서표기 input 이벤트
+    this.displayString.addEventListener('change', (e) => {
+      console.log('Event', e.type, e.target, e.value);
+      //
+      setText(this.hox, 'docInfo content displayString', e.target.value);
+    });
+
+    // 발신명의 선택 이벤트
+    this.senderName.addEventListener('change', (e) => {
+      console.log('Event', e.type, e.target, e.value);
+      //
+      setText(this.hox, 'docInfo content senderName', e.target.value);
+    });
   }
 
   /**
@@ -101,6 +166,9 @@ export default class FeRecipient extends HTMLElement {
           case 'ldapTreePanel':
             this.renderLdapTree();
             break;
+          case 'doc24TreePanel':
+            this.renderDoc24();
+            break;
           default:
             throw new Error('undefined tabId: ' + id);
         }
@@ -108,14 +176,16 @@ export default class FeRecipient extends HTMLElement {
     });
 
     this.hox = hox;
+    this.feRecList.set(hox);
+
     this.renderOrgTree(); // 첫탭. 조직도 트리 그리기
-    this.renderRec(); // hox기반 수신부서(fe-rec) 그리기
+    this.#renderDisplayString();
+    this.#renderSenderName();
+
     this.active = true;
   }
 
   renderOrgTree() {
-    let tree = this.shadowRoot.querySelector('#tree');
-
     const params = {
       acton: 'initOrgTree',
       baseDept: '000010100',
@@ -133,9 +203,9 @@ export default class FeRecipient extends HTMLElement {
 
         const ROOT_FOLDER_ID = '00000000000000000001';
 
-        $(tree)
+        $(this.orgTree)
           .dynatree({
-            title: 'tree',
+            title: 'orgtree',
             persist: false,
             checkbox: true,
             selectMode: 2,
@@ -151,13 +221,12 @@ export default class FeRecipient extends HTMLElement {
             onSelect: (select, dtnode) => {
               console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
               if (select) {
-                // 결재선에 추가
-                this.addRecipient(dtnode);
+                // 수신목록에 추가
+                this.feRecList.add(dtnode, 'org');
               } else {
-                // 결재선에서 제거
-                this.removeRecipient(dtnode);
+                // 수신목록에서 제거
+                this.feRecList.delete(dtnode, 'org');
               }
-              this.renderDisplayString();
             },
             onClick: (dtnode, event) => {
               console.log('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
@@ -175,7 +244,7 @@ export default class FeRecipient extends HTMLElement {
                 dtnode.toggleSelect();
               }
             },
-            onLazyRead: function (dtnode) {
+            onLazyRead: (dtnode) => {
               console.log('[dynatree] onLazyRead', dtnode.data.title, dtnode);
               var params = {
                 acton: 'expandOrgTree',
@@ -189,12 +258,13 @@ export default class FeRecipient extends HTMLElement {
                 url: '/directory-web/org.do',
                 type: 'post',
                 data: params,
-                success: function (dtnode) {
+                success: (dtnode) => {
                   console.log('[dynatree] appendAjax', dtnode.data.title, dtnode);
+                  this.#matchTreeAndHox();
                 },
               });
             },
-            onRender: function (dtnode, nodeSpan) {
+            onRender: (dtnode, nodeSpan) => {
               console.log('onLoader', dtnode, nodeSpan);
               if (!dtnode.data.isFolder) {
                 var res = $(nodeSpan).html().replace('dynatree-checkbox', 'dynatree-radio');
@@ -212,11 +282,43 @@ export default class FeRecipient extends HTMLElement {
           .dynatree('getRoot')
           .tree.getNodeByKey(rInfo.user.deptID)
           .activate();
+
+        this.#matchTreeAndHox();
       });
   }
 
   renderGroupTree() {
     //
+    const params = {
+      acton: 'groupTree',
+      base: '001000001',
+      groupType: 'A',
+      checkbox: 'both',
+      display: 'org, rootdept, group, ldap, doc24, ucorg2, userSingle',
+    };
+    const queryString = new URLSearchParams(params).toString();
+    fetch('/directory-web/org.do?' + queryString)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        //
+        $(this.groupTree).dynatree({
+          checkbox: true,
+          selectMode: 2,
+          clickFolderMode: 1,
+          children: data,
+          onSelect: (select, dtnode) => {
+            console.log('onSelect groupTree', select, dtnode);
+            if (select) {
+              // 수신목록에 추가
+              this.feRecList.add(dtnode, 'group');
+            } else {
+              // 수신목록에서 제거
+              this.feRecList.delete(dtnode, 'group');
+            }
+          },
+        });
+      });
   }
 
   renderManual() {
@@ -227,136 +329,39 @@ export default class FeRecipient extends HTMLElement {
     //
   }
 
-  /**
-   * 트리에서 선택
-   * @param {Object} dtnode
-   */
-  addRecipient(dtnode) {
-    let rec;
-    if (dtnode.data.isFolder) {
-      rec = this.#dtnodeToRecDept(dtnode);
-    } else {
-      rec = this.#dtnodeToRecUser(dtnode);
-    }
-
+  renderDoc24() {
     //
-    let recData = dtnode.data;
-    const LIST = this.shadowRoot.querySelector('#list');
-    const LI = LIST.appendChild(document.createElement('li'));
-    // LI.id = 'rec' + recData.key;
-    let feRec = LI.appendChild(new FeRec());
-    feRec.set(rec);
-    feRec.addEventListener('delete', () => {
+  }
+
+  #renderDisplayString() {
+    //
+    if (!this.displayCheckbox.checked) {
+      this.displayString.value = this.feRecList.displayString;
+    }
+  }
+
+  #renderSenderName() {
+    //
+  }
+
+  #matchTreeAndHox() {
+    getNodes(this.hox, 'docInfo content rec').forEach((rec) => {
       //
-      if (dtnode) {
-        dtnode.toggleSelect();
+      let id = getText(rec, 'ID');
+      let type = getAttr(rec, null, 'type');
+      if (type === 'rectype_dept') {
+        let chargerID = getText(rec, 'charger ID');
+        if (StringUtils.isBlank(chargerID)) {
+          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
+        } else {
+          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(chargerID)?._select(true, false);
+        }
+      } else if (type === 'rectype_unifiedgroup') {
+        $(this.groupTree)?.dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
+      } else if (type === 'rectype_ldap') {
+        // TODO
       }
-      LI.remove();
     });
-    dtnode['li'] = LI;
-
-    // LI.innerHTML = `
-    //   <div class="recipient-bar">
-    //     <span class="rec-type">${recData.isFolder ? GWWEBMessage.hsappr_0164 : GWWEBMessage.W2440}</span>
-    //     <div class="rec-info">
-    //       <span class="img-profile" style="background-image: url('${recData.isFolder ? `/user/img/team_profile_blank.png` : `/jsp/org/view/ViewPicture.jsp?user_id=${recData.key}`}')"></span>
-    //       <span class="name">${recData.isFolder ? recData.title : recData.name}</span>
-    //       ${recData.isFolder ? '' : `<span class="rank">${recData.positionName}</span><span class="team">${recData.deptName}</span>`}
-    //     </div>
-    //     <div class="rec-close">
-    //       <button type="button">&times;</button>
-    //     </div>
-    //   </div>
-    // `;
-    // LI.querySelector('button').addEventListener('click', () => {
-    //   dtnode.toggleSelect();
-    //   LI.remove();
-    // });
-  }
-
-  removeRecipient(dtnode) {
-    let recData = dtnode.data;
-    const LIST = this.shadowRoot.querySelector('#list');
-    //
-    // LIST.querySelector('#rec' + recData.key).remove();
-    dtnode.li.remove();
-  }
-
-  renderDisplayString() {
-    //
-  }
-
-  renderRec() {
-    //
-    const LIST = this.shadowRoot.querySelector('#list');
-
-    getNodes(this.hox, 'docInfo content receiptInfo recipient rec').forEach((rec) => {
-      console.log('recipient rec', rec);
-      //
-      const LI = LIST.appendChild(document.createElement('li'));
-      let feRec = LI.appendChild(new FeRec());
-      feRec.set(rec);
-      feRec.addEventListener('delete', () => {
-        //
-        LI.remove();
-      });
-    });
-  }
-
-  #checkRecipientNode() {
-    if (!existsNode(this.hox, 'docInfo content receiptInfo recipient')) {
-      addNode(this.hox, 'docInfo content receiptInfo', 'recipient');
-    }
-  }
-
-  #dtnodeToRecDept(dtnode) {
-    this.#checkRecipientNode();
-    //
-
-    let xmlText = `
-    <rec type="rectype_dept">
-      <ID>${dtnode.data.key}</ID>
-      <name>${dtnode.data.title}</name>
-      <charger>
-        <ID/>
-        <name/>
-        <positionName/>
-        <department>
-          <ID/>
-          <name/>
-        </department>
-      </charger>
-      <displayString>${dtnode.data.title}${GWWEBMessage.cmsg_0034}</displayString>
-    </rec>
-    `;
-    return getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
-  }
-
-  #dtnodeToRecUser(dtnode) {
-    this.#checkRecipientNode();
-    //
-    let saveDeptInfo = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSaveDeptInfo.act?DID=${dtnode.data.deptID}`).json();
-    if (!saveDeptInfo.ok) {
-      throw new Error('notfound dept: ' + dtnode.data.deptID);
-    }
-    //
-    let xmlText = `
-    <rec type="rectype_dept">
-      <ID>${saveDeptInfo.dept.ID}</ID>
-      <name>${saveDeptInfo.dept.name}</name>
-      <charger>
-        <ID>${dtnode.data.key}</ID>
-        <name>${dtnode.data.name}</name>
-        <positionName>${dtnode.data.positionName}</positionName>
-        <department>
-          <ID>${dtnode.data.deptID}</ID>
-          <name>${dtnode.data.deptName}</name>
-        </department>
-      </charger>
-      <displayString>system${GWWEBMessage.cmsg_0034}</displayString>
-    </rec>
-    `;
-    return getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
   }
 }
 

@@ -1,17 +1,31 @@
 # bms-fe
 
-# ref
+* 목적
+  * 속도 향상
+  * 확장성
+  * 기능 추가 용이
+  * UI
 
-fancytree:
-https://wwwendt.de/tech/fancytree/demo/#sample-source.html
-https://itinerant.tistory.com/117
-https://github.com/mar10/fancytree/wiki
+* 개발
+  * Web components: 화면 단위로 UI, 기능을 한 곳에
+  * ECMAScript: async/await, Arrow function, Class, ...
+  * scss: 스타일
 
-dynatree
-https://www.ptj.de/c_media/modules/dynatree/doc/sample-select.html
-https://blog.naver.com/pupu902/150165373337
+* Tools  
+  * nodejs
+  * jslint: 정적 코드 분석 도구
+  * prettier: 코드 포맷터
 
-# vscode setting
+* 빌드/배포
+
+  * webpack  
+
+## ref
+
+* [Web components: 캡슐화하여 재사용 가능한 커스텀 엘리먼트](https://developer.mozilla.org/ko/docs/Web/API/Web_components)
+* [dynatree: sample page](https://www.ptj.de/c_media/modules/dynatree/doc/sample-select.html)
+
+* vscode setting
 
 ```json
 "editor.codeActionsOnSave": {

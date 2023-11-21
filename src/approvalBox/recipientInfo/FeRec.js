@@ -42,6 +42,14 @@ export default class FeRec extends HTMLElement {
    * @param {Element} rec
    */
   set(rec) {
+    let type = getAttr(rec, null, 'type');
+    let id = getText(rec, 'ID');
+    let chargerID = getText(rec, 'charger ID');
+
+    this.rec = rec;
+    this.setAttribute('id', id);
+    this.setAttribute('type', type);
+
     const recType = this.shadowRoot.querySelector('.rec-type');
     const imgProfile = this.shadowRoot.querySelector('.img-profile');
     const name = this.shadowRoot.querySelector('.name');
@@ -50,11 +58,8 @@ export default class FeRec extends HTMLElement {
     const delBtn = this.shadowRoot.querySelector('button');
     delBtn.addEventListener('click', () => {
       // 삭제 이벤트 전파
-      this.dispatchEvent(new Event('delete'));
+      this.dispatchEvent(new CustomEvent('deleteRec', { bubbles: true, composed: true, detail: { type: type, id: id, chargerID: chargerID } }));
     });
-
-    let type = getAttr(rec, null, 'type');
-    this.setAttribute('type', type);
 
     switch (type) {
       case 'rectype_dept': {
@@ -78,6 +83,11 @@ export default class FeRec extends HTMLElement {
         }
         break;
       }
+      case 'rectype_unifiedgroup': {
+        recType.innerHTML = GWWEBMessage.cmsg_1166;
+        name.innerHTML = getText(rec, 'name');
+        break;
+      }
       case 'rectype_manual': {
         recType.innerHTML = GWWEBMessage.cmsg_1167;
         name.innerHTML = getText(rec, 'name');
@@ -92,6 +102,18 @@ export default class FeRec extends HTMLElement {
       default:
         throw new Error('unknown type: ' + type);
     }
+  }
+
+  get displayString() {
+    return getText(this.rec, 'displayString');
+  }
+
+  get id() {
+    return getText(this.rec, 'ID');
+  }
+
+  get type() {
+    return getAttr(this.rec, null, 'type');
   }
 }
 
