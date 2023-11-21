@@ -32,3 +32,13 @@
   "source.organizeImports": true
 },
 ```
+
+* madge
+
+  <https://github.com/pahen/madge>
+
+  ```js
+  yarn add -D madge
+  ```
+
+  [install Graphviz](https://graphviz.org/download/)
