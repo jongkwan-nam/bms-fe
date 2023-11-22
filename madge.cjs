@@ -1,13 +1,30 @@
 const madge = require('madge');
+const fs = require('fs');
 
-madge('src/main.js')
-  .then((res) => res.image('./doc/main.svg'))
-  .then((writtenImagePath) => {
-    console.log('Image written to ' + writtenImagePath);
-  });
+const entries = ['main', 'approvalBox'];
 
-madge('src/approvalBox.js')
-  .then((res) => res.image('./doc/approvalBox.svg'))
-  .then((writtenImagePath) => {
-    console.log('Image written to ' + writtenImagePath);
+const madgeConfig = {
+  fontSize: '12px',
+  fontName: 'D2Coding',
+  rankdir: 'LR',
+  nodeColor: '#c6c5fe',
+  noDependencyColor: '#cfffac',
+  edgeColor: '#757575',
+};
+
+let svgList = [];
+
+(async () => {
+  //
+  for (let entry of entries) {
+    let res = await madge(`src/${entry}.js`, madgeConfig);
+    let output = await res.svg();
+    let svgString = output.toString();
+
+    svgList.push({ entry: entry, svg: svgString });
+  }
+
+  fs.writeFile('./src/dependencies-viewer.json', JSON.stringify(svgList), 'utf8', () => {
+    console.log('write dependencies-viewer.json');
   });
+})();

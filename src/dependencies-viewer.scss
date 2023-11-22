@@ -1,0 +1,27 @@
+@import "./css/root.scss";
+@import "./css/initiate.scss";
+
+g {
+  .node {
+    cursor: pointer;
+    color: #c6c5fe; /* madge.cjs#madgeConfig.nodeColor */
+
+    &.noDependency {
+      color: #cfffac; /* madge.cjs#madgeConfig.noDependencyColor */
+    }
+  }
+
+  .edge {
+    color: #757575; /* madge.cjs#madgeConfig.edgeColor */
+  }
+
+  &.active {
+    &.node {
+      color: red;
+    }
+
+    &.edge {
+      color: red;
+    }
+  }
+}

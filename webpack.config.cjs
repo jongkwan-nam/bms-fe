@@ -6,6 +6,7 @@ module.exports = {
   /* mode: development, production, none */
   mode: 'production',
   entry: {
+    'dependencies-viewer': './src/dependencies-viewer.js',
     main: './src/main.js',
     approvalBox: './src/approvalBox.js',
   },
