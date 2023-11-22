@@ -1,6 +1,8 @@
 import $ from 'jquery';
+import syncFetch from 'sync-fetch';
 import '../_open_sources/dynatree';
-import tagUi from '../utils/TabUI';
+import * as TagUI from '../utils/TabUI';
+import * as ArrayUtils from '../utils/arrayUtils';
 import { getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
 import * as StringUtils from '../utils/stringUtils';
 import './FeRecipient.scss';
@@ -143,46 +145,71 @@ export default class FeRecipient extends HTMLElement {
       return;
     }
 
-    tagUi(this.shadowRoot);
-
-    // 탭 선택 이벤트 리스너
-    this.shadowRoot.querySelectorAll('[role="tabpanel"]').forEach((tabpanel) => {
-      //
-      tabpanel.addEventListener('active', (e) => {
-        //
-        console.log('tabpanel active', e.target.id);
-        let id = e.target.id;
-
-        switch (id) {
-          case 'orgTreePanel':
-            this.renderOrgTree();
-            break;
-          case 'groupTreePanel':
-            this.renderGroupTree();
-            break;
-          case 'manualPanel':
-            this.renderManual();
-            break;
-          case 'ldapTreePanel':
-            this.renderLdapTree();
-            break;
-          case 'doc24TreePanel':
-            this.renderDoc24();
-            break;
-          default:
-            throw new Error('undefined tabId: ' + id);
-        }
-      });
+    TagUI.init(this.shadowRoot, (activeTab) => {
+      switch (activeTab.id) {
+        case 'orgTreePanel':
+          this.renderOrgTree();
+          break;
+        case 'groupTreePanel':
+          this.renderGroupTree();
+          break;
+        case 'manualPanel':
+          this.renderManual();
+          break;
+        case 'ldapTreePanel':
+          this.renderLdapTree();
+          break;
+        case 'doc24TreePanel':
+          this.renderDoc24();
+          break;
+        default:
+          throw new Error('undefined tabId: ' + activeTab.id);
+      }
     });
+    TagUI.select(this.shadowRoot, 1);
+
+    this.active = true;
 
     this.hox = hox;
     this.feRecList.set(hox);
 
-    this.renderOrgTree(); // 첫탭. 조직도 트리 그리기
+    // this.renderOrgTree(); // 첫탭. 조직도 트리 그리기
     this.#renderDisplayString();
-    this.#renderSenderName();
+    this.change();
+  }
 
-    this.active = true;
+  /**
+   * 외부에서 hox가 수정되었을때 호출됨
+   */
+  change() {
+    if (!this.active) {
+      return;
+    }
+
+    // 발송종류에 따라
+    let enforcetype = getText(this.hox, 'docInfo enforceType');
+    switch (enforcetype) {
+      case 'enforcetype_external': {
+        TagUI.active(this.shadowRoot, 3, true);
+        TagUI.active(this.shadowRoot, 4, true);
+        TagUI.active(this.shadowRoot, 5, true);
+        break;
+      }
+      case 'enforcetype_internal': {
+        TagUI.active(this.shadowRoot, 3, false);
+        TagUI.active(this.shadowRoot, 4, false);
+        TagUI.active(this.shadowRoot, 5, false);
+        break;
+      }
+      case 'enforcetype_not': {
+        // 내부결재면, 여기로 들어오지 못함
+        break;
+      }
+      default:
+        break;
+    }
+
+    this.#renderSenderName();
   }
 
   renderOrgTree() {
@@ -229,7 +256,7 @@ export default class FeRecipient extends HTMLElement {
               }
             },
             onClick: (dtnode, event) => {
-              console.log('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
+              console.debug('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
 
               if (!dtnode.data.isFolder) {
                 dtnode.parent.childList.forEach((child) => {
@@ -265,7 +292,7 @@ export default class FeRecipient extends HTMLElement {
               });
             },
             onRender: (dtnode, nodeSpan) => {
-              console.log('onLoader', dtnode, nodeSpan);
+              console.debug('onLoader', dtnode, nodeSpan);
               if (!dtnode.data.isFolder) {
                 var res = $(nodeSpan).html().replace('dynatree-checkbox', 'dynatree-radio');
                 $(nodeSpan).html(res);
@@ -342,6 +369,17 @@ export default class FeRecipient extends HTMLElement {
 
   #renderSenderName() {
     //
+    let enforcetype = getText(this.hox, 'docInfo enforceType');
+    let draftDeptId = rInfo.user.deptID; // TODO 결재선 기안자의 부서
+    let lastSignDeptId = rInfo.user.deptID; // TODO 결재선 최종결재자의 부서
+    let ret = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSenderNames.act?enforceType=${enforcetype}&draftDeptId=${draftDeptId}&lastSignDeptId=${lastSignDeptId}`).json();
+    if (!ret.ok) {
+      throw new Error(`notfound senderNames by enforceType=${enforcetype} draftDeptId=${draftDeptId} lastSignDeptId=${lastSignDeptId}`);
+    }
+    this.senderName.textContent = null;
+    ArrayUtils.split(ret.senderNames, ';').forEach((name) => {
+      this.senderName.innerHTML += `<option value="${name}">${name}</option>`;
+    });
   }
 
   #matchTreeAndHox() {

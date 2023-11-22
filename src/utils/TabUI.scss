@@ -1,4 +1,4 @@
-[role="tab"]:hover {
+[role="tab"]:not([disabled]):hover {
   text-shadow: var(--text-shadow-hover);
 }
 [role="tab"][active] {

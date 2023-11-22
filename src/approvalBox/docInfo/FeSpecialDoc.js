@@ -15,7 +15,7 @@ export default class FeSpecialDoc extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    console.log('FeSpecialDoc attributeChangedCallback', name, oldValue, newValue);
+    console.log('FeSpecialDoc attribute ChangedCallback', name, oldValue, newValue);
     //
     if (name === 'data-pubtype') {
       if (newValue === 'pubtype_open') {
@@ -75,7 +75,6 @@ export default class FeSpecialDoc extends HTMLElement {
     this.hox = hox;
 
     // hox값 화면 표시
-    console.log('docInfo publication specialDoc', getFlagList(this.hox, 'docInfo publication specialDoc'));
     getFlagList(this.hox, 'docInfo publication specialDoc').forEach((flag) => {
       console.log('specialDoc', flag);
       //

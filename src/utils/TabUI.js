@@ -5,20 +5,26 @@ import './TabUI.scss';
  *
  */
 
-export default (root) => {
+/**
+ *  탭 초기화및 선택 이벤트 리스너 설정
+ * @param {ShadowRoot | Document} root
+ * @param {function} listener 타겟 panel이 Element로 전달된다
+ */
+export const init = (root, listener) => {
   //
   const activateTab = (selectedTab, tabList) => {
     console.log('activateTab', selectedTab);
     tabList.forEach((tab) => {
       //
-      const target = tab.getAttribute('target');
-      const targetPanel = root.querySelector(target);
+      const targetId = tab.getAttribute('target');
+      const targetPanel = root.querySelector(targetId);
       console.debug('tab', selectedTab === tab, tab, targetPanel);
 
       if (tab === selectedTab) {
         tab.setAttribute('active', true);
         targetPanel.setAttribute('active', true);
-        targetPanel.dispatchEvent(new Event('active'));
+
+        listener(targetPanel);
       } else {
         tab.removeAttribute('active');
         targetPanel.removeAttribute('active');
@@ -41,9 +47,32 @@ export default (root) => {
         activateTab(tab, tabList);
       }
 
-      tab.addEventListener('click', () => {
-        activateTab(tab, tabList);
+      tab.addEventListener('click', (e) => {
+        if (!e.target.disabled) {
+          activateTab(tab, tabList);
+        }
       });
     });
   });
+};
+
+/**
+ * 탭 활성/비활성
+ * @param {ShadowRoot | Document} root
+ * @param {number} nth 탭 순번. (1부터)
+ * @param {*} force 활성/비활성 여부
+ */
+export const active = (root, nth, force) => {
+  console.debug('Tab active', nth, force);
+  root.querySelectorAll('[role="tab"]')[nth - 1].disabled = !force;
+};
+
+/**
+ * 탭 선택
+ * @param {ShadowRoot | Document} root
+ * @param {*} nth 탭 순번. (1부터)
+ */
+export const select = (root, nth) => {
+  console.debug('Tab select', nth);
+  root.querySelectorAll('[role="tab"]')[nth - 1].click();
 };

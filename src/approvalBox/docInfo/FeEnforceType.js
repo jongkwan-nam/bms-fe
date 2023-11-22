@@ -31,9 +31,11 @@ export default class FeEnforceType extends HTMLElement {
       input.id = type;
       input.value = type;
       input.addEventListener('change', (e) => {
-        console.log(e.target.id, e.type, e.target.value);
+        console.log('Event', e.type, e.target.value);
         //
         setText(this.hox, 'docInfo enforceType', e.target.value);
+
+        this.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true, detail: { key: 'enforceType', value: e.target.value } }));
       });
 
       let label = wrapper.appendChild(document.createElement('label'));
@@ -52,7 +54,7 @@ export default class FeEnforceType extends HTMLElement {
     let enforceType = getText(hox, 'docInfo enforceType');
     let enforceTypeRadio = this.shadowRoot.querySelector('#' + enforceType);
     if (enforceTypeRadio) {
-      enforceTypeRadio.checked = true;
+      enforceTypeRadio.click();
     }
   }
 }

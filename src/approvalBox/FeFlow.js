@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import '../_open_sources/dynatree';
-import { getNodes } from '../utils/hoxUtils';
+import { getNodes, getText } from '../utils/hoxUtils';
 import './FeFlow.scss';
-import FeParticipant from './flowInfo/FeParticipant';
+import './flowInfo/FeParticipantList';
 
 /**
  * 결재선 화면
@@ -35,11 +35,20 @@ export default class FeFlow extends HTMLElement {
         <div id="tree" class="folder"></div>
       </div>
       <div class="list">
-        <ul id="list" class="sortable-list"></ul>
+        <fe-participantlist></fe-participantlist>
       </div>
     `;
 
     this.shadowRoot.append(LINK, LINK2, wrapper);
+
+    this.orgTree = this.shadowRoot.querySelector('#tree');
+    this.feParticipantlist = this.shadowRoot.querySelector('fe-participantlist');
+
+    this.feParticipantlist.addEventListener('deleteParticipant', (e) => {
+      console.log('Event', e.type, e.target, e);
+      let id = e.detail.id;
+      $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
+    });
   }
 
   /**
@@ -52,15 +61,13 @@ export default class FeFlow extends HTMLElement {
     }
 
     this.hox = hox;
-    this.renderTree();
-    this.renderFlow();
+    this.renderOrgTree();
+    this.feParticipantlist.set(hox);
 
     this.active = true;
   }
 
-  renderTree() {
-    let tree = this.shadowRoot.querySelector('#tree');
-
+  renderOrgTree() {
     const params = {
       acton: 'initOrgTree',
       baseDept: '000010100',
@@ -74,13 +81,13 @@ export default class FeFlow extends HTMLElement {
     fetch('/directory-web/org.do?' + queryString)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        console.debug('initOrgTree', data);
 
         const ROOT_FOLDER_ID = '00000000000000000001';
 
-        $(tree)
+        $(this.orgTree)
           .dynatree({
-            title: 'tree',
+            title: 'orgTree',
             persist: false,
             checkbox: true,
             selectMode: 2,
@@ -97,18 +104,19 @@ export default class FeFlow extends HTMLElement {
               console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
               if (select) {
                 // 결재선에 추가
+                this.feParticipantlist.add(dtnode);
               } else {
                 // 결재선에서 제거
+                this.feParticipantlist.remove(dtnode);
               }
             },
             onClick: (dtnode, event) => {
-              console.log('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
-
+              console.debug('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
               if (dtnode.getEventTargetType(event) === 'title') {
                 dtnode.toggleSelect();
               }
             },
-            onLazyRead: function (dtnode) {
+            onLazyRead: (dtnode) => {
               console.log('[dynatree] onLazyRead', dtnode.data.title, dtnode);
               var params = {
                 acton: 'expandOrgTree',
@@ -122,61 +130,80 @@ export default class FeFlow extends HTMLElement {
                 url: '/directory-web/org.do',
                 type: 'post',
                 data: params,
-                success: function (dtnode) {
+                success: (dtnode) => {
                   console.log('[dynatree] appendAjax', dtnode.data.title, dtnode);
+                  this.#matchTreeAndHox();
                 },
               });
+            },
+            onRender: (dtnode, nodeSpan) => {
+              console.debug('onLoader', dtnode, nodeSpan);
+              if (dtnode.data.rbox == 'false') {
+                dtnode.data.unselectable = true;
+                $(nodeSpan).addClass('ui-dynatree-notuse');
+              } else {
+                $(nodeSpan).addClass('ui-dynatree-rbox-have');
+              }
             },
           })
           .dynatree('getRoot')
           .tree.getNodeByKey(rInfo.user.ID)
           .activate();
+
+        this.#matchTreeAndHox();
       });
   }
 
-  renderFlow() {
-    //
-    getNodes(this.hox, 'approvalFlow participant').forEach((participant, idx) => {
-      console.log('[FeFlow]', idx, participant);
-      //
-
-      const item = document.createElement('li');
-      item.classList.add('item');
-      item.setAttribute('draggable', true);
-
-      this.shadowRoot.querySelector('#list').prepend(item);
-
-      let feParticipant = item.appendChild(new FeParticipant());
-      feParticipant.set(participant);
+  #matchTreeAndHox() {
+    getNodes(this.hox, 'approvalFlow participant').forEach((participant) => {
+      let id = getText(participant, 'ID');
+      $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
     });
-
-    const sortableList = this.shadowRoot.querySelector('.sortable-list');
-    const items = sortableList.querySelectorAll('.item');
-
-    items.forEach((item) => {
-      item.addEventListener('dragstart', () => {
-        // Adding dragging class to item after a delay
-        setTimeout(() => item.classList.add('dragging'), 0);
-      });
-      // Removing dragging class from item on dragend event
-      item.addEventListener('dragend', () => item.classList.remove('dragging'));
-    });
-    const initSortableList = (e) => {
-      e.preventDefault();
-      const draggingItem = this.shadowRoot.querySelector('.dragging');
-      // Getting all items except currently dragging and making array of them
-      let siblings = [...sortableList.querySelectorAll('.item:not(.dragging)')];
-      // Finding the sibling after which the dragging item should be placed
-      let nextSibling = siblings.find((sibling) => {
-        console.log(sibling, e.clientY, sibling.offsetTop, sibling.offsetHeight);
-        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
-      });
-      // Inserting the dragging item before the found sibling
-      sortableList.insertBefore(draggingItem, nextSibling);
-    };
-    sortableList.addEventListener('dragover', initSortableList);
-    sortableList.addEventListener('dragenter', (e) => e.preventDefault());
   }
+
+  // renderFlow() {
+  //   //
+  //   getNodes(this.hox, 'approvalFlow participant').forEach((participant, idx) => {
+  //     console.log('[FeFlow]', idx, participant);
+  //     //
+
+  //     const item = document.createElement('li');
+  //     item.classList.add('item');
+  //     item.setAttribute('draggable', true);
+
+  //     this.shadowRoot.querySelector('#list').prepend(item);
+
+  //     let feParticipant = item.appendChild(new FeParticipant());
+  //     feParticipant.set(participant);
+  //   });
+
+  //   const sortableList = this.shadowRoot.querySelector('.sortable-list');
+  //   const items = sortableList.querySelectorAll('.item');
+
+  //   items.forEach((item) => {
+  //     item.addEventListener('dragstart', () => {
+  //       // Adding dragging class to item after a delay
+  //       setTimeout(() => item.classList.add('dragging'), 0);
+  //     });
+  //     // Removing dragging class from item on dragend event
+  //     item.addEventListener('dragend', () => item.classList.remove('dragging'));
+  //   });
+  //   const initSortableList = (e) => {
+  //     e.preventDefault();
+  //     const draggingItem = this.shadowRoot.querySelector('.dragging');
+  //     // Getting all items except currently dragging and making array of them
+  //     let siblings = [...sortableList.querySelectorAll('.item:not(.dragging)')];
+  //     // Finding the sibling after which the dragging item should be placed
+  //     let nextSibling = siblings.find((sibling) => {
+  //       console.log(sibling, e.clientY, sibling.offsetTop, sibling.offsetHeight);
+  //       return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+  //     });
+  //     // Inserting the dragging item before the found sibling
+  //     sortableList.insertBefore(draggingItem, nextSibling);
+  //   };
+  //   sortableList.addEventListener('dragover', initSortableList);
+  //   sortableList.addEventListener('dragenter', (e) => e.preventDefault());
+  // }
 }
 
 // Define the new element

@@ -1,7 +1,7 @@
 import './FeParticipant.scss';
 
 /**
- *
+ * 결재자
  */
 export default class FeParticipant extends HTMLElement {
   constructor() {

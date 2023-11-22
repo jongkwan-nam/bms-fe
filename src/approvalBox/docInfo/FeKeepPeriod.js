@@ -50,7 +50,6 @@ export default class FeKeepPeriod extends HTMLElement {
 
     let keepPeriod = getText(this.hox, 'docInfo keepPeriod');
     let input = this.shadowRoot.querySelector(`#keepPeriod_${keepPeriod}`);
-    console.log('FeKeepPeriod set', input);
     if (input) {
       input.checked = true;
     }

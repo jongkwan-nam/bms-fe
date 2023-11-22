@@ -5,7 +5,7 @@ import './approvalBox/FeFlow';
 import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
 
-import tabUI from './utils/TabUI';
+import * as TabUI from './utils/TabUI';
 
 let hox = opener.hox().cloneNode(true);
 
@@ -14,36 +14,56 @@ let feFlow = document.querySelector('fe-flow');
 let feRecipient = document.querySelector('fe-recipient');
 let feSender = document.querySelector('fe-sender');
 
-feDocInfo.set(hox);
-
-tabUI(document);
-
-// 탭 선택 이벤트 리스너
-document.querySelectorAll('[role="tabpanel"]').forEach((tabpanel) => {
-  //
-  tabpanel.addEventListener('active', (e) => {
+// 문서정보 변경
+feDocInfo.addEventListener('change', (e) => {
+  console.log('Event', e.type, e.detail);
+  // 발송종류에 따라, 탭 활성/비활성
+  if (e.detail.key === 'enforceType') {
     //
-    console.log('tabpanel active', e.target.id);
-    let id = e.target.id;
-
-    switch (id) {
-      case 'docInfo':
-        feDocInfo.set(hox);
+    switch (e.detail.value) {
+      case 'enforcetype_external': {
+        TabUI.active(document, 3, true);
+        TabUI.active(document, 4, true);
         break;
-      case 'flowInfo':
-        feFlow.set(hox);
+      }
+      case 'enforcetype_internal': {
+        TabUI.active(document, 3, true);
+        TabUI.active(document, 4, true);
         break;
-      case 'recipientInfo':
-        feRecipient.set(hox);
+      }
+      case 'enforcetype_not': {
+        TabUI.active(document, 3, false);
+        TabUI.active(document, 4, false);
         break;
-      case 'senderInfo':
-        feSender.set(hox);
-        break;
+      }
       default:
-        throw new Error('undefined tabId: ' + id);
+        break;
     }
-  });
+    // 수신부서에 hox 변경 알림
+    feRecipient.change();
+  }
 });
+
+TabUI.init(document, (activeTab) => {
+  switch (activeTab.id) {
+    case 'docInfo':
+      feDocInfo.set(hox);
+      break;
+    case 'flowInfo':
+      feFlow.set(hox);
+      break;
+    case 'recipientInfo':
+      feRecipient.set(hox);
+      break;
+    case 'senderInfo':
+      feSender.set(hox);
+      break;
+    default:
+      throw new Error('undefined tabId: ' + activeTab.id);
+  }
+});
+
+TabUI.select(document, 1);
 
 /*
  * 결재정보창 확인, 취소

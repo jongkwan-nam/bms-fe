@@ -66,7 +66,6 @@ export default class FeViewRestriction extends HTMLElement {
     let viewRestriction = getText(this.hox, 'docInfo viewRestriction');
     let securityExpireDate = getText(this.hox, 'docInfo securityExpireDate');
     let input = this.shadowRoot.querySelector(`#viewRestriction_${viewRestriction}`);
-    console.log('FeViewRestriction set', input);
     if (input) {
       input.checked = true;
 

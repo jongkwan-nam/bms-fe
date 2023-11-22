@@ -54,7 +54,6 @@ export default class FeViewRange extends HTMLElement {
 
     let viewRange = getText(this.hox, 'docInfo viewRange');
     let input = this.shadowRoot.querySelector(`#viewRange_${viewRange}`);
-    console.log('FeViewRange set', input);
     if (input) {
       input.checked = true;
     }
