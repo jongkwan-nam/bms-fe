@@ -35,7 +35,7 @@ export default class FeDocNumber extends HTMLElement {
     let format = getAttr(hox, 'docInfo docNumber expression', 'format');
 
     if (existsNode(hox, 'docInfo docNumber expression param')) {
-      /* TODO
+      /* TODO 문서번호 구현
        * 문서번호 채번형식 정의
        *   @D : 부서명,     @d : 부서약어,
        *   @Y : 년도4자리,  @y : 년도2자리,

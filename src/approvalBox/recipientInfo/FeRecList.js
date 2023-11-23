@@ -3,6 +3,15 @@ import { addNode, createNode, existsNode, getAttr, getNode, getNodes, getText } 
 import FeRec from './FeRec';
 import './FeRecList.scss';
 
+/**
+ * 수신부서 목록
+ *
+ * - 트리에서 전달된 dtnode로 FeRec 생성
+ * - FeRec로부터 삭제 이벤트 수신 처리
+ * - 수신부서 순서 변경
+ * - hox recipient 업데이트
+ * - 수신부서 표기명 제공
+ */
 export default class FeRecList extends HTMLElement {
   constructor() {
     super();
@@ -10,7 +19,7 @@ export default class FeRecList extends HTMLElement {
   }
 
   connectedCallback() {
-    console.debug('FeRecList connected');
+    console.info('FeRecList connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');
@@ -19,7 +28,16 @@ export default class FeRecList extends HTMLElement {
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-reclist');
-    wrapper.innerHTML = `<ul id="list" class="list"></ul>`;
+    wrapper.innerHTML = `
+      <header>
+        <label>${GWWEBMessage.recvdept}</label>
+        <div>
+          <button type="button" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
+          <button type="button" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
+        </div>
+      </header>
+      <ul id="list" class="list"></ul>
+    `;
 
     this.shadowRoot.append(LINK, wrapper);
 
@@ -33,6 +51,29 @@ export default class FeRecList extends HTMLElement {
       // hox 업데이트
       this.#updateHox();
       // this.postProcess();
+    });
+
+    // 수신부서 선택
+    this.LIST.addEventListener('click', (e) => {
+      this.LIST.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
+      e.target.closest('li').classList.add('selected');
+    });
+
+    // 수신부서 위로 버튼 이벤트
+    this.shadowRoot.querySelector('#upBtn').addEventListener('click', () => {
+      let selectedLI = this.LIST.querySelector('.selected');
+      if (selectedLI !== null && selectedLI.previousSibling) {
+        this.LIST.insertBefore(selectedLI, selectedLI.previousSibling);
+        this.#updateHox();
+      }
+    });
+    // 수신부서 아래로 버튼 이벤트
+    this.shadowRoot.querySelector('#downBtn').addEventListener('click', () => {
+      let selectedLI = this.LIST.querySelector('.selected');
+      if (selectedLI !== null) {
+        this.LIST.insertBefore(selectedLI, selectedLI.nextSibling?.nextSibling);
+        this.#updateHox();
+      }
     });
   }
 
@@ -276,6 +317,9 @@ export default class FeRecList extends HTMLElement {
       //
       getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(feRec.rec);
     });
+
+    // 내용 변경 이벤트 전파
+    this.dispatchEvent(new Event('change'));
   }
 
   get displayString() {

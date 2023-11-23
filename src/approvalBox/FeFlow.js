@@ -144,6 +144,10 @@ export default class FeFlow extends HTMLElement {
               } else {
                 $(nodeSpan).addClass('ui-dynatree-rbox-have');
               }
+              // 부재
+              if (!dtnode.data.isFolder && dtnode.data.absent) {
+                $(nodeSpan).append(`<a onclick="orgPopup.viewUserAbsent('${dtnode.data.key}')" class='usr_attnd'>${GWWEBMessage.W3156}</a>`);
+              }
             },
           })
           .dynatree('getRoot')

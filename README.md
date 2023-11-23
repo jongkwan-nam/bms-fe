@@ -7,7 +7,7 @@
   * UI
 
 * 개발
-  * Web components: 화면 단위로 UI, 기능을 한 곳에
+  * Web components: 화면 단위로 UI, 기능을 한 곳에. custom elements
   * ECMAScript: async/await, Arrow function, Class, ...
   * scss: 스타일
 

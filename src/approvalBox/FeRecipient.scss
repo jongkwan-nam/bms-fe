@@ -7,6 +7,13 @@ fe-recipient {
 .fe-recipient {
   height: 100%;
 
+  .tree {
+    .tab-group {
+      padding: 8px;
+      line-height: 1.5rem;
+    }
+  }
+
   .list {
     display: grid;
     grid-template-rows: 1fr 6rem;

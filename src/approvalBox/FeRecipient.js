@@ -102,13 +102,17 @@ export default class FeRecipient extends HTMLElement {
           // do nothing
         }
       } else if (type === 'rectype_ldap') {
-        // TODO
+        // TODO ldap 트리에서 선택 해제 시도
       }
 
       // 수신부서표기명 업데이트
       this.#renderDisplayString();
-      // 발신명의 업데이트?
-      this.#renderSenderName();
+    });
+
+    // FeRecList에서 순서 변경 이벤트
+    this.feRecList.addEventListener('change', (e) => {
+      // 수신부서표기명 업데이트
+      this.#renderDisplayString();
     });
 
     // 수신부서표기명 체크박스 이벤트
@@ -367,6 +371,9 @@ export default class FeRecipient extends HTMLElement {
     }
   }
 
+  /**
+   * hox enforceType 기준으로 발신명의 select 구성
+   */
   #renderSenderName() {
     //
     let enforcetype = getText(this.hox, 'docInfo enforceType');
@@ -397,7 +404,7 @@ export default class FeRecipient extends HTMLElement {
       } else if (type === 'rectype_unifiedgroup') {
         $(this.groupTree)?.dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
       } else if (type === 'rectype_ldap') {
-        // TODO
+        // TODO ldap 트리에 체크박스 선택
       }
     });
   }
