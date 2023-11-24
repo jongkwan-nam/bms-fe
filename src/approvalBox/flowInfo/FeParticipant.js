@@ -1,10 +1,10 @@
-import { getText } from '../../utils/hoxUtils';
+import { getText, setText } from '../../utils/hoxUtils';
 import './FeParticipant.scss';
 
 /**
  * 결재자
  *
- * - 권한설정은 스스로 설정
+ * - 권한설정은 스스로 설정: 결재방법이 협조, 검사부, 참조, 결재안함, 공석이거나 완료된 문서는 문서수정을 할 수 없습니다.
  *   * 문서수정: defaultaction_editdoc
  *   * 결재경로변경: defaultaction_setupflow
  *   * 붙임문서 추가: defaultaction_addattach
@@ -54,25 +54,53 @@ export default class FeParticipant extends HTMLElement {
     this.shadowRoot.append(LINK, wrapper);
 
     this.approvalTypeSelect = this.shadowRoot.querySelector('.type select');
+
+    // 결재방법 변경
     this.approvalTypeSelect.addEventListener('change', (e) => {
-      console.log('FeParticipant', e.type, e.target.tagName);
-      this.dispatchEvent(new Event('change'));
+      console.log('FeParticipant', e.type, e.target.tagName, e.target.value);
+
+      let prevApprovalType = getText(this.participant, 'approvalType');
+      let prevApprovalSubType = getText(this.participant, 'approvalSubType');
+
+      let idx = e.target.options.selectedIndex;
+      let option = e.target.options.item(idx);
+      console.log(`selected option: value=${option.value} type=${option.dataset.type}, subtype=${option.dataset.subType}, text=${option.dataset.text}`);
+
+      setText(this.participant, 'approvalType', option.dataset.type);
+      setText(this.participant, 'approvalSubType', option.dataset.subType);
+      setText(this.participant, 'displayApprovalType', option.dataset.text);
+      setText(this.participant, 'displayResourceCode', option.value);
+
+      // 변경 이벤트 전파
+      this.dispatchEvent(
+        new CustomEvent('change', {
+          bubbles: true,
+          composed: true,
+          detail: {
+            index: this.index,
+            // 변경된 값
+            curr: { type: option.dataset.type, subType: option.dataset.subType },
+            // 이전 값
+            prev: { type: prevApprovalType, subType: prevApprovalSubType },
+          },
+        })
+      );
     });
 
     const delBtn = this.shadowRoot.querySelector('button');
+    // 결재자 삭제
     delBtn.addEventListener('click', (e) => {
       console.log('FeParticipant', e.type, e.target.tagName);
       // 삭제 이벤트 전파
-      this.dispatchEvent(new CustomEvent('delete', { bubbles: true, composed: true, detail: { target: this } }));
+      this.dispatchEvent(new CustomEvent('delete', { bubbles: true, composed: true, detail: { index: this.index, target: this } }));
     });
   }
 
   /**
    *
    * @param {XMLElement} participant
-   * @param {Array} approvalTypeList
    */
-  set(participant, approvalTypeList, currentNo, finalNo) {
+  set(participant) {
     this.participant = participant;
 
     let type = getText(participant, 'type');
@@ -90,22 +118,60 @@ export default class FeParticipant extends HTMLElement {
 
     let isDept = type === 'dept';
 
-    this.approvalTypeSelect.textContent = null;
-    approvalTypeList.forEach((approvalType) => {
-      //
-      const option = this.approvalTypeSelect.appendChild(document.createElement('option'));
-      option.innerHTML = GWWEBMessage[approvalType.resourceCode[0].replace(/@@/g, '').replace(/\./g, '_')];
-      option.value = approvalType.type;
-    });
-
-    this.shadowRoot.querySelector('.no').innerHTML = currentNo;
     this.shadowRoot.querySelector('.img-profile').style.backgroundImage = `url('${isDept ? '/user/img/team_profile_blank.png' : `/jsp/org/view/ViewPicture.jsp?user_id=${id}`}')`;
     this.shadowRoot.querySelector('.name').innerHTML = name;
     this.shadowRoot.querySelector('.rank').innerHTML = isDept ? '' : position;
     this.shadowRoot.querySelector('.team').innerHTML = isDept ? '' : deptName;
     this.shadowRoot.querySelector('.status').innerHTML = displayApprovalStatus;
   }
+
+  setIndex(i) {
+    this.index = i;
+    this.shadowRoot.querySelector('.no').innerHTML = i;
+  }
+
+  setApprovalTypes(approvalTypes) {
+    let displayApprovalType = getText(this.participant, 'displayApprovalType');
+    let matchedIndex = 0;
+
+    this.approvalTypeSelect.textContent = null;
+    approvalTypes.forEach((approvalType, idx) => {
+      //
+      const option = this.approvalTypeSelect.appendChild(document.createElement('option'));
+      option.innerHTML = GWWEBMessage[approvalType.resourceCode];
+      option.value = approvalType.resourceCode;
+      option.dataset.type = approvalType.type;
+      option.dataset.subType = approvalType.subType;
+      option.dataset.text = approvalType.text;
+
+      // TODO 기존 선택과 맞으면
+      // if (displayApprovalType === approvalType.text) {
+      //   option.selected = true;
+      //   matchedIndex = idx;
+      // }
+    });
+
+    // setText(this.participant, 'approvalType', approvalTypes[matchedIndex].type);
+    // setText(this.participant, 'approvalSubType', approvalTypes[matchedIndex].subType);
+    // setText(this.participant, 'displayApprovalType', approvalTypes[matchedIndex].text);
+    // setText(this.participant, 'displayResourceCode', approvalTypes[matchedIndex].resourceCode);
+  }
+
+  setCellName(cellName) {
+    setText(this.participant, 'mappingCell cellName', cellName);
+  }
+
+  get type() {
+    return getText(this.participant, 'type');
+  }
+
+  get id() {
+    return getText(this.participant, 'ID');
+  }
+
+  get approvalType() {
+    return getText(this.participant, 'approvalType');
+  }
 }
 
-// Define the new element
 customElements.define('fe-participant', FeParticipant);

@@ -6,11 +6,18 @@ fe-participant {
 .fe-participant {
   font-size: 0.875rem;
   display: grid;
-  grid-template-columns: 9rem 1fr 5rem 2rem;
+  grid-template-columns: 1rem 9rem 1fr 5rem 2rem;
+  gap: 0.5rem;
+  align-items: center;
+
+  .no {
+  }
 
   .type {
     select {
       font-size: 0.875rem;
+      width: 100%;
+      height: 100%;
     }
   }
 
