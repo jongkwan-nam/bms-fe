@@ -130,12 +130,17 @@ export default class FeParticipant extends HTMLElement {
     this.shadowRoot.querySelector('.no').innerHTML = i;
   }
 
-  setApprovalTypes(approvalTypes) {
+  /**
+   *
+   * @param {array} availableApprovalTypes
+   * @param {number} decidedIndex 강제적으로 지정할 옵션 인덱스
+   */
+  setApprovalTypes(availableApprovalTypes, decidedIndex) {
     let displayApprovalType = getText(this.participant, 'displayApprovalType');
     let matchedIndex = 0;
 
     this.approvalTypeSelect.textContent = null;
-    approvalTypes.forEach((approvalType, idx) => {
+    availableApprovalTypes.forEach((approvalType, idx) => {
       //
       const option = this.approvalTypeSelect.appendChild(document.createElement('option'));
       option.innerHTML = GWWEBMessage[approvalType.resourceCode];
@@ -144,17 +149,24 @@ export default class FeParticipant extends HTMLElement {
       option.dataset.subType = approvalType.subType;
       option.dataset.text = approvalType.text;
 
-      // TODO 기존 선택과 맞으면
-      // if (displayApprovalType === approvalType.text) {
-      //   option.selected = true;
-      //   matchedIndex = idx;
-      // }
+      if (decidedIndex < 0) {
+        // TODO 기존 선택과 맞으면
+        if (displayApprovalType === approvalType.text) {
+          option.selected = true;
+          matchedIndex = idx;
+        }
+      } else {
+        if (idx === decidedIndex) {
+          option.selected = true;
+          matchedIndex = idx;
+        }
+      }
     });
 
-    // setText(this.participant, 'approvalType', approvalTypes[matchedIndex].type);
-    // setText(this.participant, 'approvalSubType', approvalTypes[matchedIndex].subType);
-    // setText(this.participant, 'displayApprovalType', approvalTypes[matchedIndex].text);
-    // setText(this.participant, 'displayResourceCode', approvalTypes[matchedIndex].resourceCode);
+    setText(this.participant, 'approvalType', availableApprovalTypes[matchedIndex].type);
+    setText(this.participant, 'approvalSubType', availableApprovalTypes[matchedIndex].subType);
+    setText(this.participant, 'displayApprovalType', availableApprovalTypes[matchedIndex].text);
+    setText(this.participant, 'displayResourceCode', availableApprovalTypes[matchedIndex].resourceCode);
   }
 
   setCellName(cellName) {
