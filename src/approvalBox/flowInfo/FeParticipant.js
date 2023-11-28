@@ -59,13 +59,14 @@ export default class FeParticipant extends HTMLElement {
     this.approvalTypeSelect.addEventListener('change', (e) => {
       console.log('FeParticipant', e.type, e.target.tagName, e.target.value);
 
-      let prevApprovalType = getText(this.participant, 'approvalType');
-      let prevApprovalSubType = getText(this.participant, 'approvalSubType');
+      let currApprovalType = getText(this.participant, 'approvalType');
+      let currApprovalSubType = getText(this.participant, 'approvalSubType');
 
       let idx = e.target.options.selectedIndex;
       let option = e.target.options.item(idx);
       console.log(`selected option: value=${option.value} type=${option.dataset.type}, subtype=${option.dataset.subType}, text=${option.dataset.text}`);
 
+      // 변경 내용 저장
       setText(this.participant, 'approvalType', option.dataset.type);
       setText(this.participant, 'approvalSubType', option.dataset.subType);
       setText(this.participant, 'displayApprovalType', option.dataset.text);
@@ -78,10 +79,10 @@ export default class FeParticipant extends HTMLElement {
           composed: true,
           detail: {
             index: this.index,
+            // 현재 값
+            curr: { type: currApprovalType, subType: currApprovalSubType },
             // 변경된 값
-            curr: { type: option.dataset.type, subType: option.dataset.subType },
-            // 이전 값
-            prev: { type: prevApprovalType, subType: prevApprovalSubType },
+            next: { type: option.dataset.type, subType: option.dataset.subType },
           },
         })
       );
@@ -92,7 +93,8 @@ export default class FeParticipant extends HTMLElement {
     delBtn.addEventListener('click', (e) => {
       console.log('FeParticipant', e.type, e.target.tagName);
       // 삭제 이벤트 전파
-      this.dispatchEvent(new CustomEvent('delete', { bubbles: true, composed: true, detail: { index: this.index, target: this } }));
+      let id = getText(this.participant, 'ID');
+      this.dispatchEvent(new CustomEvent('delete', { bubbles: true, composed: true, detail: { index: this.index, id: id } }));
     });
   }
 
@@ -135,8 +137,11 @@ export default class FeParticipant extends HTMLElement {
    * @param {array} availableApprovalTypes
    * @param {number} decidedIndex 강제적으로 지정할 옵션 인덱스
    */
-  setApprovalTypes(availableApprovalTypes, decidedIndex) {
-    let displayApprovalType = getText(this.participant, 'displayApprovalType');
+  setApprovalTypes(availableApprovalTypes, decidedIndex = -1) {
+    //
+    let hoxDisplayApprovalType = getText(this.participant, 'displayApprovalType');
+    let hoxApprovalType = getText(this.participant, 'approvalType');
+    let hoxApprovalSubType = getText(this.participant, 'approvalSubType');
     let matchedIndex = 0;
 
     this.approvalTypeSelect.textContent = null;
@@ -150,8 +155,8 @@ export default class FeParticipant extends HTMLElement {
       option.dataset.text = approvalType.text;
 
       if (decidedIndex < 0) {
-        // TODO 기존 선택과 맞으면
-        if (displayApprovalType === approvalType.text) {
+        // 기존 선택값으로
+        if (hoxApprovalType === approvalType.type && hoxApprovalSubType === approvalType.subType) {
           option.selected = true;
           matchedIndex = idx;
         }
@@ -162,6 +167,8 @@ export default class FeParticipant extends HTMLElement {
         }
       }
     });
+
+    console.log(`${this.index}. ${JSON.stringify(availableApprovalTypes.map((type) => type.text))} ${decidedIndex} => ${matchedIndex}`);
 
     setText(this.participant, 'approvalType', availableApprovalTypes[matchedIndex].type);
     setText(this.participant, 'approvalSubType', availableApprovalTypes[matchedIndex].subType);
@@ -183,6 +190,10 @@ export default class FeParticipant extends HTMLElement {
 
   get approvalType() {
     return getText(this.participant, 'approvalType');
+  }
+
+  get approvalSubType() {
+    return getText(this.participant, 'approvalSubType');
   }
 }
 

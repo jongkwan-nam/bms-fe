@@ -1,9 +1,9 @@
 import Cell from '../../main/CellNames';
-import { createNode, getNode, getNodes, getText, setText } from '../../utils/hoxUtils';
+import { createNode, getNode, getNodes, getText } from '../../utils/hoxUtils';
 import * as OrgUtils from '../../utils/orgUtils';
-import ATO from '../flowInfo/ApprovalTypeOptions';
 import FeParticipant from './FeParticipant';
 import './FeParticipantList.scss';
+import { decideApprovalType } from './decideApprovalType';
 
 /**
  * 전체 결재선 관리
@@ -32,36 +32,69 @@ export default class FeParticipantList extends HTMLElement {
 
     const wrapper = document.createElement('div');
     wrapper.classList.add('fe-participantlist');
-    wrapper.innerHTML = `<ul id="list" class="list"></ul>`;
+    wrapper.innerHTML = `
+      <header>
+        <label>${GWWEBMessage.cmsg_543}</label>
+        <div>
+          <button type="button" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
+          <button type="button" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
+        </div>
+      </header>
+      <ul id="list" class="list"></ul>
+    `;
 
     this.shadowRoot.append(LINK, wrapper);
 
     this.LIST = this.shadowRoot.querySelector('#list');
+
     // 결재선 삭제시 이벤트 리스너
     this.LIST.addEventListener('delete', (e) => {
       console.log('FeParticipantList', e.type, e.target.tagName, e.detail);
-      // li 삭제
-      let li = e.target.closest('li');
-      li.remove();
 
-      this.#decideApprovalType();
-      // hox 업데이트
-      // this.#updateHox();
+      // 동일 사용자가 남아 있지 않으면, 트리에서 체크해제하도록 이벤트 전파
+      e.stopImmediatePropagation();
+      let deletedId = e.detail.id;
+      let isMulti =
+        Array.from(this.LIST.querySelectorAll('fe-participant'))
+          .map((feParticipant) => feParticipant.id)
+          .filter((id) => id == deletedId).length > 1;
+      if (!isMulti) {
+        this.dispatchEvent(new CustomEvent('delete', { bubbles: true, composed: true, detail: { index: this.index, id: deletedId } }));
+      }
+
+      this.#deleteParticipant(e.target);
     });
+
     // 결재방법 변경시 이벤트 리스너
     this.LIST.addEventListener('change', (e) => {
       console.log('FeParticipantList', e.type, e.target.tagName, e.detail);
 
-      let index = e.detail.index;
-      this.#decideApprovalType(index);
-      // hox 업데이트
-      // this.#updateHox();
+      this.#decideApprovalType(e.detail);
     });
 
     // 결재자 선택
     this.LIST.addEventListener('click', (e) => {
       this.LIST.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
       e.target.closest('li').classList.add('selected');
+    });
+
+    // 수신부서 위로 버튼 이벤트
+    this.shadowRoot.querySelector('#upBtn').addEventListener('click', () => {
+      let selectedLI = this.LIST.querySelector('.selected');
+      if (selectedLI !== null && selectedLI.previousSibling) {
+        this.LIST.insertBefore(selectedLI, selectedLI.previousSibling);
+
+        this.#decideApprovalType();
+      }
+    });
+    // 수신부서 아래로 버튼 이벤트
+    this.shadowRoot.querySelector('#downBtn').addEventListener('click', () => {
+      let selectedLI = this.LIST.querySelector('.selected');
+      if (selectedLI !== null) {
+        this.LIST.insertBefore(selectedLI, selectedLI.nextSibling?.nextSibling);
+
+        this.#decideApprovalType();
+      }
     });
   }
 
@@ -72,11 +105,35 @@ export default class FeParticipantList extends HTMLElement {
   }
 
   /**
+   * hox 기준 결재목록 설정
+   */
+  #renderParticipantList() {
+    getNodes(this.hox, 'approvalFlow participant').forEach((participant, idx) => {
+      console.log('participant', idx, participant);
+      //
+      let li = document.createElement('li');
+      li.appendChild(new FeParticipant()).set(participant);
+      this.LIST.prepend(li);
+    });
+
+    this.#decideApprovalType();
+  }
+
+  exists(checkId) {
+    return (
+      Array.from(this.LIST.querySelectorAll('fe-participant'))
+        .map((feParticipant) => feParticipant.id)
+        .filter((id) => id == checkId).length > 0
+    );
+  }
+
+  /**
    * 왼쪽 트리영역에서 선택된 값
    * @param {DynaTreeNode} dtnode
    */
   add(dtnode) {
     console.log('add', dtnode);
+
     //
     let key = dtnode.data.key;
     let isDept = dtnode.data.isFolder;
@@ -160,9 +217,6 @@ export default class FeParticipantList extends HTMLElement {
     li.click();
 
     this.#decideApprovalType();
-
-    // hox 업데이트
-    // this.#updateHox();
   }
 
   /**
@@ -171,172 +225,41 @@ export default class FeParticipantList extends HTMLElement {
    */
   delete(dtnode) {
     console.log('delete', dtnode);
+
+    Array.from(this.LIST.querySelectorAll('fe-participant'))
+      .filter((feParticipant) => feParticipant.id === dtnode.data.key)
+      .forEach((feParticipant) => this.#deleteParticipant(feParticipant));
   }
 
-  #renderParticipantList() {
-    getNodes(this.hox, 'approvalFlow participant').forEach((participant, idx) => {
-      console.log('participant', idx, participant);
-      //
-      let li = document.createElement('li');
-      li.appendChild(new FeParticipant()).set(participant);
-      this.LIST.prepend(li);
-    });
+  /**
+   * list에서 FeParticipant 삭제.
+   * - FeParticipant에서 x 버튼
+   * - 트리에서 체크 해제
+   * @param {FeParticipant} feParticipant
+   */
+  #deleteParticipant(feParticipant) {
+    let li = feParticipant.closest('li');
+    li.remove();
 
     this.#decideApprovalType();
   }
 
   /**
-   * participant XML 조합
-   * - approvalType에 따른 displayApprovalType 설정
-   * - approvalType에 따른 cellName 설정
+   *
+   * @param {CustomEvent.detail} detail
    */
-  #updateHox() {
-    //
-    let participantNodeList = Array.from(this.LIST.querySelectorAll('fe-participant'));
-    participantNodeList.reverse(); // 화면표시 순서와 hox 순서가 반대이므로, 배열 반전
-
-    // 순회하면서, 셀명(cellName), 결재방법이름(displayApprovalType) 설정
-    let signCellCount = 0;
-    let agreeCellCount = 0;
-    participantNodeList.forEach((feParticipant, i) => {
-      let participant = feParticipant.participant;
-      //
-      let approvalType = getText(participant, 'approvalType');
-      switch (approvalType) {
-        case 'user_approval':
-        case 'user_jeonkyul':
-        case 'user_daekyul':
-          setText(participant, 'mappingCell cellName', `${Cell.SIGN}.${++signCellCount}`);
-          break;
-        case 'user_agree_s':
-        case 'user_agree_p':
-        case 'dept_agree_s':
-        case 'dept_agree_p':
-          setText(participant, 'mappingCell cellName', `${Cell.AGREE_SIGN}.${++agreeCellCount}`);
-          break;
-        default:
-          setText(participant, 'mappingCell cellName', '');
-          break;
-      }
-      switch (approvalType) {
-        case 'user_approval':
-          // 기안, 검토, 결재 결정 필요
-          break;
-        case 'user_jeonkyul':
-          break;
-        case 'user_daekyul':
-          break;
-        case 'user_agree_s':
-          break;
-        case 'user_agree_p':
-          break;
-        case 'dept_agree_s':
-          break;
-        case 'dept_agree_p':
-          break;
-        case 'user_nosign':
-          break;
-        case 'user_refer':
-          break;
-        case 'user_noapproval':
-          break;
-        default:
-          throw new Error('undefined approvalType: ' + approvalType);
-      }
-    });
-
-    getNode(this.hox, 'approvalFlow').textContent = null;
-    getNode(this.hox, 'approvalFlow').append(...participantNodeList.map((feParticipant) => feParticipant.participant));
-  }
-
-  #decideApprovalType() {
-    //
+  #decideApprovalType(detail = null) {
     let feParticipantNodeList = Array.from(this.LIST.querySelectorAll('fe-participant'));
     feParticipantNodeList.reverse(); // 화면표시 순서와 hox 순서가 반대이므로, 배열 반전
+    decideApprovalType(this.hox, feParticipantNodeList, detail);
 
-    let drafterId = getText(this.hox, 'docInfo drafter ID');
-
-    let lastUserIndex = -1; // 최종결재자의 인덱스
-    let isSetJeonkyul = false; // 전결이 설정되었는지
-    let jeonkyulIndex = -1; // 전결의 인덱스
-
-    for (let i = 0; i < feParticipantNodeList.length; i++) {
-      let feParticipant = feParticipantNodeList[i];
-      if (feParticipant.type === 'user') {
-        lastUserIndex = i;
-
-        if (feParticipant.approvalType === 'user_jeonkyul') {
-          isSetJeonkyul = true;
-          jeonkyulIndex = i;
-        }
-      }
-    }
-
-    let isCanDaekyul = false; // 대결 선택 조건이 되는지. lastUserIndex - 1 이 사용자이면 가능
-    let daekyulIndex = -1; // 대결을 선택할수 있는 결재자 인덱스
-    let isSetDaekyul = false; // 대결이 설정되었는지
-
-    let prevFeParticipant = feParticipantNodeList[lastUserIndex - 1];
-    if (prevFeParticipant.type === 'user' && prevFeParticipant.approvalType === 'user_approval') {
-      isCanDaekyul = true;
-      daekyulIndex = lastUserIndex - 1;
-      if (prevFeParticipant.approvalType === 'user_daekyul') {
-        isSetDaekyul = true;
-      }
-    }
-
-    console.log(`
-      lastUserIndex = ${lastUserIndex}
-      isSetJeonkyul = ${isSetJeonkyul}
-      jeonkyulIndex = ${jeonkyulIndex}
-      isCanDaekyul  = ${isCanDaekyul}
-      daekyulIndex  = ${daekyulIndex}
-      isSetDaekyul  = ${isSetDaekyul}
-    `);
-
-    let approvalTypes = [];
-
-    for (let i = 0; i < feParticipantNodeList.length; i++) {
-      let feParticipant = feParticipantNodeList[i];
-      //
-      if (feParticipant.type === 'dept') {
-        // 부서는 [순차협조, 병렬협조]
-        approvalTypes = [ATO.DEPT_HYEOBJO_S, ATO.DEPT_HYEOBJO_P];
-      } else {
-        // 사용자
-        if (i === 0 && feParticipant.id === drafterId) {
-          // 첫번째 + 기안자이면 = [기안, 전결, 확인]
-          approvalTypes = [ATO.GIAN, ATO.JEONKYUL, ATO.HWAGIN];
-        } else if (lastUserIndex === i) {
-          // 최종결재 = [결재, 전결, 협조, 병렬협조, 확인, 참조, 결재안함]
-          approvalTypes = [ATO.KYULJAE, ATO.JEONKYUL, ATO.HYEOBJO_S, ATO.HYEOBJO_P, ATO.HWAGIN, ATO.REFER, ATO.KYULJAE_ANHAM];
-        } else {
-          // 중간결재 = [검토, 전결, 협조, 병렬협조, 확인, 참조, 결재안함]
-          approvalTypes = [ATO.GEOMTO, ATO.JEONKYUL, ATO.HYEOBJO_S, ATO.HYEOBJO_P, ATO.HWAGIN, ATO.REFER, ATO.KYULJAE_ANHAM];
-        }
-
-        // TODO (전결 -> 검토), (검토 -> 전결) 변경은 이후 결재선의 강제 변경이 필요
-
-        if (isSetJeonkyul && jeonkyulIndex < i) {
-          // 전결 다음부터 = [결재안함, 협조, 병렬협조, 참조]
-          // 변화의 원인이면, 강제 변환
-          approvalTypes = [ATO.KYULJAE_ANHAM, ATO.HYEOBJO_S, ATO.HYEOBJO_P, ATO.REFER];
-        }
-        if (isCanDaekyul) {
-          if (daekyulIndex === i) {
-            // 대결 가능 = [검토, 전결, 대결, 협조, 병렬협조, 확인, 참조, 결재안함]
-            approvalTypes = [ATO.GEOMTO, ATO.JEONKYUL, ATO.DAEKYUL, ATO.HYEOBJO_S, ATO.HYEOBJO_P, ATO.HWAGIN, ATO.REFER, ATO.KYULJAE_ANHAM];
-          } else if (isSetDaekyul && daekyulIndex + 1 === i) {
-            // 대결 뒤 = [후열, 후결, 후열안함]
-            approvalTypes = [ATO.HUYEOL, ATO.HUKYUL, ATO.HUYEOL_ANHAM];
-          }
-        }
-      }
-      feParticipant.setApprovalTypes(approvalTypes);
-      feParticipant.setIndex(i);
-    }
+    this.#decideCellName();
+    this.#updateHox();
   }
 
+  /**
+   * 셀명 설정
+   */
   #decideCellName() {
     //
     let feParticipantNodeList = Array.from(this.LIST.querySelectorAll('fe-participant'));
@@ -365,6 +288,17 @@ export default class FeParticipantList extends HTMLElement {
           break;
       }
     });
+  }
+
+  /**
+   * participant XML 조합
+   */
+  #updateHox() {
+    let participantNodeList = Array.from(this.LIST.querySelectorAll('fe-participant'));
+    participantNodeList.reverse(); // 화면표시 순서와 hox 순서가 반대이므로, 배열 반전
+
+    getNode(this.hox, 'approvalFlow').textContent = null;
+    getNode(this.hox, 'approvalFlow').append(...participantNodeList.map((feParticipant) => feParticipant.participant));
   }
 }
 

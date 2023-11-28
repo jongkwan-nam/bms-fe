@@ -3,7 +3,11 @@
 <link rel="stylesheet" type="text/css" href="/bms/fe/main.css" />
 <script type="text/javascript" src="/bms/js/com/hs/gwweb/appr/retrieveMessage.act"></script>
 <script defer type="text/javascript" src="/bms/fe/main.js"></script>
-
+<script>
+  GWWEBMessage['st_jeonhooyul_nosign'] = '전결(후열)';
+  GWWEBMessage['st_jeonhooyul_sign'] = '전결(후결)';
+  GWWEBMessage['st_jeonhooyul_nosanc'] = '전결(후열안함)';
+</script>
 <main>
   <header class="menu-wrap">
     <button type="button" id="btnDraft" class="btn btn-primary">결재올림</button>

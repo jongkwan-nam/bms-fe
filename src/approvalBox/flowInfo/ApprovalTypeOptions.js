@@ -33,14 +33,14 @@ export default {
   HUYEOL_ANHAM: { text: '후열안함', type: 'user_noapproval', subType: 'hooyul_nosanc', resourceCode: 'hsappr_0231' },
 
   /** 전결(후열) */
-  JEONKYUL_HUYEOL: { text: '전결(후열)', type: 'user_hooyul', subType: 'jeonhooyul_nosign', resourceCode: 'hsappr_0231' },
+  JEONKYUL_HUYEOL: { text: '전결(후열)', type: 'user_hooyul', subType: 'jeonhooyul_nosign', resourceCode: 'st_jeonhooyul_nosign' },
   /** 전결(후결) */
-  JEONKYUL_HUKYUL: { text: '전결(후결)', type: 'user_hooyul', subType: 'jeonhooyul_sign', resourceCode: 'hsappr_0231' },
+  JEONKYUL_HUKYUL: { text: '전결(후결)', type: 'user_hooyul', subType: 'jeonhooyul_sign', resourceCode: 'st_jeonhooyul_sign' },
   /** 전결(후열안함) */
-  JEONKYUL_HUYEOL_ANHAM: { text: '전결(후열안함)', type: 'user_jeonhoo', subType: 'jeonhooyul_nosanc', resourceCode: 'hsappr_0231' },
+  JEONKYUL_HUYEOL_ANHAM: { text: '전결(후열안함)', type: 'user_jeonhoo', subType: 'jeonhooyul_nosanc', resourceCode: 'st_jeonhooyul_nosanc' },
 
   /* 부서순차협조 */
   DEPT_HYEOBJO_S: { text: '부서순차협조', type: 'dept_agree_s', subType: '', resourceCode: 'st_dept_agree_s' },
-  /* 부서순차협조 */
-  DEPT_HYEOBJO_P: { text: '부서순차협조', type: 'dept_agree_p', subType: '', resourceCode: 'st_dept_agree_p' },
+  /* 부서병렬협조 */
+  DEPT_HYEOBJO_P: { text: '부서병렬협조', type: 'dept_agree_p', subType: '', resourceCode: 'st_dept_agree_p' },
 };

@@ -11,6 +11,7 @@ fe-participant {
   align-items: center;
 
   .no {
+    width: auto;
   }
 
   .type {
@@ -38,6 +39,7 @@ fe-participant {
     }
     .name {
       font-weight: bold;
+      min-width: 2.75rem;
     }
     .rank {
       font-weight: normal;

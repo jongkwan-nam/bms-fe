@@ -44,7 +44,7 @@ export default class FeFlow extends HTMLElement {
     this.orgTree = this.shadowRoot.querySelector('#tree');
     this.feParticipantlist = this.shadowRoot.querySelector('fe-participantlist');
 
-    this.feParticipantlist.addEventListener('deleteParticipant', (e) => {
+    this.feParticipantlist.addEventListener('delete', (e) => {
       console.log('Event', e.type, e.target, e);
       let id = e.detail.id;
       $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
@@ -104,10 +104,11 @@ export default class FeFlow extends HTMLElement {
               console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
               if (select) {
                 // 결재선에 추가
+                // TODO 중복 사용자를 추가할 방법!
                 this.feParticipantlist.add(dtnode);
               } else {
                 // 결재선에서 제거
-                this.feParticipantlist.remove(dtnode);
+                this.feParticipantlist.delete(dtnode);
               }
             },
             onClick: (dtnode, event) => {
