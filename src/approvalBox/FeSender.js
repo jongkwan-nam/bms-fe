@@ -33,6 +33,9 @@ export default class FeSender extends HTMLElement {
         <div id="tree" class="folder"></div>
       </div>
       <div class="list">
+        <header>
+          <label>${GWWEBMessage.cmsg_2655}</label>
+        </header>
         <ul id="list"></ul>
       </div>
     `;

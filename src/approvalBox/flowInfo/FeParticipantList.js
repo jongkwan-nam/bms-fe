@@ -75,7 +75,7 @@ export default class FeParticipantList extends HTMLElement {
     // 결재자 선택
     this.LIST.addEventListener('click', (e) => {
       this.LIST.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
-      e.target.closest('li').classList.add('selected');
+      e.target.closest('li')?.classList.add('selected');
     });
 
     // 수신부서 위로 버튼 이벤트

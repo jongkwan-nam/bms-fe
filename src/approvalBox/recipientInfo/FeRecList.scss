@@ -7,6 +7,8 @@ fe-reclist {
 
 .fe-reclist {
   height: 100%;
+  display: grid;
+  grid-template-rows: 3rem 1fr;
 
   header {
     display: flex;
@@ -14,6 +16,7 @@ fe-reclist {
     align-items: center;
     padding: 8px;
     line-height: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
 
     label {
       margin: 0;
