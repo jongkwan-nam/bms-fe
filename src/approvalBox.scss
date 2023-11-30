@@ -38,3 +38,23 @@ body {
     text-align: end;
   }
 }
+
+// FHD(1920 x 1080) 최대화 이상이면
+@media screen and (min-width: 1920px) {
+  .body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1rem;
+
+    .tab-content {
+      display: block;
+    }
+  }
+}
+// QHD(2560 x 1440) 최대화 이면
+@media screen and (min-width: 2560px) {
+  html {
+    font-size: 16px;
+  }
+}
