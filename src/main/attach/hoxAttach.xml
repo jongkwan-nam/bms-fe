@@ -1,0 +1,89 @@
+<docInfo>
+  <objectIDList>
+    <objectID dirty="" type="objectidtype_attach">
+      <ID>JHOMS233330012092100</ID>
+      <name>2023.11월 4주 주간식단표 (1).pdf</name>
+      <src />
+      <attachType>2</attachType>
+      <size>314939</size>
+      <restriction hidden="false" modify="true" move="true" remove="true" save="true" view="true" />
+      <contentNumber>2</contentNumber>
+      <linkID>00000000000000000000</linkID>
+      <participantID>JHOMS233330015784000</participantID>
+      <openFlag>true</openFlag>
+    </objectID>
+    <objectID dirty="" type="objectidtype_attach">
+      <ID>JHOMS233330012092101</ID>
+      <name>[I-HSO-17177][EDMS]공유 권한 상속 및 차단 선택 기능 추가.docx</name>
+      <src />
+      <attachType>1</attachType>
+      <size>706764</size>
+      <restriction hidden="false" modify="true" move="true" remove="true" save="true" view="true" />
+      <contentNumber>1</contentNumber>
+      <linkID>00000000000000000000</linkID>
+      <participantID>JHOMS233330015784000</participantID>
+      <openFlag>true</openFlag>
+    </objectID>
+    <objectID dirty="" type="objectidtype_attach">
+      <ID>JHOMS233330012092102</ID>
+      <name>워크샵_첨단기술연구소_231027_불참및차량등록자.xlsx</name>
+      <src />
+      <attachType>0</attachType>
+      <size>539079</size>
+      <restriction hidden="false" modify="true" move="true" remove="true" save="true" view="true" />
+      <contentNumber>0</contentNumber>
+      <linkID>00000000000000000000</linkID>
+      <participantID>JHOMS233330015784000</participantID>
+      <openFlag>true</openFlag>
+    </objectID>
+  </objectIDList>
+  <content>
+    <enforceType>enforcetype_not</enforceType>
+    <receiptInfo modification="yes">
+      <recipient />
+      <displayString />
+      <senderName />
+      <sendOrgName>핸디소프트</sendOrgName>
+      <senderDeptID />
+      <senderID />
+    </receiptInfo>
+    <attachInfo>
+      <attach>
+        <ID>JHOMS233330012092101</ID>
+        <ID>JHOMS233330012092102</ID>
+      </attach>
+    </attachInfo>
+    <title>복수안 첨부 테스트 @1</title>
+  </content>
+  <content>
+    <title>복수안 첨부 테스트 @2</title>
+    <receiptInfo>
+      <recipient>
+        <rec type="rectype_dept">
+          <ID>000011300</ID>
+          <name>신뢰성기술팀</name>
+          <charger>
+            <ID />
+            <name />
+            <positionName />
+            <department>
+              <ID />
+            </department>
+          </charger>
+          <displayString>신뢰성기술팀_발신1_01</displayString>
+        </rec>
+      </recipient>
+      <displayString>신뢰성기술팀_발신1_01</displayString>
+      <senderName>오상_발신명의1_01</senderName>
+      <sendOrgName>핸디소프트</sendOrgName>
+    </receiptInfo>
+    <enforceType>enforcetype_internal</enforceType>
+    <enforceMethod>enforcemethod_direct</enforceMethod>
+    <attachInfo>
+      <attach>
+        <ID>JHOMS233330012092100</ID>
+        <ID>JHOMS233330012092102</ID>
+      </attach>
+    </attachInfo>
+  </content>
+</docInfo>

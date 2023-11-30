@@ -1,0 +1,16 @@
+{
+  "success": "true",
+  "maxUploadSize": "",
+  "error": "",
+  "itemId": "",
+  "files": [
+    {
+      "orgFileName": "2023.11월 4주 주간식단표 (1).pdf",
+      "sysFileName": "/20231130/09/12/10001db1336f2278e0f0c180822a776e01df3.pdf",
+      "attachFileSize": "314939",
+      "fileID": "2f32303233313133302f30392f31322f313030303164623133333666323237386530663063313830383232613737366530316466332e706466",
+      "itemID": ""
+    }
+  ],
+  "acton": "upload"
+}

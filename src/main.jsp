@@ -18,7 +18,7 @@
     <fe-editor id="editor2" style="display: none"></fe-editor>
   </article>
   <article class="attach-wrap">
-    <div>첨부 영역</div>
+    <!-- <fe-attachbox></fe-attachbox> -->
   </article>
 </main>
 <aside id="approvalBox" class="modal-container">
