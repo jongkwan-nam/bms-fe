@@ -4,6 +4,7 @@ import './approvalBox/FeDocInfo';
 import './approvalBox/FeFlow';
 import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
+import { HoxEventType } from './utils/hoxUtils';
 
 import * as TabUI from './utils/TabUI';
 
@@ -14,33 +15,29 @@ let feFlow = document.querySelector('fe-flow');
 let feRecipient = document.querySelector('fe-recipient');
 let feSender = document.querySelector('fe-sender');
 
-// 문서정보 변경
-feDocInfo.addEventListener('change', (e) => {
-  console.log('Event', e.type, e.detail);
+hox.addEventListener(HoxEventType.ENFORCETYPE, (e) => {
+  console.info('hoxEvent listen', e.type, e.detail);
+  //
+  let enforceType = e.detail.value;
   // 발송종류에 따라, 탭 활성/비활성
-  if (e.detail.key === 'enforceType') {
-    //
-    switch (e.detail.value) {
-      case 'enforcetype_external': {
-        TabUI.active(document, 3, true);
-        TabUI.active(document, 4, true);
-        break;
-      }
-      case 'enforcetype_internal': {
-        TabUI.active(document, 3, true);
-        TabUI.active(document, 4, true);
-        break;
-      }
-      case 'enforcetype_not': {
-        TabUI.active(document, 3, false);
-        TabUI.active(document, 4, false);
-        break;
-      }
-      default:
-        break;
+  switch (enforceType) {
+    case 'enforcetype_external': {
+      TabUI.active(document, 3, true);
+      TabUI.active(document, 4, true);
+      break;
     }
-    // 수신부서에 hox 변경 알림
-    feRecipient.change();
+    case 'enforcetype_internal': {
+      TabUI.active(document, 3, true);
+      TabUI.active(document, 4, true);
+      break;
+    }
+    case 'enforcetype_not': {
+      TabUI.active(document, 3, false);
+      TabUI.active(document, 4, false);
+      break;
+    }
+    default:
+      break;
   }
 });
 
@@ -71,6 +68,8 @@ TabUI.select(document, 1);
 document.getElementById('btnVerify').addEventListener('click', (e) => {
   console.log('approvalBox verify');
   // hox 검증
+
+  // 발송종류가 내부라면, hox 내용 지우기
 
   // opener에 hox 전달
   let ret = opener.receiveHox(hox);

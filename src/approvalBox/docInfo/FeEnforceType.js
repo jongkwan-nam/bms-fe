@@ -1,4 +1,4 @@
-import { getText, setText } from '../../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
 import './FeEnforceType.scss';
 
 /**
@@ -31,11 +31,12 @@ export default class FeEnforceType extends HTMLElement {
       input.id = type;
       input.value = type;
       input.addEventListener('change', (e) => {
-        console.log('Event', e.type, e.target.value);
+        console.debug('Event', e.type, e.target.value);
         //
         setText(this.hox, 'docInfo enforceType', e.target.value);
 
-        this.dispatchEvent(new CustomEvent('change', { bubbles: true, composed: true, detail: { key: 'enforceType', value: e.target.value } }));
+        console.info('hoxEvent dispatch', HoxEventType.ENFORCETYPE);
+        dispatchHoxEvent(this.hox, 'docInfo enforceType', HoxEventType.ENFORCETYPE, 'change', e.target.value);
       });
 
       let label = wrapper.appendChild(document.createElement('label'));

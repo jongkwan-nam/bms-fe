@@ -2,7 +2,7 @@ import $ from 'jquery';
 import '../../_open_sources/dynatree';
 import feStorage from '../../utils/FeStorage';
 import * as DateUtils from '../../utils/dateUtils';
-import { setText } from '../../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, setText } from '../../utils/hoxUtils';
 import './FeFolder.scss';
 
 const ROOT_FOLDER_ID = '00000000000000000001';
@@ -32,14 +32,14 @@ export default class FeFolder extends HTMLElement {
         <select>
           <option>${GWWEBMessage.cmsg_2500}</option>
         </select>
-        <button type="button" id="btnFolderContainer">${'선택'}</button>
+        <button type="button" id="btnFolderContainer">${GWWEBMessage.W3143}</button>
       </div>
       <div class="modal-container">
         <div class="folder-container">
           <div id="tree" class="folder"></div>
           <div class="folder-btn">
-            <button type="button" id="btnFolderSelect">선택</button>
-            <button type="button" id="btnFolderCancel">취소</button>
+            <button type="button" id="btnFolderSelect">${GWWEBMessage.W3143}</button>
+            <button type="button" id="btnFolderCancel">${GWWEBMessage.W3201}</button>
           </div>
         </div>
       </div>
@@ -98,7 +98,8 @@ export default class FeFolder extends HTMLElement {
       setText(this.hox, 'docInfo folderInfo name', fldrInfo.fldrName);
 
       // 이벤트 전파
-      this.dispatchEvent(new CustomEvent('change', { detail: { folder: fldrInfo } }));
+      console.info('hoxEvent dispatch', HoxEventType.FOLDER);
+      dispatchHoxEvent(this.hox, 'docInfo folderInfo', HoxEventType.FOLDER, 'change', fldrInfo);
     });
 
     this.shadowRoot.querySelector('button#btnFolderContainer').addEventListener('click', (e) => {
@@ -121,7 +122,7 @@ export default class FeFolder extends HTMLElement {
       fetch('/bms/com/hs/gwweb/folder/retrieveIncPopApprFldrTree.act?' + queryString)
         .then((res) => res.json())
         .then((data) => {
-          console.log(JSON.parse(data.treeValue));
+          // console.log(JSON.parse(data.treeValue));
 
           let tree = this.shadowRoot.querySelector('#tree');
 

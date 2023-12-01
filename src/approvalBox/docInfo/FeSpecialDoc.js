@@ -1,33 +1,13 @@
-import { getFlagList, setText } from '../../utils/hoxUtils';
+import { HoxEventType, getFlagList, setText } from '../../utils/hoxUtils';
 import './FeSpecialDoc.scss';
 
 /**
  *
  */
 export default class FeSpecialDoc extends HTMLElement {
-  static get observedAttributes() {
-    return ['data-pubtype'];
-  }
-
   constructor() {
     super();
     console.debug('FeSpecialDoc init');
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    console.log('FeSpecialDoc attribute ChangedCallback', name, oldValue, newValue);
-    //
-    if (name === 'data-pubtype') {
-      if (newValue === 'pubtype_open') {
-        this.shadowRoot.querySelector('#pubspdoc_secret').checked = false;
-        this.shadowRoot.querySelector('#pubspdoc_secret').disabled = true;
-        this.shadowRoot.querySelector('#pubspdoc_secret').dispatchEvent(new Event('change'));
-      } else if (newValue === 'pubtype_partial') {
-        this.shadowRoot.querySelector('#pubspdoc_secret').disabled = false;
-      } else if (newValue === 'pubtype_not') {
-        this.shadowRoot.querySelector('#pubspdoc_secret').disabled = false;
-      }
-    }
   }
 
   connectedCallback() {
@@ -51,7 +31,7 @@ export default class FeSpecialDoc extends HTMLElement {
       input.id = item;
       input.value = item;
       input.addEventListener('change', (e) => {
-        console.log('FeSpecialDoc change', e.target.value);
+        console.debug('FeSpecialDoc change', e.target.value);
         //
         let pubspdocValue = Array.from(this.shadowRoot.querySelectorAll('[id^="pubspdoc_"]'))
           .filter((input) => input.checked)
@@ -74,9 +54,25 @@ export default class FeSpecialDoc extends HTMLElement {
   set(hox) {
     this.hox = hox;
 
+    this.hox.addEventListener(HoxEventType.PUBLICATIONTYPE, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      // 공개여부 변동에 따라
+      let newValue = e.detail.value;
+
+      if (newValue === 'pubtype_open') {
+        this.shadowRoot.querySelector('#pubspdoc_secret').checked = false;
+        this.shadowRoot.querySelector('#pubspdoc_secret').disabled = true;
+        this.shadowRoot.querySelector('#pubspdoc_secret').dispatchEvent(new Event('change'));
+      } else if (newValue === 'pubtype_partial') {
+        this.shadowRoot.querySelector('#pubspdoc_secret').disabled = false;
+      } else if (newValue === 'pubtype_not') {
+        this.shadowRoot.querySelector('#pubspdoc_secret').disabled = false;
+      }
+    });
+
     // hox값 화면 표시
     getFlagList(this.hox, 'docInfo publication specialDoc').forEach((flag) => {
-      console.log('specialDoc', flag);
+      console.debug('specialDoc', flag);
       //
       this.shadowRoot.querySelector('#' + flag).checked = true;
     });

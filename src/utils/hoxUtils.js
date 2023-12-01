@@ -192,3 +192,30 @@ export const toggleFlag = (hox, selectors, flag, force) => {
 export const getFlagList = (hox, selectors) => {
   return ArrayUtils.split(getText(hox, selectors));
 };
+
+/**
+ * hox 이벤트 전파
+ * @param {Element} hox
+ * @param {string} selectors
+ * @param {string} eventType
+ * @param {string} eventDetailType
+ * @param {object} eventDetailValue
+ */
+export const dispatchHoxEvent = (hox, selectors, eventType, eventDetailType, eventDetailValue) => {
+  getNode(hox, selectors).dispatchEvent(
+    new CustomEvent(eventType, {
+      bubbles: true,
+      composed: true,
+      detail: {
+        type: eventDetailType,
+        value: eventDetailValue,
+      },
+    })
+  );
+};
+
+export const HoxEventType = {
+  FOLDER: 'folder',
+  ENFORCETYPE: 'enforceType',
+  PUBLICATIONTYPE: 'publicationType',
+};

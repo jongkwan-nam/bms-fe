@@ -1,6 +1,6 @@
 import * as ArrayUtils from '../../utils/arrayUtils';
 import * as DateUtils from '../../utils/dateUtils';
-import { addNode, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
+import { HoxEventType, addNode, dispatchHoxEvent, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import data from './FePublication.json';
 import './FePublication.scss';
@@ -46,9 +46,13 @@ export default class FePublication extends HTMLElement {
       input.id = 'publictype_' + publicType[0];
       input.value = publicType[0];
       input.addEventListener('change', (e) => {
-        console.log('FePublication change', e.target.value);
+        console.debug('FePublication change', e.target.value);
         //
         setAttr(this.hox, 'docInfo publication', 'type', e.target.value);
+
+        console.info('hoxEvent dispatch', HoxEventType.PUBLICATIONTYPE);
+        dispatchHoxEvent(this.hox, 'docInfo publication', HoxEventType.PUBLICATIONTYPE, 'change', e.target.value);
+
         // 공개여부 값에 따라, UI 조정. open/close 등
         if (e.target.value === 'pubtype_open') {
           // 공개
@@ -63,8 +67,6 @@ export default class FePublication extends HTMLElement {
           this.shadowRoot.querySelector('#privateField').classList.add('open');
           this.shadowRoot.querySelector('#listOpenField').classList.add('open');
         }
-        // 이벤트 전파. 특수기록물: 비밀기록물 체크 풀고, disabled 처리
-        this.dispatchEvent(new CustomEvent('change', { detail: { pubtype: e.target.value } }));
       });
 
       let label = pubTypeWrap.appendChild(document.createElement('label'));
@@ -77,7 +79,7 @@ export default class FePublication extends HTMLElement {
     input.type = 'checkbox';
     input.id = 'openBody';
     input.addEventListener('change', (e) => {
-      console.log(e.target.id, 'change', e.target.checked);
+      console.debug(e.target.id, 'change', e.target.checked);
       // hox 반영
       toggleFlag(this.hox, 'docInfo approvalFlag', 'apprflag_open_body', e.target.checked);
     });
@@ -195,7 +197,7 @@ export default class FePublication extends HTMLElement {
 
     // 공개제한종료일 date 선택 이벤트
     this.shadowRoot.querySelector('#openstartdate').addEventListener('change', (e) => {
-      console.log('#openstartdate change', e.target.value);
+      console.debug('#openstartdate change', e.target.value);
       this.openstartdateValue = e.target.value;
       // hox 적용
       setText(this.hox, 'docInfo publication openStartDate', e.target.value + 'T00:00:00');
@@ -203,7 +205,7 @@ export default class FePublication extends HTMLElement {
 
     // 공개제한종료일 영구 checkbox 이벤트
     this.shadowRoot.querySelector('#openstartdate_permanent').addEventListener('change', (e) => {
-      console.log('#openstartdate_permanent change', e.target.checked);
+      console.debug('#openstartdate_permanent change', e.target.checked);
       //
       this.shadowRoot.querySelector('#openstartdate').readOnly = e.target.checked;
       if (e.target.checked) {
@@ -221,28 +223,28 @@ export default class FePublication extends HTMLElement {
 
     // 공개제한부분표시 input 이벤트
     this.shadowRoot.querySelector('#publicRestric').addEventListener('change', (e) => {
-      console.log('#publicRestric change', e.target.value);
+      console.debug('#publicRestric change', e.target.value);
       // hox 반영
       setText(this.hox, 'docInfo publication publicRestric', e.target.value);
     });
 
     // 공개제한부분표시 입력 제한 이벤트
     this.shadowRoot.querySelector('#publicRestric').addEventListener('keyup', (e) => {
-      console.log('#publicRestric keyup', e.target.value);
+      console.debug('#publicRestric keyup', e.target.value);
       // 숫자 ',' '-' 필터링
       e.target.value = e.target.value.replace(/[^-,0-9]/g, '');
     });
 
     // 공개제한사유 입력 이벤트
     this.shadowRoot.querySelector('#publicRestricReason').addEventListener('change', (e) => {
-      console.log('#publicRestricReason change', e.target.value);
+      console.debug('#publicRestricReason change', e.target.value);
       // hox 반영
       setText(this.hox, 'docInfo publication publicRestricReason', e.target.value);
     });
 
     // 공개제한사유 글자제한 이벤트
     this.shadowRoot.querySelector('#publicRestricReason').addEventListener('keyup', (e) => {
-      console.log('#publicRestricReason keyup', e.target.value);
+      console.debug('#publicRestricReason keyup', e.target.value);
       // 제한 글자수를 넘지 않는지 체크
       e.target.value = StringUtils.cutByMaxBytes(e.target.value, MaxLength_publicRestricReason);
     });
@@ -250,7 +252,7 @@ export default class FePublication extends HTMLElement {
     // 목록공개 라디오 선택 이벤트
     this.shadowRoot.querySelectorAll('[name="openlist"]').forEach((input) => {
       input.addEventListener('change', (e) => {
-        console.log(e.target.id, 'change', e.target.value);
+        console.debug(e.target.id, 'change', e.target.value);
         // 비공개이면 상세 표시
         this.shadowRoot.querySelector('#listOpenDetail').classList.toggle('open', e.target.value === '1');
         // hox 반영
@@ -266,21 +268,21 @@ export default class FePublication extends HTMLElement {
           .filter((i) => i.checked)
           .map((i) => i.value)
           .join(' ');
-        console.log('#listPublicationFlag_ change', val);
+        console.debug('#listPublicationFlag_ change', val);
         setText(this.hox, 'docInfo publication listPublicationFlag', val);
       });
     });
 
     // 목록공개 - 목록비공개사유 글자제한 이벤트
     this.shadowRoot.querySelector('#listPublicRestricReason').addEventListener('keyup', (e) => {
-      console.log('#listPublicRestricReason keyup', e.target.value);
+      console.debug('#listPublicRestricReason keyup', e.target.value);
       // 제한 글자수를 넘지 않는지 체크
       e.target.value = StringUtils.cutByMaxBytes(e.target.value, MaxLength_listPublicRestricReason);
     });
 
     // 목록공개 - 목록비공개사유 입력 이벤트
     this.shadowRoot.querySelector('#listPublicRestricReason').addEventListener('change', (e) => {
-      console.log('#listPublicRestricReason change', e.target.value);
+      console.debug('#listPublicRestricReason change', e.target.value);
       // hox 반영
       setText(this.hox, 'docInfo publication listPublicRestricReason', e.target.value);
     });

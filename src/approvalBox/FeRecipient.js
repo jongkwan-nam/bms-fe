@@ -3,7 +3,7 @@ import syncFetch from 'sync-fetch';
 import '../_open_sources/dynatree';
 import * as TagUI from '../utils/TabUI';
 import * as ArrayUtils from '../utils/arrayUtils';
-import { getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
+import { HoxEventType, getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
 import * as StringUtils from '../utils/stringUtils';
 import './FeRecipient.scss';
 import './recipientInfo/FeRecList';
@@ -180,6 +180,12 @@ export default class FeRecipient extends HTMLElement {
     // this.renderOrgTree(); // 첫탭. 조직도 트리 그리기
     this.#renderDisplayString();
     this.change();
+
+    this.hox.addEventListener(HoxEventType.ENFORCETYPE, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      //
+      this.change();
+    });
   }
 
   /**
