@@ -32,12 +32,12 @@ export const createNode = (xmlText) => {
 
 /**
  * hox에 해당 노드가 존재하는지
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @returns
  */
-export const existsNode = (hox, selectors) => {
-  return hox.querySelectorAll(selectors).length > 0;
+export const existsNode = (element, selectors) => {
+  return element.querySelectorAll(selectors).length > 0;
 };
 
 /**
@@ -56,42 +56,42 @@ export const addNode = (hox, selectors, ...newNodeNames) => {
 
 /**
  * 첫번째 노드 1개 반환
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @returns
  */
-export const getNode = (hox, selectors) => {
-  return hox.querySelector(selectors);
+export const getNode = (element, selectors) => {
+  return element.querySelector(selectors);
 };
 
 /**
  * 노드 배열 반환
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @returns
  */
-export const getNodes = (hox, selectors) => {
-  return hox.querySelectorAll(selectors);
+export const getNodes = (element, selectors) => {
+  return element.querySelectorAll(selectors);
 };
 
 /**
  * hox의 해당 값 구하기
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @returns
  */
-export const getText = (hox, selectors) => {
-  return hox.querySelector(selectors)?.textContent;
+export const getText = (element, selectors) => {
+  return element.querySelector(selectors)?.textContent;
 };
 
 /**
  * hox의 해당 값 설정
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} text
  */
-export const setText = (hox, selectors, text) => {
-  hox.querySelector(selectors).textContent = text;
+export const setText = (element, selectors, text) => {
+  element.querySelector(selectors).textContent = text;
 };
 
 /**
@@ -101,108 +101,110 @@ export const setText = (hox, selectors, text) => {
  * @param {string} text
  */
 export const setTextCDATA = (hox, selectors, text) => {
-  console.log('setTextCDATA', selectors, text);
-  //
   hox.querySelector(selectors).textContent = null;
   hox.querySelector(selectors).appendChild(hox.createCDATASection(text));
 };
 
 /**
  * hox의 해당 속성 구하기
- * @param {Element} hox
- * @param {string} selectors
+ * @param {Element} element
+ * @param {string?} selectors null이면, element의 속성
  * @param {string} attName
  * @returns
  */
-export const getAttr = (hox, selectors, attName) => {
+export const getAttr = (element, selectors, attName) => {
   if (selectors === null) {
-    return hox.getAttribute(attName);
+    return element.getAttribute(attName);
   } else {
-    return hox.querySelector(selectors)?.getAttribute(attName);
+    return element.querySelector(selectors)?.getAttribute(attName);
   }
 };
 
 /**
  * hox의 해당 속성 값 설정
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} attName
  * @param {string} attValue
  */
-export const setAttr = (hox, selectors, attName, attValue) => {
-  hox.querySelector(selectors)?.setAttribute(attName, attValue);
+export const setAttr = (element, selectors, attName, attValue) => {
+  if (selectors === null) {
+    element.setAttribute(attName, attValue);
+  } else {
+    element.querySelector(selectors)?.setAttribute(attName, attValue);
+  }
 };
 
 /**
  * hox의 해당 값중에 flag가 있는지 여부
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} flag
  * @returns
  */
-export const existsFlag = (hox, selectors, flag) => {
-  return ArrayUtils.split(getText(hox, selectors)).includes(flag);
+export const existsFlag = (element, selectors, flag) => {
+  return ArrayUtils.split(getText(element, selectors)).includes(flag);
 };
 
 /**
  * hox의 해당 값중에 flag 추가
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} flag
  */
-export const addFlag = (hox, selectors, flag) => {
-  const flagArray = ArrayUtils.split(getText(hox, selectors));
+export const addFlag = (element, selectors, flag) => {
+  const flagArray = ArrayUtils.split(getText(element, selectors));
   ArrayUtils.add(flagArray, flag);
-  hox.querySelector(selectors).textContent = flagArray.join(' ');
+  element.querySelector(selectors).textContent = flagArray.join(' ');
 };
 
 /**
  * hox의 해당 값중에 flag 제거
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} flag
  */
-export const removeFlag = (hox, selectors, flag) => {
-  const flagArray = ArrayUtils.split(getText(hox, selectors));
+export const removeFlag = (element, selectors, flag) => {
+  const flagArray = ArrayUtils.split(getText(element, selectors));
   ArrayUtils.remove(flagArray, flag);
-  hox.querySelector(selectors).textContent = flagArray.join(' ');
+  element.querySelector(selectors).textContent = flagArray.join(' ');
 };
 
 /**
  * force에 따라 추가 또는 제거
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} flag
  * @param {boolean} force
  */
-export const toggleFlag = (hox, selectors, flag, force) => {
+export const toggleFlag = (element, selectors, flag, force) => {
   if (force) {
-    addFlag(hox, selectors, flag);
+    addFlag(element, selectors, flag);
   } else {
-    removeFlag(hox, selectors, flag);
+    removeFlag(element, selectors, flag);
   }
 };
 
 /**
  * hox의 해당 값을 flag 배열로 반환
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @returns
  */
-export const getFlagList = (hox, selectors) => {
-  return ArrayUtils.split(getText(hox, selectors));
+export const getFlagList = (element, selectors) => {
+  return ArrayUtils.split(getText(element, selectors));
 };
 
 /**
  * hox 이벤트 전파
- * @param {Element} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} eventType
  * @param {string} eventDetailType
  * @param {object} eventDetailValue
  */
-export const dispatchHoxEvent = (hox, selectors, eventType, eventDetailType, eventDetailValue) => {
-  getNode(hox, selectors).dispatchEvent(
+export const dispatchHoxEvent = (element, selectors, eventType, eventDetailType, eventDetailValue) => {
+  getNode(element, selectors).dispatchEvent(
     new CustomEvent(eventType, {
       bubbles: true,
       composed: true,

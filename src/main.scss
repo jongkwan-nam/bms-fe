@@ -10,7 +10,11 @@ main {
   overflow: hidden;
 
   display: grid;
-  grid-template-rows: 60px 1fr 400px;
+  grid-template-rows: 60px 1fr 20rem;
+
+  &.fold-attachbox {
+    grid-template-rows: 60px 1fr 2rem;
+  }
 
   .menu-wrap {
     padding: 20px 30px 12px;

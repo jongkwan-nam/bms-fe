@@ -12,7 +12,7 @@
  */
 
 import * as FileUtils from '../utils/fileUtils';
-import { getAttr } from '../utils/hoxUtils';
+import { createNode, getAttr, getNode, getNodes, getText, setAttr } from '../utils/hoxUtils';
 import './FeAttachBox.scss';
 
 const MULTIPART = {
@@ -29,6 +29,7 @@ const OPT_DEFAULT = {
 export default class FeAttachBox extends HTMLElement {
   fileCount = 0;
   fileLength = 0;
+  liIndex = 0;
 
   constructor(opts) {
     super();
@@ -48,49 +49,66 @@ export default class FeAttachBox extends HTMLElement {
     this.wrapper.setAttribute('class', 'fe-attachbox');
     this.wrapper.innerHTML = `
       <input type="file" multiple="multiple">
-      <div class="file-box">
-        <ol class="file-list"></ol>
-        <div class="file-summary">
-          <label class="file-count">0 / 0</label>
-          <label id="fileSelector">Select</label>
-          <label class="file-length">0 / 0</label>
-          <label>
-            <select class="content-number">
-              <option value="0">${GWWEBMessage.appr_batchdraft_001}</opton>
-            </select>
+      <div class="attach-box">
+        <ol class="attach-list"></ol>
+        <div class="attach-header">
+          <label class="header-item title">${GWWEBMessage.W3175}</label>
+          <button type="button" class="header-item" id="fileSelector">
+            ${GWWEBMessage.cmsg_2492}
+          </button>
+          <button type="button" class="header-item" id="cabinetSelector">
+            ${GWWEBMessage.W2966}
+          </button>
+          <label class="header-item">
+            <span class="file-count">0</span> / ${this.options.totalFileCount} ${GWWEBMessage.cmsg_1276}
           </label>
+          <label class="header-item">
+            <span class="file-length">0</span> / ${FileUtils.formatSize(this.options.totalFileLength)}
+          </label>
+          <label class="header-item">
+            <select><option value="0">${GWWEBMessage.appr_batchdraft_001}</opton></select>
+          </label>
+          <button type="button" class="header-item" id="foldBtn" title="${GWWEBMessage.cmsg_2490}">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 13 13" xml:space="preserve" width="15" height="13"><polygon points="10.5,4 8.8,4 6.5,7 4.3,4 2.5,4 6.5,9.2"></polygon></svg>
+          </button>
         </div>
       </div>
     `;
     this.shadowRoot.append(this.wrapper);
 
-    this.fileBox = this.shadowRoot.querySelector('.file-box');
-    this.fileSummary = this.shadowRoot.querySelector('.file-summary');
-    this.fileList = this.shadowRoot.querySelector('.file-list');
+    this.attachBox = this.shadowRoot.querySelector('.attach-box');
+    this.attachHeader = this.shadowRoot.querySelector('.attach-header');
+    this.attachList = this.shadowRoot.querySelector('.attach-list');
+
+    this.fileSelector = this.shadowRoot.querySelector('#fileSelector');
+    this.cabinetSelector = this.shadowRoot.querySelector('#cabinetSelector');
+
     this.fileInput = this.shadowRoot.querySelector('input[type="file"]');
-    this.contentNumber = this.shadowRoot.querySelector('.content-number');
+    this.contentNumber = this.shadowRoot.querySelector('select');
+
+    this.foldBtn = this.shadowRoot.querySelector('#foldBtn');
 
     this.#addFileDragEventListener();
     this.#addFileFinderClickEventListener();
-    this.#addFileRemoveEventListener();
+    this.#addFoldEventListener();
   }
 
   /**
    * 파일 드래그&드롭 이벤트
    */
   #addFileDragEventListener() {
-    this.fileList.addEventListener('dragover', (e) => {
+    this.attachList.addEventListener('dragover', (e) => {
       e.preventDefault();
       this.wrapper.classList.add('file-dragover');
     });
 
-    this.fileList.addEventListener('dragenter', (e) => {});
+    this.attachList.addEventListener('dragenter', (e) => {});
 
-    this.fileList.addEventListener('dragleave', (e) => {
+    this.attachList.addEventListener('dragleave', (e) => {
       this.wrapper.classList.remove('file-dragover');
     });
 
-    this.fileList.addEventListener('drop', (e) => {
+    this.attachList.addEventListener('drop', (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.wrapper.classList.remove('file-dragover');
@@ -102,22 +120,28 @@ export default class FeAttachBox extends HTMLElement {
    * 파일박스 클릭 이밴트
    */
   #addFileFinderClickEventListener() {
-    this.fileSummary.addEventListener('click', (e) => {
-      if (e.target.id !== 'fileSelector') return;
+    // pc 파일
+    this.fileSelector.addEventListener('click', (e) => {
       this.fileInput.click();
     });
     this.fileInput.addEventListener('change', (e) => {
       this.insertFile(e.target.files);
     });
+    // 문서함
+    this.cabinetSelector.addEventListener('click', (e) => {
+      // 문서함 선택 화면 팝업
+    });
   }
 
   /**
-   * 파일 제거 이벤트
+   * 접기 이벤트
    */
-  #addFileRemoveEventListener() {
-    this.fileList.addEventListener('click', (e) => {
-      if (e.target.className !== 'file-remove') return;
-      this.removeFile(e.target.closest('li'));
+  #addFoldEventListener() {
+    this.foldBtn.addEventListener('click', (e) => {
+      //
+      this.attachList.classList.toggle('fold');
+      this.foldBtn.classList.toggle('fold');
+      this.parentElement.closest('main').classList.toggle('fold-attachbox');
     });
   }
 
@@ -198,38 +222,15 @@ export default class FeAttachBox extends HTMLElement {
       return;
     }
 
-    this.wrapper.classList.add('file-transfer'); // 업로드 진행중 표시
-
     // 체크가 완료된 파일
     const dataTransfer = new DataTransfer();
     Array.from(drapedFileArray).forEach((file) => dataTransfer.items.add(file));
 
+    // 화면에 먼저 표현
+    this.renderFileListByPreprocess(drapedFileArray);
+
     // 서버로 업로드 호출
     this.uploadToServer(dataTransfer);
-  }
-
-  /**
-   * 파일 제거
-   * @param {Number} uniqueKey 클릭된 파일 인덱스
-   */
-  removeFile(removedElement) {
-    // this.wrapper.classList.add('file-transfer');
-
-    // 서버로 파일 제거 호출
-    // this.removeToServer(attachfileid);
-
-    this.fileCount--;
-    this.fileLength -= parseInt(removedElement.dataset.length);
-
-    removedElement.remove();
-
-    this.renderSummary();
-
-    this.writeHox();
-  }
-
-  writeHox() {
-    //
   }
 
   /**
@@ -241,8 +242,109 @@ export default class FeAttachBox extends HTMLElement {
     return false;
   }
 
+  /**
+   * hox 기준 첨부 표시
+   */
   renderFileListByHox() {
+    let publicationType = getAttr(this.hox, 'docInfo publication', 'type');
+    let [disabled0, disabled1, checked0, checked1] = getOpenFlagCondition(publicationType);
     //
+    getNodes(this.hox, 'docInfo objectIDList objectID').forEach((objectID) => {
+      //
+      let id = getText(objectID, 'ID');
+      let name = getText(objectID, 'name');
+      let size = getText(objectID, 'size');
+      let contentNumber = getText(objectID, 'contentNumber');
+      let participantID = getText(objectID, 'participantID');
+      let openFlag = getText(objectID, 'openFlag');
+
+      const li = this.attachList.appendChild(document.createElement('li'));
+      li.dataset.id = id;
+      li.dataset.length = size;
+      li.dataset.contentnumber = contentNumber;
+      li.dataset.participantid = participantID;
+      li.innerHTML += `
+        <label class="file-checkbox"><input type="checkbox" /></label>
+        <label class="file-name"><a href="#">${name}</a></label>
+        <label class="file-size">${FileUtils.formatSize(size)}</label>
+        <span class="radio-group">
+          <input type="radio" name="openFlag_${this.liIndex}" id="openFlag_0" value="true" ${disabled0} ${openFlag === 'true' ? 'checked' : ''}><label for="openFlag_0">${GWWEBMessage.cmsg_2086}</label>
+          <input type="radio" name="openFlag_${this.liIndex}" id="openFlag_1" value="false" ${disabled1} ${openFlag === 'true' ? '' : 'checked'}><label for="openFlag_1">${GWWEBMessage.cmsg_2087}</label>
+        </span>
+        <button class="file-remove">X</button>
+      `;
+      li.addEventListener('click', (e) => {
+        console.log('li click', e.target.tagName, li);
+        //
+        if (e.target.tagName === 'A') {
+          // 첨부 다운로드
+          const formData = new FormData();
+          formData.append('DOCID', rInfo.apprMsgID);
+          formData.append('USERID', rInfo.user.ID);
+          formData.append('APPLID', rInfo.applID);
+          formData.append('FILEID', id);
+          formData.append('VIEWRANGE', false);
+          formData.append('DOCCRDEXEBBS', window.doccrdExeBBS);
+          formData.append('FLDRSHARE', false); // TODO 고정값 아닐거임. 어디서 참조하애 하는지 찾아야 함
+          fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveDownloadInfo.act`, {
+            method: 'POST',
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((ret) => {
+              //
+              if (ret.ok) {
+                const formData2 = new FormData();
+                formData2.append('FILEID', id);
+                formData2.append('APPRID', ret.apprID);
+                formData2.append('fileName', name);
+                formData2.append('AUTHTOKEN', ret.authtoken);
+                formData2.append('useWasDRM', ret.useWasDRM);
+                fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/downloadDocFile.act`, {
+                  method: 'POST',
+                  body: formData2,
+                });
+              }
+            });
+        } else if (e.target.tagName === 'BUTTON') {
+          // 첨부 삭제
+          setAttr(objectID, null, 'dirty', true);
+          li.remove();
+          this.fileCount--;
+          this.fileLength -= parseInt(size);
+          this.renderSummary();
+        }
+      });
+
+      this.fileCount++;
+      this.fileLength += parseInt(size);
+    });
+
+    this.renderSummary();
+  }
+
+  /**
+   * 업로드 전에 화면에 파일 출력
+   *
+   * @param {File[]} files
+   */
+  renderFileListByPreprocess(files) {
+    //
+
+    Array.from(files).forEach((file) => {
+      console.log('file', file, file.name, file.size, file.type, file.lastModified);
+      //
+      this.attachList.innerHTML += `
+          <li class="uploading">
+            <label class="file-checkbox"><input type="checkbox" /></label>
+            <label class="file-name"><a href="">${file.name}</a></label>
+            <label class="file-size">${FileUtils.formatSize(file.size)}</label>
+            <span class="uploading-bar">
+              
+            </span>
+            <button class="file-remove"></button>
+          </li>`;
+    });
   }
 
   /**
@@ -250,6 +352,8 @@ export default class FeAttachBox extends HTMLElement {
    * @param {DataTransfer} dataTransfer
    */
   uploadToServer(dataTransfer) {
+    this.wrapper.classList.add('file-transfer'); // 업로드 진행중 표시
+
     const formData = new FormData();
     for (const file of dataTransfer.files) {
       formData.append('file', file);
@@ -258,11 +362,15 @@ export default class FeAttachBox extends HTMLElement {
     fetch('/servlet/FileUploadServlet?acton=upload', { method: 'POST', body: formData })
       .then((response) => response.json())
       .then((ret) => {
+        console.log('uploaded', ret);
         if (ret.response.success === 'true') {
           this.uploadSuccessCallback(ret.response);
         } else {
           throw new Error('Upload fail: ' + ret.response.error);
         }
+      })
+      .then(() => {
+        this.wrapper.classList.remove('file-transfer');
       });
   }
 
@@ -290,41 +398,50 @@ export default class FeAttachBox extends HTMLElement {
   uploadSuccessCallback(uploadResult) {
     console.log('uploadSuccessCallback', uploadResult);
 
-    let publicationType = getAttr(this.hox, 'docInfo publication', 'type');
-    let [disabled0, disabled1] = ['', ''];
-    let [checked0, checked1] = ['', ''];
+    this.attachList.querySelectorAll('.uploading').forEach((li) => li.remove());
 
-    if (publicationType === 'pubtype_open') {
-      [disabled0, disabled1] = ['', 'disabled'];
-      [checked0, checked1] = ['checked', ''];
-    } else if (publicationType === 'pubtype_partial') {
-      [disabled0, disabled1] = ['', ''];
-      [checked0, checked1] = ['', 'checked'];
-    } else {
-      [disabled0, disabled1] = ['disabled', ''];
-      [checked0, checked1] = ['', 'checked'];
-    }
-    console.log('publicationType', publicationType, [disabled0, disabled1], [checked0, checked1]);
+    let publicationType = getAttr(this.hox, 'docInfo publication', 'type');
+    let [disabled0, disabled1, checked0, checked1] = getOpenFlagCondition(publicationType);
+
+    let contentNumber = this.contentNumber.value;
 
     Array.from(uploadResult.files).forEach((file) => {
-      // 화면 출력
-      this.fileList.innerHTML += `
-          <li data-fileid="${file.fileID}" data-length="${file.attachFileSize}">
-            <label class="file-icon"><i>O</i></label>
-            <label class="file-name"><a href="/attach/${file.fileID}/download">${file.orgFileName}</a></label>
-            <label class="file-size">${FileUtils.formatSize(file.attachFileSize)}</label>
-            <span class="radio-group">
-              <input type="radio" name="openFlag" id="openFlag_0" value="true" ${disabled0} ${checked0}><label for="openFlag_0">${GWWEBMessage.cmsg_2086}</label>
-              <input type="radio" name="openFlag" id="openFlag_1" value="false" ${disabled1} ${checked1}><label for="openFlag_1">${GWWEBMessage.cmsg_2087}</label>
-            </span>
-            <button class="file-remove">X</button>
-          </li>`;
-
       let id = ''; // submit시 신규 object id 채번해서 넣어 준다
-      let participantId = ''; // submit시 현재 participant를 찾아서 넣어 준다
-      let contentNumber = this.contentNumber.value;
-      let openFlag = this.shadowRoot.querySelector('[name="openFlag"]:checked').value;
-      let text = `
+      let participantID = ''; // submit시 현재 participant를 찾아서 넣어 준다
+      let downloadURL = `${PROJECT_CODE}/com/hs/gwweb/appr/manageFileDwld.act?TRID=${file.fileID}&fileName=${file.orgFileName}`;
+
+      const li = this.attachList.appendChild(document.createElement('li'));
+      li.dataset.id = id;
+      li.dataset.length = file.attachFileSize;
+      li.dataset.contentnumber = contentNumber;
+      li.dataset.participantid = participantID;
+      li.innerHTML += `
+        <label class="file-checkbox"><input type="checkbox" /></label>
+        <label class="file-name"><a href="${downloadURL}">${file.orgFileName}</a></label>
+        <label class="file-size">${FileUtils.formatSize(file.attachFileSize)}</label>
+        <span class="radio-group">
+          <input type="radio" name="openFlag_${this.liIndex}" id="openFlag_0" value="true" ${disabled0} ${checked0}><label for="openFlag_0">${GWWEBMessage.cmsg_2086}</label>
+          <input type="radio" name="openFlag_${this.liIndex}" id="openFlag_1" value="false" ${disabled1} ${checked1}><label for="openFlag_1">${GWWEBMessage.cmsg_2087}</label>
+        </span>
+        <button class="file-remove">X</button>
+      `;
+      li.addEventListener('click', (e) => {
+        console.log('li click', e.target.tagName, li, hoxObjectID);
+        //
+        if (e.target.tagName === 'A') {
+          //
+        } else if (e.target.tagName === 'BUTTON') {
+          // 삭제
+          hoxObjectID.remove();
+          li.remove();
+          this.fileCount--;
+          this.fileLength -= parseInt(file.attachFileSize);
+          this.renderSummary();
+        }
+      });
+
+      let openFlag = li.querySelector(`[name="openFlag_${this.liIndex}"]:checked`).value;
+      let xmlText = `
         <objectID dirty="" type="objectidtype_attach">
           <ID>${id}</ID>
           <name>${file.orgFileName}</name>
@@ -334,45 +451,61 @@ export default class FeAttachBox extends HTMLElement {
           <restriction hidden="false" modify="true" move="true" remove="true" save="true" view="true" />
           <contentNumber>${contentNumber}</contentNumber>
           <linkID>00000000000000000000</linkID>
-          <participantID>${participantId}</participantID>
+          <participantID>${participantID}</participantID>
           <openFlag>${openFlag}</openFlag>
         </objectID>
       `;
-      console.log(text);
+      console.log(xmlText);
+      let hoxObjectID = createNode(xmlText);
+      getNode(this.hox, 'docInfo objectIDList').appendChild(hoxObjectID);
 
       // 크기, 갯수 합산
       this.fileCount++;
       this.fileLength += parseInt(file.attachFileSize);
+      this.liIndex++;
     });
 
     // summary render
-    this.shadowRoot.querySelector('.file-count').innerHTML = `${this.fileCount} / ${this.options.totalFileCount}`;
-    this.shadowRoot.querySelector('.file-length').innerHTML = `${FileUtils.formatSize(this.fileLength)} / ${FileUtils.formatSize(this.options.totalFileLength)}`;
+    this.renderSummary();
+  }
 
-    this.wrapper.classList.remove('file-transfer');
+  renderSummary() {
+    this.shadowRoot.querySelector('.file-count').innerHTML = this.fileCount;
+    this.shadowRoot.querySelector('.file-length').innerHTML = FileUtils.formatSize(this.fileLength);
+
     this.wrapper.classList.toggle('file-empty', this.fileCount === 0);
-
-    this.dispatchEvent(new CustomEvent('attach', { detail: { files: uploadResult.files }, cancelable: true, composed: false, bubbles: false }));
   }
 
   /**
    * TODO 서버에 임시 저장된 파일 삭제
    * @param {String} attachFileId
    */
-  removeToServer(attachFileId) {
+  removeFromServer(attachFileId) {
     const formData = new FormData();
-    formData.append('id', this.attach.id);
+    formData.append('delFileName', this.attach.id);
     formData.append('attachFileId', attachFileId);
 
     fetch('/attach', {
-      method: 'DELETE',
+      method: 'POST',
       body: formData,
-    })
-      .then((response) => response.json())
-      .then((attach) => this.uploadSuccessCallback(attach))
-      .catch((error) => console.error('remove', error));
+    });
   }
 }
 
 // Define the new element
 customElements.define('fe-attachbox', FeAttachBox);
+
+function getOpenFlagCondition(publicationType) {
+  let [disabled0, disabled1, checked0, checked1] = ['', '', '', ''];
+
+  if (publicationType === 'pubtype_open') {
+    [disabled0, disabled1, checked0, checked1] = ['', 'disabled', 'checked', ''];
+  } else if (publicationType === 'pubtype_partial') {
+    [disabled0, disabled1, checked0, checked1] = ['', '', '', 'checked'];
+  } else {
+    [disabled0, disabled1, checked0, checked1] = ['disabled', '', '', 'checked'];
+  }
+  console.log('publicationType', publicationType, disabled0, disabled1, checked0, checked1);
+
+  return [disabled0, disabled1, checked0, checked1];
+}

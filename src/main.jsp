@@ -18,7 +18,7 @@
     <fe-editor id="editor2" style="display: none"></fe-editor>
   </article>
   <article class="attach-wrap">
-    <!-- <fe-attachbox></fe-attachbox> -->
+    <fe-attachbox></fe-attachbox>
   </article>
 </main>
 <aside id="approvalBox" class="modal-container">

@@ -3,7 +3,6 @@ import './main/FeAttachBox';
 import './main/FeEditor';
 import { loadHox, setTextCDATA } from './utils/hoxUtils';
 
-import FeAttachBox from './main/FeAttachBox';
 import reflectHoxInBody from './main/reflectHoxInBody';
 
 let trid = rInfo.hoxFileTRID;
@@ -14,7 +13,7 @@ let hox;
 let feEditor1 = document.querySelector('fe-editor#editor1');
 let feEditor2 = document.querySelector('fe-editor#editor2');
 
-let feAttachBox;
+let feAttachBox = document.querySelector('fe-attachbox');
 
 console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
 /*
@@ -40,7 +39,6 @@ console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
 
   reflectHoxInBody(hox, feEditor1);
 
-  feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
   feAttachBox.set(hox);
   //
 })().catch((error) => {
