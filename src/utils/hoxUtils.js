@@ -90,6 +90,17 @@ export const getBoolean = (element, selectors) => {
 };
 
 /**
+ * element의 값을 number로 반환
+ * @param {Element} element
+ * @param {string} selectors
+ * @returns
+ */
+export const getNumber = (element, selectors) => {
+  let text = element.querySelector(selectors)?.textContent;
+  return text ? parseInt(text) : 0;
+};
+
+/**
  * hox의 해당 값 구하기
  * @param {Element} element
  * @param {string} selectors

@@ -1,5 +1,5 @@
 import * as FileUtils from '../../utils/fileUtils';
-import { HoxEventType, createNode, dispatchHoxEvent, getAttr, getBoolean, getText, setAttr, setText } from '../../utils/hoxUtils';
+import { HoxEventType, createNode, dispatchHoxEvent, getAttr, getBoolean, getNumber, getText, setAttr, setText } from '../../utils/hoxUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import './FeAttach.scss';
 
@@ -131,7 +131,7 @@ export default class FeAttach extends HTMLElement {
     //
     this.id = getText(objectID, 'ID');
     this.name = getText(objectID, 'name');
-    this.size = getText(objectID, 'size');
+    this.size = getNumber(objectID, 'size');
     this.contentNumber = getText(objectID, 'contentNumber');
     this.participantID = getText(objectID, 'participantID');
     this.openFlag = getBoolean(objectID, 'openFlag');
@@ -169,13 +169,13 @@ export default class FeAttach extends HTMLElement {
     /*
       orgFileName: 2023.11월 4주 주간식단표 (1).pdf
       sysFileName: /20231130/09/12/10001db1336f2278e0f0c180822a776e01df3.pdf
-      attachFileSize: 314939
+      attachFileSize: '314939'
       fileID: 2f32303233313133302f30392f31322f313030303164623133333666323237386530663063313830383232613737366530316466332e706466
       itemID:
     */
     this.id = '';
     this.name = file.orgFileName;
-    this.size = file.attachFileSize;
+    this.size = parseInt(file.attachFileSize);
     this.contentNumber = contentNumber;
     this.participantID = '';
 

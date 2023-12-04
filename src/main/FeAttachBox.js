@@ -348,7 +348,7 @@ export default class FeAttachBox extends HTMLElement {
     let [count, length] = [0, 0];
     this.attachList.querySelectorAll('fe-attach').forEach((feAttach) => {
       count++;
-      length = feAttach.size;
+      length += feAttach.size;
     });
     this.shadowRoot.querySelector('.file-count').innerHTML = count;
     this.shadowRoot.querySelector('.file-length').innerHTML = FileUtils.formatSize(length);
