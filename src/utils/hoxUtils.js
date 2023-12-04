@@ -22,7 +22,7 @@ export const loadHox = async (trid) => {
 };
 
 /**
- *
+ * text로 xml node를 만든다
  * @param {string} xmlText
  * @returns
  */
@@ -61,7 +61,11 @@ export const addNode = (hox, selectors, ...newNodeNames) => {
  * @returns
  */
 export const getNode = (element, selectors) => {
-  return element.querySelector(selectors);
+  if (selectors !== null) {
+    return element.querySelector(selectors);
+  } else {
+    return element;
+  }
 };
 
 /**
@@ -72,6 +76,17 @@ export const getNode = (element, selectors) => {
  */
 export const getNodes = (element, selectors) => {
   return element.querySelectorAll(selectors);
+};
+
+/**
+ * element의 값이 [ true | 1 ] 인지
+ * @param {Element} element
+ * @param {string} selectors
+ * @returns
+ */
+export const getBoolean = (element, selectors) => {
+  let text = element.querySelector(selectors)?.textContent;
+  return text?.trim() === 'true' || text?.trim() === '1';
 };
 
 /**
@@ -220,4 +235,5 @@ export const HoxEventType = {
   FOLDER: 'folder',
   ENFORCETYPE: 'enforceType',
   PUBLICATIONTYPE: 'publicationType',
+  OBJECTIDLIST: 'objectIDList',
 };

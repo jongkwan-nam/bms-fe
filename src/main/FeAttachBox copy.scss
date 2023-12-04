@@ -52,8 +52,35 @@ fe-attachbox {
       }
 
       li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin: 0;
+        padding: 0;
+        border-radius: 0.25rem;
+        line-height: 1.5rem;
+        height: 1.5rem;
+
         &:hover {
           background-color: rgba(250, 250, 0, 0.125);
+        }
+
+        .file-name > a {
+          color: var(--color-text);
+          text-decoration: none;
+        }
+        .file-size {
+          margin-left: auto;
+        }
+        button {
+          background-color: transparent;
+          border: 0;
+          color: red;
+          cursor: pointer;
+          &:hover {
+            text-shadow: 1px 1px black;
+          }
         }
       }
     }
