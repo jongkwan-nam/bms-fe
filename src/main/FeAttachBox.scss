@@ -28,6 +28,33 @@ fe-attachbox {
       center no-repeat;
   }
 
+  &.fold {
+    .attach-box {
+      grid-template-rows: 0 2rem;
+
+      .attach-bar.top {
+        display: none;
+      }
+      .attach-list {
+        height: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+      }
+      #foldBtn {
+        svg {
+          transform: scaleY(-1);
+        }
+      }
+    }
+  }
+
+  input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    display: none;
+  }
+
   .attach-box {
     position: relative;
     width: 100%;
@@ -37,51 +64,9 @@ fe-attachbox {
     font-size: 0.875rem;
 
     display: grid;
-    grid-template-rows: 1fr 2rem;
+    grid-template-rows: 2rem 1fr 2rem;
 
-    .attach-list {
-      overflow: auto;
-      margin: 0;
-      padding: 0;
-      border-bottom: 1px solid #c5c5c5;
-
-      &.fold {
-        height: 0;
-        padding: 0;
-        border: 0;
-      }
-
-      .content {
-        margin: 0;
-        padding: 1rem;
-
-        &:not(:first-child) {
-          border-top: 1px solid var(--color-border);
-        }
-
-        &.focus {
-          background-color: #e2eff4;
-        }
-
-        label {
-          .content-number {
-            font-weight: 700;
-          }
-        }
-
-        ol:not(:empty) {
-          margin-top: 0.5rem;
-
-          li {
-            &:hover {
-              background-color: rgba(250, 250, 0, 0.125);
-            }
-          }
-        }
-      }
-    }
-
-    .attach-header {
+    .attach-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -89,13 +74,12 @@ fe-attachbox {
       padding: 0 0.5rem 0 2rem;
       background-color: #fafafa;
 
-      .header-item {
+      .bar-item {
         &.title {
           font-weight: 700;
         }
-
-        &:last-child {
-          margin-left: auto;
+        &.left-end {
+          margin-right: auto;
         }
       }
 
@@ -120,24 +104,51 @@ fe-attachbox {
         border-radius: 2px;
         padding: 1px 2px;
 
-        &.fold {
-          svg {
-            transform: scaleY(-1);
-          }
-        }
-
         &:hover {
           background-color: #e9eefb;
           border-color: #90a5dc;
         }
       }
     }
-  }
 
-  input[type="file"] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    display: none;
+    .attach-list {
+      overflow: auto;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #c5c5c5;
+      border-bottom: 1px solid #c5c5c5;
+
+      .content {
+        margin: 0;
+        padding: 1rem;
+
+        &:not(:first-child) {
+          border-top: 1px solid var(--color-border);
+        }
+
+        &.focus {
+          background-color: #e2eff4;
+        }
+
+        label {
+          &:only-child {
+            display: none;
+          }
+          .content-number {
+            font-weight: 700;
+          }
+        }
+
+        ol:not(:empty) {
+          margin-top: 0.5rem;
+
+          li {
+            &:hover {
+              background-color: rgba(250, 250, 0, 0.125);
+            }
+          }
+        }
+      }
+    }
   }
 }

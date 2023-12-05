@@ -54,30 +54,39 @@ export default class FeAttachBox extends HTMLElement {
     this.wrapper.innerHTML = `
       <input type="file" multiple="multiple">
       <div class="attach-box">
-        <div class="attach-list">
-          <div class="content" id="content_0">
-            <label><span class="content-number">${GWWEBMessage.appr_batchdraft_001}</span></label>
-            <ol></ol>
-          </div>
-        </div>
-        <div class="attach-header">
-          <label class="header-item title">${GWWEBMessage.W3175}</label>
-          <button type="button" class="header-item" id="fileSelector">
-            ${GWWEBMessage.cmsg_2492}
-          </button>
-          <button type="button" class="header-item" id="cabinetSelector">
-            ${GWWEBMessage.W2966}
-          </button>
-          <label class="header-item">
-            <span class="file-count">0</span> / ${this.options.totalFileCount} ${GWWEBMessage.cmsg_1276}
+        <div class="attach-bar top">
+          <label class="bar-item left-end">
+            <button type="button" class="bar-item" id="fileSelector">
+              ${GWWEBMessage.cmsg_2492}
+            </button>
+            <button type="button" class="bar-item" id="cabinetSelector">
+              ${GWWEBMessage.W2966}
+            </button>
           </label>
-          <label class="header-item">
-            <span class="file-length">0</span> / ${FileUtils.formatSize(this.options.totalFileLength)}
+          <label class="bar-item">
+            <button type="button" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
+            <button type="button" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
           </label>
-          <label class="header-item">
+          <label class="bar-item">
             <select><option value="0">${GWWEBMessage.appr_batchdraft_001}</opton></select>
           </label>
-          <button type="button" class="header-item" id="foldBtn" title="${GWWEBMessage.cmsg_2490}">
+          <label class="bar-item">전체선택</label>
+          <label class="bar-item">선택 PC저장</label>
+        </div>
+        <div class="attach-list"></div>
+        <div class="attach-bar bottom">
+          <label class="bar-item title">${GWWEBMessage.W3175}</label>
+          <label class="bar-item">
+            <span class="file-count">0</span> / ${this.options.totalFileCount} ${GWWEBMessage.cmsg_1276}
+          </label>
+          <label class="bar-item">
+            <span class="file-length">0</span> / ${FileUtils.formatSize(this.options.totalFileLength)}
+          </label>
+          <label class="bar-item left-end">
+            <button type="button" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
+            <button type="button" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
+          </label>
+          <button type="button" class="bar-item" id="foldBtn" title="${GWWEBMessage.cmsg_2490}">
             <svg x="0px" y="0px" viewBox="0 0 13 13" width="15" height="13">
               <polygon points="10.5,4 8.8,4 6.5,7 4.3,4 2.5,4 6.5,9.2"></polygon>
             </svg>
@@ -95,26 +104,16 @@ export default class FeAttachBox extends HTMLElement {
     this.cabinetSelector = this.shadowRoot.querySelector('#cabinetSelector');
 
     this.fileInput = this.shadowRoot.querySelector('input[type="file"]');
-    this.contentSelect = this.shadowRoot.querySelector('select');
+    this.contentSelector = this.shadowRoot.querySelector('select');
 
     this.foldBtn = this.shadowRoot.querySelector('#foldBtn');
 
     this.#addFileDragEventListener();
     this.#addFileFinderClickEventListener();
     this.#addFoldEventListener();
-    this.#addSelectEventListener();
-
-    this.contentSelect.addEventListener('change', (e) => {
-      let contentNumber = parseInt(e.target.value);
-      this.shadowRoot.querySelectorAll('.content').forEach((content, i) => {
-        if (contentNumber === i) {
-          content.classList.add('focus');
-          content.scrollIntoView();
-        } else {
-          content.classList.remove('focus');
-        }
-      });
-    });
+    this.#addAttachSelectEventListener();
+    this.#addContentSelectEventListener();
+    this.#addFileUpDownEventListener();
   }
 
   /**
@@ -147,6 +146,11 @@ export default class FeAttachBox extends HTMLElement {
     // pc 파일
     this.fileSelector.addEventListener('click', (e) => {
       this.fileInput.click();
+      // 접힌 상태이면, 펼쳐준다
+      if (this.wrapper.classList.contains('fold')) {
+        this.wrapper.classList.toggle('fold');
+        this.parentElement.closest('main').classList.toggle('fold-attachbox');
+      }
     });
     this.fileInput.addEventListener('change', (e) => {
       this.insertFile(e.target.files);
@@ -163,8 +167,7 @@ export default class FeAttachBox extends HTMLElement {
   #addFoldEventListener() {
     this.foldBtn.addEventListener('click', (e) => {
       //
-      this.attachList.classList.toggle('fold');
-      this.foldBtn.classList.toggle('fold');
+      this.wrapper.classList.toggle('fold');
       this.parentElement.closest('main').classList.toggle('fold-attachbox');
     });
   }
@@ -172,13 +175,85 @@ export default class FeAttachBox extends HTMLElement {
   /**
    * 첨부 선택 이벤트
    */
-  #addSelectEventListener() {
+  #addAttachSelectEventListener() {
     this.attachList.addEventListener('click', (e) => {
       let li = e.target.closest('li');
+      if (li === null) {
+        return;
+      }
       console.log('li select', li);
       //
       this.attachList.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
       li?.classList.add('selected');
+    });
+  }
+
+  #addContentSelectEventListener() {
+    // select에서 선택
+    this.contentSelector.addEventListener('change', (e) => {
+      let contentNumber = parseInt(e.target.value);
+      this.shadowRoot.querySelectorAll('.content').forEach((content, i) => {
+        if (contentNumber === i) {
+          content.classList.add('focus');
+          content.scrollIntoView();
+        } else {
+          content.classList.remove('focus');
+        }
+      });
+    });
+    // 목록에서 선택
+    this.attachList.addEventListener('click', (e) => {
+      let clickedContent = e.target.closest('.content');
+      if (clickedContent === null) {
+        return;
+      }
+      console.log('clickedContent', clickedContent, clickedContent.dataset.number);
+      this.shadowRoot.querySelectorAll('.content').forEach((content, i) => {
+        content.classList.toggle('focus', clickedContent === content);
+      });
+      this.contentSelector.querySelectorAll('option')[clickedContent.dataset.number].selected = true;
+    });
+  }
+
+  #addFileUpDownEventListener() {
+    this.attachList.addEventListener('click', (e) => {
+      console.log('unDown click', e.target.id);
+      //
+      let id = e.target.id;
+      if (id !== 'upBtn' && id !== 'downBtn') {
+        return;
+      }
+      let content = e.target.closest('.content');
+      let contentNumber = content.dataset.number;
+      let ol = content.querySelector('ol');
+      let li = ol.querySelector('.selected');
+      if (li !== null) {
+        let feAttach = li.querySelector('fe-attach');
+        if (id === 'upBtn') {
+          // up
+          if (li.previousSibling) {
+            // 위에 첨부가 있으면
+            ol.insertBefore(li, li.previousSibling);
+          } else {
+            // 위에 첨부가 없으면, 상위 안의 맨 밑으로
+            content.previousSibling?.querySelector('ol').insertBefore(li, null);
+          }
+        } else {
+          // down
+          if (li.nextSibling) {
+            // 아래 첨부가 있으면
+            ol.insertBefore(li, li.nextSibling?.nextSibling);
+          } else {
+            // 아래 첨부가 없으면, 하위 안의 맨 위로
+            content.nextSibling?.querySelector('ol').insertBefore(li, content.nextSibling.querySelector('ol li'));
+            // if (content.nextSibling) {
+            //   let nextOl = content.nextSibling.querySelector('ol');
+            //   let nextOlFirstLi = nextOl.querySelector('li');
+            //   nextOl.insertBefore(li, nextOlFirstLi);
+            // }
+          }
+        }
+      }
     });
   }
 
@@ -192,60 +267,52 @@ export default class FeAttachBox extends HTMLElement {
     // hox: docInfo objectIDList objectID ID
     // hox: docInfo content attachInfo attach ID
 
+    this.addContent();
     this.renderFileListByHox();
   }
 
   addContent() {
+    const appendContentDiv = (name, number) => {
+      let div = this.attachList.appendChild(document.createElement('div'));
+      div.classList.add('content');
+      div.id = 'content_' + number;
+      div.dataset.number = number;
+      div.innerHTML = `
+      <label>
+        <span class="content-number">${name}</span>
+        <span class="content-title"></span>
+        <span class="contnet-updown">
+        </span>
+      </label>
+      <ol></ol>`;
+    };
     //
     let contentLength = this.attachList.querySelectorAll('ol').length;
-    if (contentLength === 1) {
+    if (contentLength === 0) {
+      appendContentDiv(GWWEBMessage.appr_batchdraft_001, 0);
+    } else if (contentLength === 1) {
       // 2안이 추가될때, 1안, 2안 동시 추가
-      let div1 = this.attachList.appendChild(document.createElement('div'));
-      div1.classList.add('content');
-      div1.id = 'content_1';
-      div1.innerHTML = `
-      <label>
-        <span class="content-number">1 ${GWWEBMessage.cmsg_765}</span>
-        <span class="content-title"></span>
-      </label>
-      <ol></ol>`;
+      appendContentDiv(1 + ' ' + GWWEBMessage.cmsg_765, 1);
+      appendContentDiv(2 + ' ' + GWWEBMessage.cmsg_765, 2);
 
-      let div2 = this.attachList.appendChild(document.createElement('div'));
-      div2.classList.add('content');
-      div2.id = 'content_2';
-      div2.innerHTML = `
-      <label>
-        <span class="content-number">2 ${GWWEBMessage.cmsg_765}</span>
-        <span class="content-title"></span>
-      </label>
-      <ol></ol>`;
-
-      let option1 = this.contentSelect.appendChild(document.createElement('option'));
+      let option1 = this.contentSelector.appendChild(document.createElement('option'));
       option1.value = 1;
       option1.innerHTML = `1 ${GWWEBMessage.cmsg_765}`;
 
-      let option2 = this.contentSelect.appendChild(document.createElement('option'));
+      let option2 = this.contentSelector.appendChild(document.createElement('option'));
       option2.value = 2;
       option2.innerHTML = `2 ${GWWEBMessage.cmsg_765}`;
     } else {
-      // 3안부터 안 추가
-      let div = this.attachList.appendChild(document.createElement('div'));
-      div.classList.add('content');
-      div.id = 'content_' + contentLength;
-      div.innerHTML = `
-      <label>
-        <span class="content-number">${contentLength} ${GWWEBMessage.cmsg_765}</span>
-        <span class="content-title"></span>
-      </label>
-      <ol></ol>`;
+      // 3안부터
+      appendContentDiv(contentLength + ' ' + GWWEBMessage.cmsg_765, contentLength);
 
-      let option = this.contentSelect.appendChild(document.createElement('option'));
+      let option = this.contentSelector.appendChild(document.createElement('option'));
       option.value = contentLength;
       option.innerHTML = `${contentLength} ${GWWEBMessage.cmsg_765}`;
     }
     // 마지막 option selected
-    this.contentSelect.querySelector(':last-child').selected = true;
-    this.contentSelect.dispatchEvent(new Event('change'));
+    this.contentSelector.querySelector(':last-child').selected = true;
+    this.contentSelector.dispatchEvent(new Event('change'));
   }
 
   removeContent(contentNumber) {
@@ -262,7 +329,7 @@ export default class FeAttachBox extends HTMLElement {
     content.remove();
 
     // 안선택 select 마지막 option 삭제
-    this.contentSelect.querySelector(':last-child').remove();
+    this.contentSelector.querySelector(':last-child').remove();
 
     this.#reAssignContent();
   }
@@ -439,16 +506,16 @@ export default class FeAttachBox extends HTMLElement {
   renderFileListByPreprocess(files) {
     //
     Array.from(files).forEach((file) => {
-      console.log('file', file, this.contentSelect.value);
+      console.log('file', file, this.contentSelector.value);
       //
-      const ol = this.attachList.querySelector(`#content_${this.contentSelect.value} ol`);
+      const ol = this.attachList.querySelector(`#content_${this.contentSelector.value} ol`);
       console.log(ol);
 
       const li = ol.appendChild(document.createElement('li'));
       li.classList.add('uploading');
       const feAttach = li.appendChild(new FeAttach());
       feAttach.set(this.hox);
-      feAttach.setFile(file, this.contentSelect.value);
+      feAttach.setFile(file, this.contentSelector.value);
     });
 
     this.renderSummary();
@@ -466,11 +533,11 @@ export default class FeAttachBox extends HTMLElement {
     Array.from(uploadResult.files).forEach((file) => {
       console.log('uploaded', file);
       //
-      const ol = this.attachList.querySelector(`#content_${this.contentSelect.value} ol`);
+      const ol = this.attachList.querySelector(`#content_${this.contentSelector.value} ol`);
       const li = ol.appendChild(document.createElement('li'));
       const feAttach = li.appendChild(new FeAttach());
       feAttach.set(this.hox);
-      feAttach.setUploadedFile(file, this.contentSelect.value);
+      feAttach.setUploadedFile(file, this.contentSelector.value);
     });
 
     this.renderSummary();
