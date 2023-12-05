@@ -14,7 +14,7 @@
  */
 
 import * as FileUtils from '../utils/fileUtils';
-import { getNodes } from '../utils/hoxUtils';
+import { getAttr, getNodes, getNumber } from '../utils/hoxUtils';
 import './FeAttachBox.scss';
 import FeAttach from './attach/FeAttach';
 
@@ -33,6 +33,7 @@ export default class FeAttachBox extends HTMLElement {
   fileCount = 0;
   fileLength = 0;
   liIndex = 0;
+  contentLength = 0; // 안 갯수
 
   constructor(opts) {
     super();
@@ -53,7 +54,12 @@ export default class FeAttachBox extends HTMLElement {
     this.wrapper.innerHTML = `
       <input type="file" multiple="multiple">
       <div class="attach-box">
-        <ol class="attach-list"></ol>
+        <div class="attach-list">
+          <div class="content" id="content_0">
+            <label><span class="content-number">${GWWEBMessage.appr_batchdraft_001}</span></label>
+            <ol></ol>
+          </div>
+        </div>
         <div class="attach-header">
           <label class="header-item title">${GWWEBMessage.W3175}</label>
           <button type="button" class="header-item" id="fileSelector">
@@ -72,7 +78,9 @@ export default class FeAttachBox extends HTMLElement {
             <select><option value="0">${GWWEBMessage.appr_batchdraft_001}</opton></select>
           </label>
           <button type="button" class="header-item" id="foldBtn" title="${GWWEBMessage.cmsg_2490}">
-            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 13 13" xml:space="preserve" width="15" height="13"><polygon points="10.5,4 8.8,4 6.5,7 4.3,4 2.5,4 6.5,9.2"></polygon></svg>
+            <svg x="0px" y="0px" viewBox="0 0 13 13" width="15" height="13">
+              <polygon points="10.5,4 8.8,4 6.5,7 4.3,4 2.5,4 6.5,9.2"></polygon>
+            </svg>
           </button>
         </div>
       </div>
@@ -87,7 +95,7 @@ export default class FeAttachBox extends HTMLElement {
     this.cabinetSelector = this.shadowRoot.querySelector('#cabinetSelector');
 
     this.fileInput = this.shadowRoot.querySelector('input[type="file"]');
-    this.contentNumber = this.shadowRoot.querySelector('select');
+    this.contentSelect = this.shadowRoot.querySelector('select');
 
     this.foldBtn = this.shadowRoot.querySelector('#foldBtn');
 
@@ -95,6 +103,18 @@ export default class FeAttachBox extends HTMLElement {
     this.#addFileFinderClickEventListener();
     this.#addFoldEventListener();
     this.#addSelectEventListener();
+
+    this.contentSelect.addEventListener('change', (e) => {
+      let contentNumber = parseInt(e.target.value);
+      this.shadowRoot.querySelectorAll('.content').forEach((content, i) => {
+        if (contentNumber === i) {
+          content.classList.add('focus');
+          content.scrollIntoView();
+        } else {
+          content.classList.remove('focus');
+        }
+      });
+    });
   }
 
   /**
@@ -173,6 +193,101 @@ export default class FeAttachBox extends HTMLElement {
     // hox: docInfo content attachInfo attach ID
 
     this.renderFileListByHox();
+  }
+
+  addContent() {
+    //
+    let contentLength = this.attachList.querySelectorAll('ol').length;
+    if (contentLength === 1) {
+      // 2안이 추가될때, 1안, 2안 동시 추가
+      let div1 = this.attachList.appendChild(document.createElement('div'));
+      div1.classList.add('content');
+      div1.id = 'content_1';
+      div1.innerHTML = `
+      <label>
+        <span class="content-number">1 ${GWWEBMessage.cmsg_765}</span>
+        <span class="content-title"></span>
+      </label>
+      <ol></ol>`;
+
+      let div2 = this.attachList.appendChild(document.createElement('div'));
+      div2.classList.add('content');
+      div2.id = 'content_2';
+      div2.innerHTML = `
+      <label>
+        <span class="content-number">2 ${GWWEBMessage.cmsg_765}</span>
+        <span class="content-title"></span>
+      </label>
+      <ol></ol>`;
+
+      let option1 = this.contentSelect.appendChild(document.createElement('option'));
+      option1.value = 1;
+      option1.innerHTML = `1 ${GWWEBMessage.cmsg_765}`;
+
+      let option2 = this.contentSelect.appendChild(document.createElement('option'));
+      option2.value = 2;
+      option2.innerHTML = `2 ${GWWEBMessage.cmsg_765}`;
+    } else {
+      // 3안부터 안 추가
+      let div = this.attachList.appendChild(document.createElement('div'));
+      div.classList.add('content');
+      div.id = 'content_' + contentLength;
+      div.innerHTML = `
+      <label>
+        <span class="content-number">${contentLength} ${GWWEBMessage.cmsg_765}</span>
+        <span class="content-title"></span>
+      </label>
+      <ol></ol>`;
+
+      let option = this.contentSelect.appendChild(document.createElement('option'));
+      option.value = contentLength;
+      option.innerHTML = `${contentLength} ${GWWEBMessage.cmsg_765}`;
+    }
+    // 마지막 option selected
+    this.contentSelect.querySelector(':last-child').selected = true;
+    this.contentSelect.dispatchEvent(new Event('change'));
+  }
+
+  removeContent(contentNumber) {
+    if (contentNumber === 1) {
+      // 1안 삭제 불가
+      throw new Error('1안 삭제 불가');
+    }
+    //
+    let content = this.attachList.querySelector(`#content_${contentNumber}`);
+    content.querySelectorAll('fe-attach').forEach((feAttach) => {
+      //
+      feAttach.delete();
+    });
+    content.remove();
+
+    // 안선택 select 마지막 option 삭제
+    this.contentSelect.querySelector(':last-child').remove();
+
+    this.#reAssignContent();
+  }
+
+  moveContent(from, to) {
+    //
+    let fromContent = this.attachList.querySelector(`#content_${from + 1}`);
+    let toContent = this.attachList.querySelector(`#content_${to + 1}`);
+
+    this.attachList.insertBefore(fromContent, toContent);
+
+    this.#reAssignContent();
+  }
+
+  #reAssignContent() {
+    // contentNumber 재조정
+    this.attachList.querySelectorAll('.content').forEach((content, i) => {
+      if (i > 1) {
+        content.querySelector('label .content-number').innerHTML = `${i} ${GWWEBMessage.cmsg_765}`;
+        content.id = 'content_' + i;
+        content.querySelectorAll('fe-attach').forEach((feAttach) => {
+          feAttach.setContentNumber(i);
+        });
+      }
+    });
   }
 
   /**
@@ -291,10 +406,23 @@ export default class FeAttachBox extends HTMLElement {
    */
   renderFileListByHox() {
     //
+    let contentLength = getNodes(this.hox, 'docInfo content').length;
+    for (let i = 1; i < contentLength; i++) {
+      this.addContent();
+    }
+    //
+
     getNodes(this.hox, 'docInfo objectIDList objectID').forEach((objectID) => {
       console.log('objectID', objectID);
       //
-      const li = this.attachList.appendChild(document.createElement('li'));
+      if (getAttr(objectID, null, 'type') === 'objectidtype_attach') {
+        return;
+      }
+      //
+      let contentNumber = getNumber(objectID, 'contentNumber');
+      const ol = this.attachList.querySelector(`#content_${contentNumber} ol`);
+
+      const li = ol.appendChild(document.createElement('li'));
       const feAttach = li.appendChild(new FeAttach());
       feAttach.set(this.hox);
       feAttach.setObjectID(objectID);
@@ -311,13 +439,16 @@ export default class FeAttachBox extends HTMLElement {
   renderFileListByPreprocess(files) {
     //
     Array.from(files).forEach((file) => {
-      console.log('file', file);
+      console.log('file', file, this.contentSelect.value);
       //
-      const li = this.attachList.appendChild(document.createElement('li'));
+      const ol = this.attachList.querySelector(`#content_${this.contentSelect.value} ol`);
+      console.log(ol);
+
+      const li = ol.appendChild(document.createElement('li'));
       li.classList.add('uploading');
       const feAttach = li.appendChild(new FeAttach());
       feAttach.set(this.hox);
-      feAttach.setFile(file, this.contentNumber.value);
+      feAttach.setFile(file, this.contentSelect.value);
     });
 
     this.renderSummary();
@@ -335,10 +466,11 @@ export default class FeAttachBox extends HTMLElement {
     Array.from(uploadResult.files).forEach((file) => {
       console.log('uploaded', file);
       //
-      const li = this.attachList.appendChild(document.createElement('li'));
+      const ol = this.attachList.querySelector(`#content_${this.contentSelect.value} ol`);
+      const li = ol.appendChild(document.createElement('li'));
       const feAttach = li.appendChild(new FeAttach());
       feAttach.set(this.hox);
-      feAttach.setUploadedFile(file, this.contentNumber.value);
+      feAttach.setUploadedFile(file, this.contentSelect.value);
     });
 
     this.renderSummary();

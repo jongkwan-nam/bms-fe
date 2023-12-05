@@ -85,3 +85,12 @@ document.getElementById('btnDraft').addEventListener('click', (e) => {
   // 웹한글 본문 저장
   // bms로 submit
 });
+
+document.querySelector('#btnContentAdd').addEventListener('click', (e) => {
+  //
+  feAttachBox.addContent();
+});
+document.querySelector('#btnContentDel').addEventListener('click', (e) => {
+  //
+  feAttachBox.removeContent(2);
+});

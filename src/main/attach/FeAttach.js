@@ -120,6 +120,30 @@ export default class FeAttach extends HTMLElement {
    */
   set(hox) {
     this.hox = hox;
+
+    // 공개여부 변경에 따라  let publicationType = getAttr(this.hox, 'docInfo publication', 'type');
+    this.hox.addEventListener(HoxEventType.PUBLICATIONTYPE, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      let publicationType = e.detail.value;
+      // 공개여부의 disabled 설정과, 체크 변경
+      let [disabled0, disabled1, checked0, checked1] = getOpenFlagCondition(publicationType);
+      let currOpenFlagId = this.wrapper.querySelector('[name="openFlag"]:checked').id;
+
+      if (disabled0 && currOpenFlagId === 'openFlag_0') {
+        // 비공개로 변경됬는데, 첨부 공개로 설정되어 있으면 -> 첨부 비공개로 변경
+        this.shadowRoot.querySelector('#openFlag_0').toggleAttribute('checked', false);
+        this.shadowRoot.querySelector('#openFlag_1').toggleAttribute('checked', true);
+        setText(this.objectID, 'openFlag', '');
+      } else if (disabled1 && currOpenFlagId === 'openFlag_1') {
+        // 공개로 변경됬는데, 첨부 비공개로 설정되어 있으면 -> 첨부 공개로 변경
+        this.shadowRoot.querySelector('#openFlag_0').toggleAttribute('checked', true);
+        this.shadowRoot.querySelector('#openFlag_1').toggleAttribute('checked', false);
+        setText(this.objectID, 'openFlag', 'true');
+      }
+
+      this.shadowRoot.querySelector('#openFlag_0').toggleAttribute('disabled', disabled0);
+      this.shadowRoot.querySelector('#openFlag_1').toggleAttribute('disabled', disabled1);
+    });
   }
 
   /**
@@ -196,6 +220,10 @@ export default class FeAttach extends HTMLElement {
     setText(this.objectID, 'contentNumber', n);
   }
 
+  delete() {
+    // 첨부 삭제
+  }
+
   /**
    * 화면에 그린다
    */
@@ -224,7 +252,7 @@ export default class FeAttach extends HTMLElement {
         <ID>${this.id}</ID>
         <name>${this.name}</name>
         <src />
-        <attachType>${this.contentNumber}</attachType>
+        <attachType>attachtype_normal</attachType>
         <size>${this.size}</size>
         <restriction hidden="false" modify="true" move="true" remove="true" save="true" view="true" />
         <contentNumber>${this.contentNumber}</contentNumber>
