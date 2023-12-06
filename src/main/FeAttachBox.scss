@@ -75,27 +75,28 @@ fe-attachbox {
       background-color: #fafafa;
 
       .bar-item {
-        &.title {
+        &.right-start {
+          margin-left: auto;
+        }
+
+        .title {
           font-weight: 700;
         }
-        &.left-end {
-          margin-right: auto;
+
+        select {
+          font-size: 0.875rem;
+          padding: 0.125rem 0.5rem;
         }
-      }
 
-      select {
-        font-size: 0.875rem;
-        padding: 0.125rem 0.5rem;
-      }
+        button {
+          border: 1px solid transparent;
+          font-size: 0.875rem;
 
-      button {
-        border: 1px solid transparent;
-        font-size: 0.875rem;
-
-        &:hover {
-          background: #e2eff4;
-          border-color: #91b8ca;
-          color: #0f6a9b;
+          &:hover {
+            background: #e2eff4;
+            border-color: #91b8ca;
+            color: #0f6a9b;
+          }
         }
       }
 
@@ -127,7 +128,7 @@ fe-attachbox {
         }
 
         &.focus {
-          background-color: #e2eff4;
+          box-shadow: inset 0 0 2rem #e2eff4;
         }
 
         label {
@@ -143,8 +144,9 @@ fe-attachbox {
           margin-top: 0.5rem;
 
           li {
+            border-bottom: 1px solid transparent;
             &:hover {
-              background-color: rgba(250, 250, 0, 0.125);
+              border-color: var(--color-border);
             }
           }
         }

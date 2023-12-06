@@ -114,6 +114,13 @@ export default class FeAttach extends HTMLElement {
     });
   }
 
+  connectedCallback() {
+    // 상위 .content에서 contentNumber를 구한다.
+    let n = this.parentElement.closest('.content').dataset.number;
+    console.log('FeAttach connectedCallback', n);
+    this.setContentNumber(n);
+  }
+
   /**
    *
    * @param {XMLDocument} hox
@@ -216,8 +223,10 @@ export default class FeAttach extends HTMLElement {
    */
   setContentNumber(n) {
     this.contentNumber = n;
-    setText(this.objectID, 'attachType', n);
-    setText(this.objectID, 'contentNumber', n);
+    if (this.objectID) {
+      setText(this.objectID, 'attachType', n);
+      setText(this.objectID, 'contentNumber', n);
+    }
   }
 
   delete() {

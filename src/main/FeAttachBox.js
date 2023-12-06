@@ -55,38 +55,40 @@ export default class FeAttachBox extends HTMLElement {
       <input type="file" multiple="multiple">
       <div class="attach-box">
         <div class="attach-bar top">
-          <label class="bar-item left-end">
+          <div class="bar-item">
             <button type="button" class="bar-item" id="fileSelector">
               ${GWWEBMessage.cmsg_2492}
             </button>
             <button type="button" class="bar-item" id="cabinetSelector">
               ${GWWEBMessage.W2966}
             </button>
-          </label>
-          <label class="bar-item">
-            <button type="button" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
-            <button type="button" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
-          </label>
-          <label class="bar-item">
+          </div>
+          <div class="bar-item right-start">
+            <button type="button" class="up-down up" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
+            <button type="button" class="up-down down" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
+          </div>
+          <div class="bar-item">
             <select><option value="0">${GWWEBMessage.appr_batchdraft_001}</opton></select>
-          </label>
-          <label class="bar-item">전체선택</label>
-          <label class="bar-item">선택 PC저장</label>
+          </div>
+          <div class="bar-item">
+            <button type="button" id="allSelect">${GWWEBMessage.cabinet_msg_51}</button>
+          </div>
+          <div class="bar-item">
+            <button type="button" id="selectedSave">${GWWEBMessage.W3143} ${GWWEBMessage.cmsg_103}</button>
+          </div>
         </div>
         <div class="attach-list"></div>
         <div class="attach-bar bottom">
-          <label class="bar-item title">${GWWEBMessage.W3175}</label>
-          <label class="bar-item">
+          <div class="bar-item">
+            <span class="title">${GWWEBMessage.W3175}</span>
+          </div>
+          <div class="bar-item">
             <span class="file-count">0</span> / ${this.options.totalFileCount} ${GWWEBMessage.cmsg_1276}
-          </label>
-          <label class="bar-item">
+          </div>
+          <div class="bar-item">
             <span class="file-length">0</span> / ${FileUtils.formatSize(this.options.totalFileLength)}
-          </label>
-          <label class="bar-item left-end">
-            <button type="button" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
-            <button type="button" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
-          </label>
-          <button type="button" class="bar-item" id="foldBtn" title="${GWWEBMessage.cmsg_2490}">
+          </div>
+          <button type="button" class="bar-item right-start" id="foldBtn" title="${GWWEBMessage.cmsg_2490}">
             <svg x="0px" y="0px" viewBox="0 0 13 13" width="15" height="13">
               <polygon points="10.5,4 8.8,4 6.5,7 4.3,4 2.5,4 6.5,9.2"></polygon>
             </svg>
@@ -215,28 +217,39 @@ export default class FeAttachBox extends HTMLElement {
     });
   }
 
+  /**
+   * 첨부 순번 이동
+   */
   #addFileUpDownEventListener() {
-    this.attachList.addEventListener('click', (e) => {
-      console.log('unDown click', e.target.id);
-      //
-      let id = e.target.id;
-      if (id !== 'upBtn' && id !== 'downBtn') {
-        return;
-      }
-      let content = e.target.closest('.content');
-      let contentNumber = content.dataset.number;
-      let ol = content.querySelector('ol');
-      let li = ol.querySelector('.selected');
-      if (li !== null) {
+    this.shadowRoot.querySelectorAll('.up-down').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        console.log('unDown click', e.target.id);
+        //
+        let li = this.attachList.querySelector('li.selected');
+        if (li === null) {
+          return;
+        }
+        let ol = li.closest('ol');
+        let content = ol.closest('.content');
+        let contentNumber = content.dataset.number;
+
+        let btnId = e.target.id;
         let feAttach = li.querySelector('fe-attach');
-        if (id === 'upBtn') {
+        if (btnId === 'upBtn') {
           // up
           if (li.previousSibling) {
             // 위에 첨부가 있으면
             ol.insertBefore(li, li.previousSibling);
           } else {
             // 위에 첨부가 없으면, 상위 안의 맨 밑으로
-            content.previousSibling?.querySelector('ol').insertBefore(li, null);
+            if (content.previousSibling) {
+              let prevContent = content.previousSibling;
+              let n = prevContent.dataset.number;
+              prevContent.querySelector('ol').insertBefore(li, null);
+
+              this.contentSelector.querySelectorAll('option')[n].selected = true;
+              this.contentSelector.dispatchEvent(new Event('change'));
+            }
           }
         } else {
           // down
@@ -245,15 +258,17 @@ export default class FeAttachBox extends HTMLElement {
             ol.insertBefore(li, li.nextSibling?.nextSibling);
           } else {
             // 아래 첨부가 없으면, 하위 안의 맨 위로
-            content.nextSibling?.querySelector('ol').insertBefore(li, content.nextSibling.querySelector('ol li'));
-            // if (content.nextSibling) {
-            //   let nextOl = content.nextSibling.querySelector('ol');
-            //   let nextOlFirstLi = nextOl.querySelector('li');
-            //   nextOl.insertBefore(li, nextOlFirstLi);
-            // }
+            if (content.nextSibling) {
+              let nextContent = content.nextSibling;
+              let n = nextContent.dataset.number;
+              nextContent.querySelector('ol').insertBefore(li, nextContent.querySelector('ol li'));
+
+              this.contentSelector.querySelectorAll('option')[n].selected = true;
+              this.contentSelector.dispatchEvent(new Event('change'));
+            }
           }
         }
-      }
+      });
     });
   }
 
@@ -350,6 +365,7 @@ export default class FeAttachBox extends HTMLElement {
       if (i > 1) {
         content.querySelector('label .content-number').innerHTML = `${i} ${GWWEBMessage.cmsg_765}`;
         content.id = 'content_' + i;
+        content.dataset.number = i;
         content.querySelectorAll('fe-attach').forEach((feAttach) => {
           feAttach.setContentNumber(i);
         });
