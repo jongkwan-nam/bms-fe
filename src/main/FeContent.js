@@ -55,9 +55,9 @@ export default class FeContent extends HTMLElement {
     // 안 선택 이벤트
     this.shadowRoot.querySelector('.body ol').addEventListener('click', (e) => {
       //
-      const seletedLi = e.target.closest('li');
+      const selectedLi = e.target.closest('li');
       this.shadowRoot.querySelectorAll('.body ol li').forEach((li, i) => {
-        if (li === seletedLi) {
+        if (li === selectedLi) {
           li.classList.add('selected');
           dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
         } else {
@@ -66,9 +66,28 @@ export default class FeContent extends HTMLElement {
       });
     });
 
-    // TODO 안 위로 이벤트
+    // TODO 안 이동을 어떻게 할것인가? 이동과 동시에 바로 반영? 확정 클릭시 반영. 웹한글 반응 속도에 따라
 
-    // TODO 안 아래로 이벤트
+    // 안 위로 이벤트
+    this.shadowRoot.querySelector('#upBtn').addEventListener('click', (e) => {
+      // 선택된 안 찾기
+      const selectedLi = this.shadowRoot.querySelector('.body ol li.selected');
+      if (selectedLi !== null) {
+        const prevLi = selectedLi.previousSibling;
+        if (prevLi !== null) {
+          this.shadowRoot.querySelector('.body ol').insertBefore(selectedLi, prevLi);
+        }
+      }
+    });
+
+    // 안 아래로 이벤트
+    this.shadowRoot.querySelector('#downBtn').addEventListener('click', (e) => {
+      const selectedLi = this.shadowRoot.querySelector('.body ol li.selected');
+      if (selectedLi !== null) {
+        const nextLi = selectedLi.nextSibling;
+        this.shadowRoot.querySelector('.body ol').insertBefore(selectedLi, nextLi?.nextSibling);
+      }
+    });
 
     // 접기 이벤트
     this.shadowRoot.querySelector('#foldBtn').addEventListener('click', (e) => {
