@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import '../../_open_sources/dynatree';
+import '../../lib/dynatree';
 import feStorage from '../../utils/FeStorage';
 import * as DateUtils from '../../utils/dateUtils';
 import { HoxEventType, dispatchHoxEvent, setText } from '../../utils/hoxUtils';

@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import '../_open_sources/dynatree';
+import '../lib/dynatree';
 import { setText } from '../utils/hoxUtils';
 import './FeSender.scss';
 

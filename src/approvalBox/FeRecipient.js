@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import syncFetch from 'sync-fetch';
-import '../_open_sources/dynatree';
+import '../lib/dynatree';
 import * as TagUI from '../utils/TabUI';
 import * as ArrayUtils from '../utils/arrayUtils';
 import { HoxEventType, getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
