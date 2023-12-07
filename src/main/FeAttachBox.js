@@ -14,7 +14,7 @@
  */
 
 import * as FileUtils from '../utils/fileUtils';
-import { getAttr, getNodes, getNumber } from '../utils/hoxUtils';
+import { HoxEventType, getAttr, getNodes, getNumber } from '../utils/hoxUtils';
 import './FeAttachBox.scss';
 import FeAttach from './attach/FeAttach';
 
@@ -247,8 +247,7 @@ export default class FeAttachBox extends HTMLElement {
               let n = prevContent.dataset.number;
               prevContent.querySelector('ol').insertBefore(li, null);
 
-              this.contentSelector.querySelectorAll('option')[n].selected = true;
-              this.contentSelector.dispatchEvent(new Event('change'));
+              this.selectContent(n);
             }
           }
         } else {
@@ -263,8 +262,7 @@ export default class FeAttachBox extends HTMLElement {
               let n = nextContent.dataset.number;
               nextContent.querySelector('ol').insertBefore(li, nextContent.querySelector('ol li'));
 
-              this.contentSelector.querySelectorAll('option')[n].selected = true;
-              this.contentSelector.dispatchEvent(new Event('change'));
+              this.selectContent(n);
             }
           }
         }
@@ -281,6 +279,27 @@ export default class FeAttachBox extends HTMLElement {
 
     // hox: docInfo objectIDList objectID ID
     // hox: docInfo content attachInfo attach ID
+
+    // hox 이벤트 수신
+    this.hox.addEventListener(HoxEventType.CONTENT, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      if (e.detail.type === 'add') {
+        // 안 추가
+        const addedContent = e.detail.value;
+        this.addContent();
+      } else if (e.detail.type === 'delete') {
+        // 안 삭제
+        const deletedContentNumbers = e.detail.value;
+        this.removeContent(...deletedContentNumbers);
+      } else if (e.detail.type === 'select') {
+        // 안 선택
+        const selectedContentNumber = e.detail.value;
+        this.selectContent(selectedContentNumber);
+      } else {
+        // undefind
+        throw new Error('undefinded detatil.type: ' + e.detail.type);
+      }
+    });
 
     this.addContent();
     this.renderFileListByHox();
@@ -326,25 +345,33 @@ export default class FeAttachBox extends HTMLElement {
       option.innerHTML = `${contentLength} ${GWWEBMessage.cmsg_765}`;
     }
     // 마지막 option selected
-    this.contentSelector.querySelector(':last-child').selected = true;
-    this.contentSelector.dispatchEvent(new Event('change'));
+
+    this.selectContent(contentLength);
   }
 
-  removeContent(contentNumber) {
-    if (contentNumber === 1) {
+  /**
+   * 안 삭제
+   * @param  {...number} contentNumbers
+   */
+  removeContent(...contentNumbers) {
+    console.log('removeContent', contentNumbers);
+    if (contentNumbers.includes(1)) {
       // 1안 삭제 불가
       throw new Error('1안 삭제 불가');
     }
     //
-    let content = this.attachList.querySelector(`#content_${contentNumber}`);
-    content.querySelectorAll('fe-attach').forEach((feAttach) => {
+    contentNumbers.forEach((contentNumber) => {
       //
-      feAttach.delete();
-    });
-    content.remove();
+      let content = this.attachList.querySelector(`#content_${contentNumber}`);
+      content.querySelectorAll('fe-attach').forEach((feAttach) => {
+        //
+        feAttach.delete();
+      });
+      content.remove();
 
-    // 안선택 select 마지막 option 삭제
-    this.contentSelector.querySelector(':last-child').remove();
+      // 안선택 select 마지막 option 삭제
+      this.contentSelector.querySelector(':last-child').remove();
+    });
 
     this.#reAssignContent();
   }
@@ -371,6 +398,12 @@ export default class FeAttachBox extends HTMLElement {
         });
       }
     });
+  }
+
+  selectContent(contentNumber) {
+    //
+    this.contentSelector.querySelectorAll('option')[contentNumber].selected = true;
+    this.contentSelector.dispatchEvent(new Event('change'));
   }
 
   /**

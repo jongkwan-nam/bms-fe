@@ -1,8 +1,10 @@
 import './main.scss';
 import './main/FeAttachBox';
+import './main/FeContent';
 import './main/FeEditor';
 import { loadHox, setTextCDATA } from './utils/hoxUtils';
 
+import FeContent from './main/FeContent';
 import reflectHoxInBody from './main/reflectHoxInBody';
 
 let trid = rInfo.hoxFileTRID;
@@ -14,6 +16,8 @@ let feEditor1 = document.querySelector('fe-editor#editor1');
 let feEditor2 = document.querySelector('fe-editor#editor2');
 
 let feAttachBox = document.querySelector('fe-attachbox');
+
+let feContent;
 
 console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
 /*
@@ -88,7 +92,14 @@ document.getElementById('btnDraft').addEventListener('click', (e) => {
 
 document.querySelector('#btnContentAdd').addEventListener('click', (e) => {
   //
-  feAttachBox.addContent();
+  // feAttachBox.addContent();
+  // feContent
+  if (!feContent) {
+    feContent = document.querySelector('main').appendChild(new FeContent());
+    feContent.set(hox);
+  }
+  feContent.classList.add('show');
+  feContent.addContent();
 });
 document.querySelector('#btnContentDel').addEventListener('click', (e) => {
   //

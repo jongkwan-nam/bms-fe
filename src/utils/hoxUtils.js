@@ -247,4 +247,5 @@ export const HoxEventType = {
   ENFORCETYPE: 'enforceType',
   PUBLICATIONTYPE: 'publicationType',
   OBJECTIDLIST: 'objectIDList',
+  CONTENT: 'content',
 };
