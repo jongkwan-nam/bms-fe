@@ -290,7 +290,7 @@ export default class FeAttachBox extends HTMLElement {
       } else if (e.detail.type === 'delete') {
         // 안 삭제
         const deletedContentNumbers = e.detail.value;
-        this.removeContent(...deletedContentNumbers);
+        this.deleteContent(...deletedContentNumbers);
       } else if (e.detail.type === 'select') {
         // 안 선택
         const selectedContentNumber = e.detail.value;
@@ -353,13 +353,7 @@ export default class FeAttachBox extends HTMLElement {
    * 안 삭제
    * @param  {...number} contentNumbers
    */
-  removeContent(...contentNumbers) {
-    console.log('removeContent', contentNumbers);
-    if (contentNumbers.includes(1)) {
-      // 1안 삭제 불가
-      throw new Error('1안 삭제 불가');
-    }
-    //
+  deleteContent(...contentNumbers) {
     contentNumbers.forEach((contentNumber) => {
       //
       let content = this.attachList.querySelector(`#content_${contentNumber}`);

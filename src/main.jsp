@@ -7,6 +7,9 @@
   GWWEBMessage['st_jeonhooyul_nosign'] = '전결(후열)';
   GWWEBMessage['st_jeonhooyul_sign'] = '전결(후결)';
   GWWEBMessage['st_jeonhooyul_nosanc'] = '전결(후열안함)';
+
+  doccfg.docViewRatio = 1;
+  doccfg.baseBodyContent = 1;
 </script>
 <main>
   <header class="menu-wrap">
@@ -16,11 +19,11 @@
     <button type="button" id="btnContentDel" class="btn">안 삭제(2)</button>
   </header>
   <article class="editor-wrap">
-    <fe-editor id="editor1"></fe-editor>
-    <fe-editor id="editor2" style="display: none"></fe-editor>
+    <!-- <fe-editor id="editor1"></fe-editor> -->
+    <!-- <fe-editor id="editor2" style="display: none"></fe-editor> -->
   </article>
   <article class="attach-wrap">
-    <fe-attachbox></fe-attachbox>
+    <!-- <fe-attachbox></fe-attachbox> -->
   </article>
 </main>
 <aside id="approvalBox" class="modal-container">

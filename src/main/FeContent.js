@@ -10,7 +10,7 @@ export default class FeContent extends HTMLElement {
   }
 
   connectedCallback() {
-    console.debug('FeEditor connected');
+    console.debug('FeContent connected');
     this.attachShadow({ mode: 'open' });
 
     const LINK = document.createElement('link');

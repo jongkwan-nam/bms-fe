@@ -1,5 +1,7 @@
+import { HoxEventType, getNodes } from '../utils/hoxUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
+import FeHwpCtrl from './hwp/FeHwpCtrl';
 
 const TIME_LABEL_INIT = 'Editor-init';
 const TIME_LABEL_OPEN = 'Editor-open';
@@ -7,9 +9,10 @@ const TIME_LABEL_OPEN = 'Editor-open';
 /**
  * 웹한글 에디터
  */
-export default class FeEditor extends HTMLElement {
+export default class FeEditor extends FeHwpCtrl {
   active = false;
   hwpCtrl = null;
+  contentNumber = 1;
 
   constructor() {
     super();
@@ -25,9 +28,49 @@ export default class FeEditor extends HTMLElement {
     LINK.setAttribute('href', './main.css');
 
     const wrapper = document.createElement('iframe');
-    wrapper.classList.add('fe-editor');
+    wrapper.classList.add(this.tagName.toLocaleLowerCase());
 
     this.shadowRoot.append(LINK, wrapper);
+  }
+
+  /**
+   *
+   * @param {XMLDocument} hox
+   */
+  set(hox) {
+    this.hox = hox;
+
+    this.hox.addEventListener(HoxEventType.CONTENT, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      switch (e.detail.type) {
+        case 'add': {
+          // 안 추가 이벤트
+          this.addContent();
+          break;
+        }
+        case 'delete': {
+          // 안 삭제 이벤트
+          const deletedContentNumbers = e.detail.value;
+          this.deleteContent(...deletedContentNumbers);
+          break;
+        }
+        case 'select': {
+          // 안 선택 이벤트
+          this.selectContent(e.detail.value);
+          break;
+        }
+        case 'up': {
+          // 안 위로 이벤트
+          break;
+        }
+        case 'down': {
+          // 안 아래로 이벤트
+          break;
+        }
+        default:
+          throw new Error('undefinded detatil.type: ' + e.detail.type);
+      }
+    });
   }
 
   /**
@@ -116,6 +159,119 @@ export default class FeEditor extends HTMLElement {
    */
   foldRibbon(force) {
     this.hwpCtrl.FoldRibbon(force);
+  }
+
+  /**
+   * 안 추가
+   *
+   * hox는 FeContent에서 추가되어 있다
+   */
+  async addContent() {
+    this.contentNumber = getNodes(this.hox, 'docInfo content').length;
+    console.log('addContent ', this.contentNumber);
+    //
+    super.toggleViewOptionCtrkMark(true);
+
+    const rect = super.getBoundingContentRect(1);
+
+    this.hwpCtrl.SelectText(rect.sPara, rect.sPos, rect.ePara, rect.ePos);
+
+    let jsonData = await super.getTextFile('JSON', 'saveblock');
+
+    this.hwpCtrl.Run('Cancel');
+
+    this.hwpCtrl.Run('MoveDocEnd');
+    this.hwpCtrl.Run('BreakPage');
+
+    this.hwpCtrl.MovePos(5, 0, 0); // 현재 리스트의 끝
+
+    let res = await super.insert(jsonData, 'JSON');
+
+    // 셀명 변경
+    super.reAssignContentCellName();
+
+    // doccfg.baseBodyContent 옵션 처리
+    // 1: 1안의 본문복사 (default), 0: 빈 본문, -1: 추가전의 마지막 안의 본문 복사
+    switch (parseInt(doccfg.baseBodyContent)) {
+      case 1: {
+        // 1안 전체를 복사했으므로 do nothing
+        break;
+      }
+      case 0: {
+        // 결재제목, 본문 내용 삭제
+        [Cell.DOC_TITLE, Cell.CBODY].forEach((cellName) => {
+          super.putFieldTextEmpty(cellName + '_' + this.contentNumber);
+        });
+        break;
+      }
+      case -1: {
+        // n-1 안의 본문 복사. 2안이라면 복사할 필요 없음
+        // TODO 여러번 수행라면 오동작
+        if (this.contentNumber > 2) {
+          // 제목
+          let title = this.hwpCtrl.GetFieldText(Cell.DOC_TITLE + '_' + (this.contentNumber - 1));
+          this.hwpCtrl.PutFieldText(Cell.DOC_TITLE + '_' + this.contentNumber, title);
+
+          // 본문
+          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + (this.contentNumber - 1), true, true, true);
+          let bodyText = await super.getTextFile('JSON', 'saveblock');
+
+          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + this.contentNumber, true, true, true);
+          this.hwpCtrl.Run('Erase');
+
+          let ret = await super.setTextFile(bodyText, 'JSON', 'insertfile');
+        }
+        break;
+      }
+    }
+
+    super.toggleViewOptionCtrkMark(false);
+  }
+
+  /**
+   * 안 삭제
+   * - hox content는 FeContent에서 삭제되어 있다
+   *
+   * ref) batchDraft.js #deleteHwpBody
+   * @param  {...any} contentNumbers
+   */
+  deleteContent(...contentNumbers) {
+    super.toggleViewOptionCtrkMark(true);
+    contentNumbers.reverse().forEach((contentNumber) => {
+      // 발신명의 셀을 기준으로 이전 안의 끝과 현재 안의 끝을 찾아서 삭제
+      console.log('deleteContent', contentNumber);
+
+      const prevRect = super.getBoundingContentRect(contentNumber - 1);
+      const currRect = super.getBoundingContentRect(contentNumber);
+
+      this.hwpCtrl.SelectText(prevRect.ePara, prevRect.ePos, currRect.ePara, currRect.ePos);
+      this.hwpCtrl.Run('Erase');
+    });
+    // 셀_n 조정
+    /* 삭제전 총 6안일때, 안 번호를 배열 [1, 2, 3, 4, 5, 6]로 만들고, 삭제한 안 [3, 5] 번호 빼서
+       남은 [1, 2, 4, 6] 배열로 인덱스와 값의 관계가 틀어지는 걸로 찾아
+       안 번호 재정렬
+     */
+    const wholeContentNumbers = Array.from({ length: this.contentNumber }, (_, i) => i + 1); // [1,2,3,4,5,6]
+    const remainContentNumners = wholeContentNumbers.filter((n) => !contentNumbers.includes(n)); // [1,2,4,6]
+    remainContentNumners.forEach((n, i) => {
+      // 세번째 루프에서 n(4), i(2) 이면, n(4) 안을 i(2) + 1 = 3안으로 변경
+      if (n - i !== 1) {
+        super.renameContentCellName(n, i + 1);
+      }
+    });
+    this.contentNumber = getNodes(this.hox, 'docInfo content').length; // 뻬고 남은 안 번호
+
+    super.toggleViewOptionCtrkMark(false);
+  }
+
+  selectContent(contentNumber) {
+    // 안번호의 제목셀을 찾고, 현재 페이지를 구하여 스크롤 이동한다.
+    this.hwpCtrl.MoveToFieldEx(super.getContentCellName(Cell.DOC_TITLE, contentNumber), true, true, false);
+    // let set = super.getDocumentInfo(true);
+    // let curPage = set.Item('DetailCurPage');
+    // console.log('curPage', curPage);
+    this.hwpCtrl.Run('MovePageBegin');
   }
 
   set title(title) {

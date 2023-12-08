@@ -1,10 +1,12 @@
 import './main.scss';
-import './main/FeAttachBox';
-import './main/FeContent';
-import './main/FeEditor';
+// import './main/FeAttachBox';
+// import './main/FeContent';
+// import './main/FeEditor';
 import { loadHox, setTextCDATA } from './utils/hoxUtils';
 
+import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
+import FeEditor from './main/FeEditor';
 import reflectHoxInBody from './main/reflectHoxInBody';
 
 let trid = rInfo.hoxFileTRID;
@@ -12,10 +14,14 @@ let docUrl = `https://fe.handysoft.co.kr/bms/com/hs/gwweb/appr/downloadFormFile.
 
 let hox;
 
-let feEditor1 = document.querySelector('fe-editor#editor1');
-let feEditor2 = document.querySelector('fe-editor#editor2');
+// let feEditor1 = document.querySelector('fe-editor#editor1');
+// let feEditor2 = document.querySelector('fe-editor#editor2');
 
-let feAttachBox = document.querySelector('fe-attachbox');
+let feEditor1 = document.querySelector('.editor-wrap').appendChild(new FeEditor());
+feEditor1.id = 'editor1';
+
+// let feAttachBox = document.querySelector('fe-attachbox');
+let feAttachBox;
 
 let feContent;
 
@@ -32,17 +38,20 @@ console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
 
 (async () => {
   //
-  hox = await loadHox(trid);
-
   await feEditor1.init();
+
+  hox = await loadHox(trid);
 
   feEditor1.setViewZoom(doccfg.docViewRatio);
   feEditor1.foldRibbon(false);
 
   await feEditor1.open(docUrl);
 
+  feEditor1.set(hox);
+
   reflectHoxInBody(hox, feEditor1);
 
+  feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
   feAttachBox.set(hox);
   //
 })().catch((error) => {
@@ -52,6 +61,10 @@ console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
 
 window.hox = () => {
   return hox;
+};
+
+window.hwpCtrl = () => {
+  return document.querySelector('fe-editor').hwpCtrl;
 };
 
 window.receiveHox = (modifiedHox) => {
