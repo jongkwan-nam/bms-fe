@@ -1,34 +1,26 @@
 import { getText, setText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FePageCnt.scss';
 
 /**
  *
  */
-export default class FePageCnt extends HTMLElement {
+export default class FePageCnt extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FePageCnt init');
   }
 
   connectedCallback() {
-    console.debug('FePageCnt connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-pagecnt');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     this.input = wrapper.appendChild(document.createElement('input'));
     this.input.type = 'number';
     this.input.min = 0;
     this.input.addEventListener('change', (e) => {
-      console.log('FePageCnt change', e.target.value);
-
-      setText(this.hox, 'docInfo pageCnt', e.target.value);
+      if (this.contentNumber === 1) {
+        setText(this.hox, 'docInfo pageCnt', e.target.value);
+      }
+      setText(this.contentNode, 'pageCnt', e.target.value);
     });
   }
 
@@ -37,9 +29,13 @@ export default class FePageCnt extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     this.input.value = getText(this.hox, 'docInfo pageCnt');
+  }
+
+  changeContentNumberCallback() {
+    this.input.value = getText(this.contentNode, 'pageCnt');
   }
 }
 

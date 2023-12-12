@@ -2,6 +2,7 @@ import * as ArrayUtils from '../../utils/arrayUtils';
 import * as DateUtils from '../../utils/dateUtils';
 import { HoxEventType, addNode, dispatchHoxEvent, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
 import * as StringUtils from '../../utils/stringUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import data from './FePublication.json';
 import './FePublication.scss';
 
@@ -11,23 +12,13 @@ const MaxLength_listPublicRestricReason = 10;
 /**
  *
  */
-export default class FePublication extends HTMLElement {
+export default class FePublication extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FePublication init');
   }
 
   connectedCallback() {
-    console.debug('FePublication connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-publication');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     const publicTypes = [
       ['pubtype_open', 'publicflag_public'],
@@ -293,7 +284,7 @@ export default class FePublication extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     // hox값으로, 화면에 값 설정
 
@@ -347,6 +338,10 @@ export default class FePublication extends HTMLElement {
 
     // 목록비공개사유
     this.shadowRoot.querySelector('#listPublicRestricReason').value = getText(this.hox, 'docInfo publication listPublicRestricReason');
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

@@ -1,32 +1,30 @@
 import $ from 'jquery';
+import syncFetch from 'sync-fetch';
 import '../../lib/dynatree';
 import feStorage from '../../utils/FeStorage';
 import * as DateUtils from '../../utils/dateUtils';
-import { HoxEventType, dispatchHoxEvent, setText } from '../../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeFolder.scss';
 
 const ROOT_FOLDER_ID = '00000000000000000001';
 
-export default class FeFolder extends HTMLElement {
+/**
+ * 기록물철
+ */
+export default class FeFolder extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeFolder init');
   }
 
   connectedCallback() {
-    console.debug('FeFolder connected');
-    this.attachShadow({ mode: 'open' });
+    const wrapper = super.init();
 
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
+    const dynatreeLink = document.createElement('link');
+    dynatreeLink.setAttribute('rel', 'stylesheet');
+    dynatreeLink.setAttribute('href', './css/dynatree.css');
+    this.shadowRoot.append(dynatreeLink);
 
-    const LINK2 = document.createElement('link');
-    LINK2.setAttribute('rel', 'stylesheet');
-    LINK2.setAttribute('href', './css/dynatree.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-folder');
     wrapper.innerHTML = `
       <div>
         <select>
@@ -44,8 +42,6 @@ export default class FeFolder extends HTMLElement {
         </div>
       </div>
     `;
-
-    this.shadowRoot.append(LINK, LINK2, wrapper);
   }
 
   /**
@@ -53,7 +49,8 @@ export default class FeFolder extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
+
     this.fldrId = '';
     this.fldrName = '';
 
@@ -68,27 +65,21 @@ export default class FeFolder extends HTMLElement {
         continue;
       }
       // folderId 검증 후 option 추가
-      fetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${DateUtils.format(Date.now(), 'yyyy-mm-dd')}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.ok) {
-            //
-            fetch(`/bms/com/hs/gwweb/appr/retrieveFldrInfo.act?fldrID=${folderId}&applID=${7010}`)
-              .then((res) => res.json())
-              .then((data) => {
-                //
-                fldrMap.set(data.fldrId, data);
-                let option = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
-                option.value = data.fldrId;
-                option.innerHTML = `${data.fldrName} (${GWWEBMessage['keepPeriodRange_' + data.fldrKeepingPeriod]})`;
-              });
-          }
-        });
+      const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${DateUtils.format(Date.now(), 'yyyy-mm-dd')}`).json();
+      if (data.ok) {
+        //
+        const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveFldrInfo.act?fldrID=${folderId}&applID=${7010}`).json();
+        fldrMap.set(data.fldrId, data);
+        let option = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
+        option.value = data.fldrId;
+        option.innerHTML = `${data.fldrName} (${GWWEBMessage['keepPeriodRange_' + data.fldrKeepingPeriod]})`;
+      }
     }
 
-    /*
-     * 기록물철 select 선택
-     */
+    // 값 설정
+    this.shadowRoot.querySelector('select').value = getText(this.hox, 'docInfo folderInfo ID');
+
+    // 기록물철 select 선택
     this.shadowRoot.querySelector('select').addEventListener('change', (e) => {
       //
       console.log('select change', e.target.value, e.target.innerHTML);
@@ -102,6 +93,7 @@ export default class FeFolder extends HTMLElement {
       dispatchHoxEvent(this.hox, 'docInfo folderInfo', HoxEventType.FOLDER, 'change', fldrInfo);
     });
 
+    // 선택 버튼: 기록물철 트리 호출
     this.shadowRoot.querySelector('button#btnFolderContainer').addEventListener('click', (e) => {
       //
       this.shadowRoot.querySelector('.modal-container').classList.add('open');
@@ -180,9 +172,7 @@ export default class FeFolder extends HTMLElement {
         });
     });
 
-    /**
-     * 기록물철 트리에서 선택 버튼
-     */
+    // 기록물철 트리에서 선택 버튼
     this.shadowRoot.querySelector('button#btnFolderSelect').addEventListener('click', (e) => {
       //
       /* 기존 option에 있는 기록물철이면, 선택만 하고, 없으면 option 추가 및 선택, storage 저장 */
@@ -203,10 +193,15 @@ export default class FeFolder extends HTMLElement {
       this.shadowRoot.querySelector('.modal-container').classList.remove('open');
     });
 
+    // 기록물철 트리에서 취소. do nothing
     this.shadowRoot.querySelector('button#btnFolderCancel').addEventListener('click', (e) => {
       //
       this.shadowRoot.querySelector('.modal-container').classList.remove('open');
     });
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('select, button').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

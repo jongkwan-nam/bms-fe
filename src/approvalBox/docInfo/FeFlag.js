@@ -1,4 +1,5 @@
 import { toggleFlag } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeFlag.scss';
 
 const data = [
@@ -9,25 +10,15 @@ const data = [
 ];
 
 /**
- *
+ * 결재 플래그
  */
-export default class FeFlag extends HTMLElement {
+export default class FeFlag extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeFlag init');
   }
 
   connectedCallback() {
-    console.debug('FeFlag connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-flag');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     data.forEach((item) => {
       //
@@ -52,7 +43,11 @@ export default class FeFlag extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

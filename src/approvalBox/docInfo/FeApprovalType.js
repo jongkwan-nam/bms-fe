@@ -1,6 +1,9 @@
 import { getText } from '../../utils/hoxUtils';
 import './FeApprovalType.scss';
 
+/**
+ * 문서종류
+ */
 export default class FeApprovalType extends HTMLElement {
   constructor() {
     super();

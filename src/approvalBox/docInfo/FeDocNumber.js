@@ -2,7 +2,7 @@ import { existsNode, getAttr, getText } from '../../utils/hoxUtils';
 import './FeDocNumber.scss';
 
 /**
- *
+ * 문서번호
  */
 export default class FeDocNumber extends HTMLElement {
   constructor() {

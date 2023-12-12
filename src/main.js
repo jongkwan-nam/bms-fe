@@ -79,6 +79,16 @@ window.receiveHox = (modifiedHox) => {
   };
 };
 
+window.getCurrentContentNumber = () => {
+  if (feContent) {
+    // 안바로가기가 설정되어 있으면(즉, 일괄기안이면)
+    return feContent.currentContentNumber;
+  } else {
+    // 1안
+    return 1;
+  }
+};
+
 window.hoxToText = () => {
   return new XMLSerializer().serializeToString(hox);
 };

@@ -283,21 +283,28 @@ export default class FeAttachBox extends HTMLElement {
     // hox 이벤트 수신
     this.hox.addEventListener(HoxEventType.CONTENT, (e) => {
       console.info('hoxEvent listen', e.type, e.detail);
-      if (e.detail.type === 'add') {
-        // 안 추가
-        const addedContent = e.detail.value;
-        this.addContent();
-      } else if (e.detail.type === 'delete') {
-        // 안 삭제
-        const deletedContentNumbers = e.detail.value;
-        this.deleteContent(...deletedContentNumbers);
-      } else if (e.detail.type === 'select') {
-        // 안 선택
-        const selectedContentNumber = e.detail.value;
-        this.selectContent(selectedContentNumber);
-      } else {
-        // undefind
-        throw new Error('undefinded detatil.type: ' + e.detail.type);
+      switch (e.detail.type) {
+        case 'add': {
+          this.addContent();
+          break;
+        }
+        case 'delete': {
+          const deletedContentNumbers = e.detail.value;
+          this.deleteContent(...deletedContentNumbers);
+          break;
+        }
+        case 'select': {
+          const selectedContentNumber = e.detail.value;
+          this.selectContent(selectedContentNumber);
+          break;
+        }
+        case 'move': {
+          let { from, to } = e.detail.value;
+          this.moveContent(from, to);
+          break;
+        }
+        default:
+          throw new Error('undefinded detatil.type: ' + e.detail.type);
       }
     });
 
@@ -371,13 +378,13 @@ export default class FeAttachBox extends HTMLElement {
   }
 
   moveContent(from, to) {
-    //
-    let fromContent = this.attachList.querySelector(`#content_${from + 1}`);
-    let toContent = this.attachList.querySelector(`#content_${to + 1}`);
+    // TODO
+    let fromContent = this.attachList.querySelector(`#content_${from}`);
+    let toContent = this.attachList.querySelector(`#content_${to}`);
 
     this.attachList.insertBefore(fromContent, toContent);
 
-    this.#reAssignContent();
+    // this.#reAssignContent();
   }
 
   #reAssignContent() {

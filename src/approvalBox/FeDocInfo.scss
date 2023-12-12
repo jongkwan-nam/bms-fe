@@ -16,4 +16,8 @@ fe-docinfo {
   label {
     padding-left: 0.5rem;
   }
+
+  & > * {
+    min-height: 2rem;
+  }
 }

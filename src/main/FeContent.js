@@ -1,10 +1,12 @@
-import { HoxEventType, createNode, dispatchHoxEvent, getText } from '../utils/hoxUtils';
+import { HoxEventType, createNode, dispatchHoxEvent, getNode, getText } from '../utils/hoxUtils';
 import './FeContent.scss';
 
 /**
  * 안 관리
  */
 export default class FeContent extends HTMLElement {
+  currentContentNumber = 1;
+
   constructor() {
     super();
   }
@@ -59,6 +61,7 @@ export default class FeContent extends HTMLElement {
       this.shadowRoot.querySelectorAll('.body ol li').forEach((li, i) => {
         if (li === selectedLi) {
           li.classList.add('selected');
+          this.currentContentNumber = i + 1;
           dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
         } else {
           li.classList.remove('selected');
@@ -76,6 +79,10 @@ export default class FeContent extends HTMLElement {
         const prevLi = selectedLi.previousSibling;
         if (prevLi !== null) {
           this.shadowRoot.querySelector('.body ol').insertBefore(selectedLi, prevLi);
+          // TODO 위로 이동
+          let from = selectedLi.querySelector('input').value;
+          let to = prevLi.querySelector('input').value;
+          dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
         }
       }
     });
@@ -85,7 +92,13 @@ export default class FeContent extends HTMLElement {
       const selectedLi = this.shadowRoot.querySelector('.body ol li.selected');
       if (selectedLi !== null) {
         const nextLi = selectedLi.nextSibling;
-        this.shadowRoot.querySelector('.body ol').insertBefore(selectedLi, nextLi?.nextSibling);
+        if (nextLi) {
+          this.shadowRoot.querySelector('.body ol').insertBefore(selectedLi, nextLi?.nextSibling);
+          // TODO 아래로 이동
+          let from = selectedLi.querySelector('input').value;
+          let to = nextLi.querySelector('input').value;
+          dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
+        }
       }
     });
 
@@ -105,7 +118,26 @@ export default class FeContent extends HTMLElement {
    */
   set(hox) {
     this.hox = hox;
+
+    // set 호출 -> 일괄기안이 처음 설정 -> 첫 content에 title, enforceMethod, pageCnt 추가
+    const titleNode = createNode(`<title><![CDATA[${getText(this.hox, 'docInfo title')}]]></title>`);
+    const enforceMethodNode = createNode('<enforceMethod>enforcemethod_direct</enforceMethod>');
+    const pageCntNode = createNode('<pageCnt>1</pageCnt>');
+    getNode(this.hox, 'docInfo content').append(titleNode, enforceMethodNode, pageCntNode);
+
     this.#appendLastContentItem();
+
+    this.hox.addEventListener(HoxEventType.TITLE, (e) => {
+      if (e.detail.type === 'change') {
+        // 변경된 제목 반영
+        this.shadowRoot.querySelectorAll('.body ol li').forEach((li, i) => {
+          //
+          const nodeContent = getNode(this.hox, 'docInfo content', i);
+          const title = getText(nodeContent, 'title');
+          li.querySelector('.content-title').innerHTML = title;
+        });
+      }
+    });
   }
 
   /**
@@ -145,8 +177,13 @@ export default class FeContent extends HTMLElement {
     this.#appendLastContentItem();
     // hox 이벤트 전파
     dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'add', contentNode);
+    // 추가된 안(마지막 안) 선택
+    this.shadowRoot.querySelector('.body ol li:last-child').click();
   }
 
+  /**
+   * hox content 내용으로 안바로가기에 li 추가
+   */
   #appendLastContentItem() {
     const contentNodeList = this.hox.querySelectorAll('docInfo content');
     const contentNumber = contentNodeList.length;
@@ -196,6 +233,10 @@ export default class FeContent extends HTMLElement {
     // 1개 안만 있으면, 스스로 숨기기
     if (this.shadowRoot.querySelectorAll('.body ol li').length === 1) {
       this.classList.remove('show');
+    } else {
+      // 삭제된 안의 가장 작은 안 번호 선택
+      let nextContentNumber = Math.min(...checkedContentNumberArray) - 1;
+      this.shadowRoot.querySelectorAll('.body ol li')[nextContentNumber].click();
     }
   }
 }

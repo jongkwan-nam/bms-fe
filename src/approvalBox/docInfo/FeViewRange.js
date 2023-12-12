@@ -1,26 +1,17 @@
 import { getText, setText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeViewRange.scss';
 
 /**
- *
+ * 열람법위
  */
-export default class FeViewRange extends HTMLElement {
+export default class FeViewRange extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeViewRange init');
   }
 
   connectedCallback() {
-    console.debug('FeViewRange connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-viewrange');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     let viewRanges = [
       ['all', 'cabinet_msg_1'],
@@ -50,13 +41,17 @@ export default class FeViewRange extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     let viewRange = getText(this.hox, 'docInfo viewRange');
     let input = this.shadowRoot.querySelector(`#viewRange_${viewRange}`);
     if (input) {
       input.checked = true;
     }
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

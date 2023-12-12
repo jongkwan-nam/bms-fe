@@ -55,14 +55,19 @@ export const addNode = (hox, selectors, ...newNodeNames) => {
 };
 
 /**
- * 첫번째 노드 1개 반환
+ * 노드 반환
  * @param {Element} element
  * @param {string} selectors
+ * @param {number} nth 결과가 복수일때, 선택할 노드의 index
  * @returns
  */
-export const getNode = (element, selectors) => {
+export const getNode = (element, selectors, nth = 0) => {
   if (selectors !== null) {
-    return element.querySelector(selectors);
+    const nodeList = element.querySelectorAll(selectors);
+    if (nodeList.length > 0) {
+      return nodeList[nth];
+    }
+    return null;
   } else {
     return element;
   }
@@ -101,17 +106,21 @@ export const getNumber = (element, selectors) => {
 };
 
 /**
- * hox의 해당 값 구하기
+ * 해당 값 구하기
  * @param {Element} element
  * @param {string} selectors
+ * @param {number} nth
  * @returns
  */
-export const getText = (element, selectors) => {
+export const getText = (element, selectors, nth = 0) => {
+  if (nth > 0) {
+    return getNode(element, selectors, nth).textContent;
+  }
   return element.querySelector(selectors)?.textContent;
 };
 
 /**
- * hox의 해당 값 설정
+ * 해당 값 설정
  * @param {Element} element
  * @param {string} selectors
  * @param {string} text
@@ -121,18 +130,18 @@ export const setText = (element, selectors, text) => {
 };
 
 /**
- * hox의 해당 값을 CDATA로 설정
- * @param {Document} hox
+ * 해당 값을 CDATA로 설정
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} text
  */
-export const setTextCDATA = (hox, selectors, text) => {
-  hox.querySelector(selectors).textContent = null;
-  hox.querySelector(selectors).appendChild(hox.createCDATASection(text));
+export const setTextCDATA = (element, selectors, text) => {
+  element.querySelector(selectors).textContent = null;
+  element.querySelector(selectors).appendChild(element.getRootNode().createCDATASection(text));
 };
 
 /**
- * hox의 해당 속성 구하기
+ * 해당 속성 구하기
  * @param {Element} element
  * @param {string?} selectors null이면, element의 속성
  * @param {string} attName
@@ -147,7 +156,7 @@ export const getAttr = (element, selectors, attName) => {
 };
 
 /**
- * hox의 해당 속성 값 설정
+ * 해당 속성 값 설정
  * @param {Element} element
  * @param {string} selectors
  * @param {string} attName
@@ -162,7 +171,7 @@ export const setAttr = (element, selectors, attName, attValue) => {
 };
 
 /**
- * hox의 해당 값중에 flag가 있는지 여부
+ * 해당 값중에 flag가 있는지 여부
  * @param {Element} element
  * @param {string} selectors
  * @param {string} flag
@@ -173,7 +182,7 @@ export const existsFlag = (element, selectors, flag) => {
 };
 
 /**
- * hox의 해당 값중에 flag 추가
+ * 해당 값중에 flag 추가
  * @param {Element} element
  * @param {string} selectors
  * @param {string} flag
@@ -185,7 +194,7 @@ export const addFlag = (element, selectors, flag) => {
 };
 
 /**
- * hox의 해당 값중에 flag 제거
+ * 해당 값중에 flag 제거
  * @param {Element} element
  * @param {string} selectors
  * @param {string} flag
@@ -212,7 +221,7 @@ export const toggleFlag = (element, selectors, flag, force) => {
 };
 
 /**
- * hox의 해당 값을 flag 배열로 반환
+ * 해당 값을 flag 배열로 반환
  * @param {Element} element
  * @param {string} selectors
  * @returns
@@ -248,4 +257,5 @@ export const HoxEventType = {
   PUBLICATIONTYPE: 'publicationType',
   OBJECTIDLIST: 'objectIDList',
   CONTENT: 'content',
+  TITLE: 'title',
 };

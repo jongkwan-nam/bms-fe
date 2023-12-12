@@ -1,26 +1,17 @@
 import { getText, setText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeViewRestriction.scss';
 
 /**
- *
+ * 열람제한
  */
-export default class FeViewRestriction extends HTMLElement {
+export default class FeViewRestriction extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeViewRestriction init');
   }
 
   connectedCallback() {
-    console.debug('FeViewRestriction connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-viewrestriction');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     let viewRestrictions = [
       ['none', 'cmsg_292'],
@@ -61,7 +52,7 @@ export default class FeViewRestriction extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     let viewRestriction = getText(this.hox, 'docInfo viewRestriction');
     let securityExpireDate = getText(this.hox, 'docInfo securityExpireDate');
@@ -75,6 +66,10 @@ export default class FeViewRestriction extends HTMLElement {
         this.shadowRoot.querySelector('#securityExpireDate').value = securityExpireDate;
       }
     }
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

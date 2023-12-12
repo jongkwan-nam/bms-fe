@@ -1,4 +1,4 @@
-import { HoxEventType, getNodes } from '../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getNode, getNodes } from '../utils/hoxUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
 import FeHwpCtrl from './hwp/FeHwpCtrl';
@@ -12,7 +12,8 @@ const TIME_LABEL_OPEN = 'Editor-open';
 export default class FeEditor extends FeHwpCtrl {
   active = false;
   hwpCtrl = null;
-  contentNumber = 1;
+  contentCount = 1;
+  detectTitle = true;
 
   constructor() {
     super();
@@ -59,16 +60,47 @@ export default class FeEditor extends FeHwpCtrl {
           this.selectContent(e.detail.value);
           break;
         }
-        case 'up': {
-          // 안 위로 이벤트
-          break;
-        }
-        case 'down': {
-          // 안 아래로 이벤트
+        case 'move': {
+          // 안 이동 이벤트
+          let { from, to } = e.detail.value;
+          this.moveContent(from, to);
           break;
         }
         default:
           throw new Error('undefinded detatil.type: ' + e.detail.type);
+      }
+    });
+
+    // 제목 변경 감지. 에디터 밖으로 나가면 작동
+    this.parentElement.addEventListener('mouseleave', (e) => {
+      // console.log('fe-editor parent mouseleave', this.detectTitle, this.contentCount);
+      //
+      if (this.detectTitle) {
+        //
+        let changed = false;
+        for (let i = 0; i < this.contentCount; i++) {
+          // 제목셀
+          const titleCellName = this.getContentCellName(Cell.DOC_TITLE, i + 1);
+          const titleCellText = this.hwpCtrl.GetFieldText(titleCellName);
+
+          // hox 제목
+          let titleNode;
+          if (this.contentCount > 1) {
+            titleNode = getNode(this.hox, 'docInfo content', i).querySelector('title');
+          } else {
+            titleNode = getNode(this.hox, 'docInfo title');
+          }
+          // console.log(i, titleCellText, titleNode.textContent);
+
+          if (titleCellText !== titleNode.textContent) {
+            titleNode.textContent = null;
+            titleNode.appendChild(this.hox.createCDATASection(titleCellText));
+            changed = true;
+          }
+        }
+        if (changed) {
+          dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.TITLE, 'change', null);
+        }
       }
     });
   }
@@ -167,8 +199,11 @@ export default class FeEditor extends FeHwpCtrl {
    * hox는 FeContent에서 추가되어 있다
    */
   async addContent() {
-    this.contentNumber = getNodes(this.hox, 'docInfo content').length;
-    console.log('addContent ', this.contentNumber);
+    console.time('addContent');
+    this.detectTitle = false;
+
+    this.contentCount = getNodes(this.hox, 'docInfo content').length;
+    console.log('addContent ', this.contentCount);
     //
     super.toggleViewOptionCtrkMark(true);
 
@@ -200,23 +235,23 @@ export default class FeEditor extends FeHwpCtrl {
       case 0: {
         // 결재제목, 본문 내용 삭제
         [Cell.DOC_TITLE, Cell.CBODY].forEach((cellName) => {
-          super.putFieldTextEmpty(cellName + '_' + this.contentNumber);
+          super.putFieldTextEmpty(cellName + '_' + this.contentCount);
         });
         break;
       }
       case -1: {
         // n-1 안의 본문 복사. 2안이라면 복사할 필요 없음
         // TODO 여러번 수행라면 오동작
-        if (this.contentNumber > 2) {
+        if (this.contentCount > 2) {
           // 제목
-          let title = this.hwpCtrl.GetFieldText(Cell.DOC_TITLE + '_' + (this.contentNumber - 1));
-          this.hwpCtrl.PutFieldText(Cell.DOC_TITLE + '_' + this.contentNumber, title);
+          let title = this.hwpCtrl.GetFieldText(Cell.DOC_TITLE + '_' + (this.contentCount - 1));
+          this.hwpCtrl.PutFieldText(Cell.DOC_TITLE + '_' + this.contentCount, title);
 
           // 본문
-          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + (this.contentNumber - 1), true, true, true);
+          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + (this.contentCount - 1), true, true, true);
           let bodyText = await super.getTextFile('JSON', 'saveblock');
 
-          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + this.contentNumber, true, true, true);
+          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + this.contentCount, true, true, true);
           this.hwpCtrl.Run('Erase');
 
           let ret = await super.setTextFile(bodyText, 'JSON', 'insertfile');
@@ -226,6 +261,9 @@ export default class FeEditor extends FeHwpCtrl {
     }
 
     super.toggleViewOptionCtrkMark(false);
+
+    this.detectTitle = true;
+    console.timeEnd('addContent');
   }
 
   /**
@@ -236,6 +274,9 @@ export default class FeEditor extends FeHwpCtrl {
    * @param  {...any} contentNumbers
    */
   deleteContent(...contentNumbers) {
+    console.time('deleteContent');
+    this.detectTitle = false;
+
     super.toggleViewOptionCtrkMark(true);
     contentNumbers.reverse().forEach((contentNumber) => {
       // 발신명의 셀을 기준으로 이전 안의 끝과 현재 안의 끝을 찾아서 삭제
@@ -252,7 +293,7 @@ export default class FeEditor extends FeHwpCtrl {
        남은 [1, 2, 4, 6] 배열로 인덱스와 값의 관계가 틀어지는 걸로 찾아
        안 번호 재정렬
      */
-    const wholeContentNumbers = Array.from({ length: this.contentNumber }, (_, i) => i + 1); // [1,2,3,4,5,6]
+    const wholeContentNumbers = Array.from({ length: this.contentCount }, (_, i) => i + 1); // [1,2,3,4,5,6]
     const remainContentNumners = wholeContentNumbers.filter((n) => !contentNumbers.includes(n)); // [1,2,4,6]
     remainContentNumners.forEach((n, i) => {
       // 세번째 루프에서 n(4), i(2) 이면, n(4) 안을 i(2) + 1 = 3안으로 변경
@@ -263,8 +304,16 @@ export default class FeEditor extends FeHwpCtrl {
     this.contentNumber = getNodes(this.hox, 'docInfo content').length; // 뻬고 남은 안 번호
 
     super.toggleViewOptionCtrkMark(false);
+
+    this.detectTitle = true;
+    console.timeEnd('deleteContent');
   }
 
+  /**
+   * 안 선택. 화면을 이동한다
+   *
+   * @param {number} contentNumber
+   */
   selectContent(contentNumber) {
     // 안번호의 제목셀을 찾고, 현재 페이지를 구하여 스크롤 이동한다.
     this.hwpCtrl.MoveToFieldEx(super.getContentCellName(Cell.DOC_TITLE, contentNumber), true, true, false);
@@ -272,6 +321,16 @@ export default class FeEditor extends FeHwpCtrl {
     // let curPage = set.Item('DetailCurPage');
     // console.log('curPage', curPage);
     this.hwpCtrl.Run('MovePageBegin');
+  }
+
+  moveContent(from, to) {
+    console.time('moveContent');
+    this.detectTitle = false;
+
+    console.log('move', from, to);
+
+    this.detectTitle = true;
+    console.timeEnd('moveContent');
   }
 
   set title(title) {

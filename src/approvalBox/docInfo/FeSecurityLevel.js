@@ -1,26 +1,17 @@
 import { getText, setText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeSecurityLevel.scss';
 
 /**
  *
  */
-export default class FeSecurityLevel extends HTMLElement {
+export default class FeSecurityLevel extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeSecurityLevel init');
   }
 
   connectedCallback() {
-    console.debug('FeSecurityLevel connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-securitylevel');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     this.input = wrapper.appendChild(document.createElement('input'));
     this.input.type = 'number';
@@ -45,9 +36,13 @@ export default class FeSecurityLevel extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     this.input.value = getText(hox, 'docInfo securityLevel');
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

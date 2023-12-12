@@ -1,26 +1,17 @@
 import { getText, setText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeKeepPeriod.scss';
 
 /**
- *
+ * 보존기간
  */
-export default class FeKeepPeriod extends HTMLElement {
+export default class FeKeepPeriod extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeKeepPeriod init');
   }
 
   connectedCallback() {
-    console.debug('FeKeepPeriod connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-keepperiod');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     let keepPeriodRange = doccfg.keepPeriodRange.split(',');
     for (let keepPeriod of keepPeriodRange) {
@@ -46,13 +37,17 @@ export default class FeKeepPeriod extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     let keepPeriod = getText(this.hox, 'docInfo keepPeriod');
     let input = this.shadowRoot.querySelector(`#keepPeriod_${keepPeriod}`);
     if (input) {
       input.checked = true;
     }
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

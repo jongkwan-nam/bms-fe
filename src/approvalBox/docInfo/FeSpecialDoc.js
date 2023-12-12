@@ -1,26 +1,17 @@
-import { HoxEventType, getFlagList, setText } from '../../utils/hoxUtils';
+import { HoxEventType, getAttr, getFlagList, setText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeSpecialDoc.scss';
 
 /**
  *
  */
-export default class FeSpecialDoc extends HTMLElement {
+export default class FeSpecialDoc extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeSpecialDoc init');
   }
 
   connectedCallback() {
-    console.debug('FeSpecialDoc connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-specialdoc');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     const pubspdoc = ['pubspdoc_present', 'pubspdoc_secret', 'pubspdoc_eachmng', 'pubspdoc_copyright', 'pubspdoc_specialspec'];
 
@@ -52,7 +43,7 @@ export default class FeSpecialDoc extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     this.hox.addEventListener(HoxEventType.PUBLICATIONTYPE, (e) => {
       console.info('hoxEvent listen', e.type, e.detail);
@@ -76,6 +67,16 @@ export default class FeSpecialDoc extends HTMLElement {
       //
       this.shadowRoot.querySelector('#' + flag).checked = true;
     });
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
+    if (this.contentNumber === 1) {
+      // 1안이고, 공개이면 비밀기록물은 disabled이어야 한다
+      if (getAttr(this.hox, 'docInfo publication', 'type') === 'pubtype_open') {
+        this.shadowRoot.querySelector('#pubspdoc_secret').disabled = true;
+      }
+    }
   }
 }
 

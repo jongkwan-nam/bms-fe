@@ -14,10 +14,6 @@ html {
   opacity: 0.4;
 }
 
-input:disabled {
-  background: #0cc;
-}
-
 ol,
 ul {
   margin: 0;
@@ -42,10 +38,13 @@ input[type="number"],
 input[type="date"] {
   border-bottom: 1px solid var(--color-border);
 }
-
-input[type="checkbox"],
-input[type="radio"] {
-  accent-color: var(--color-primary);
+input[type="text"]:disabled,
+input[type="search"]:disabled,
+input[type="number"]:disabled,
+input[type="date"]:disabled {
+  border-color: transparent;
+  background-color: transparent;
+  opacity: 0.7;
 }
 
 select {
@@ -61,6 +60,12 @@ select {
     padding: 3px 0;
   }
 }
+select:disabled {
+  color: var(--color-text);
+  opacity: 1;
+  border-color: transparent;
+  appearance: none;
+}
 
 button {
   border: 0;
@@ -72,4 +77,60 @@ button {
 p {
   margin: 0;
   padding: 0;
+}
+
+[type="checkbox"],
+[type="radio"],
+label {
+  vertical-align: middle;
+}
+
+[type="checkbox"],
+[type="radio"] {
+  appearance: none;
+  border: 1px solid gray;
+  border-radius: 50%;
+  margin-top: 0;
+  width: 1rem;
+  height: 1rem;
+  transition: border 0.2s ease-in-out;
+}
+[type="checkbox"] {
+  border-radius: 20%;
+}
+
+[type="checkbox"]:checked,
+[type="radio"]:checked {
+  border: 0.4em solid var(--color-primary);
+}
+
+[type="checkbox"]:focus-visible,
+[type="radio"]:focus-visible {
+  outline-offset: max(2px, 0.1em);
+  outline: max(2px, 0.1em) dotted tomato;
+}
+
+[type="checkbox"]:hover,
+[type="radio"]:hover {
+  box-shadow: 0 0 0 max(4px, 0.2em) lightgray;
+  cursor: pointer;
+}
+
+[type="checkbox"]:hover + label,
+[type="radio"]:hover + label {
+  cursor: pointer;
+}
+
+[type="checkbox"]:disabled,
+[type="radio"]:disabled {
+  background-color: lightgray;
+  box-shadow: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+[type="checkbox"]:disabled + label,
+[type="radio"]:disabled + label {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

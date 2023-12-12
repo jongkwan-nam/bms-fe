@@ -4,36 +4,64 @@ import './approvalBox/FeDocInfo';
 import './approvalBox/FeFlow';
 import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
-import { HoxEventType } from './utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getNodes } from './utils/hoxUtils';
 
 import * as TabUI from './utils/TabUI';
 
 let hox = opener.hox().cloneNode(true);
 
-let feDocInfo = document.querySelector('fe-docinfo');
-let feFlow = document.querySelector('fe-flow');
-let feRecipient = document.querySelector('fe-recipient');
-let feSender = document.querySelector('fe-sender');
+const feDocInfo = document.querySelector('fe-docinfo');
+const feFlow = document.querySelector('fe-flow');
+const feRecipient = document.querySelector('fe-recipient');
+const feSender = document.querySelector('fe-sender');
+
+const contentSelector = document.querySelector('select#contentSelector');
+
+hox.addEventListener(HoxEventType.CONTENT, (e) => {
+  console.info('hoxEvent listen', e.type, e.detail);
+  if (getContentCount() > 1) {
+    // 일괄기안
+    // 1안 결재선 활성
+    TabUI.active(document, 2, getSelectedContentNumber() === 1);
+    // 1안 발송정보 활성
+    TabUI.active(document, 4, getSelectedContentNumber() === 1);
+  }
+});
 
 hox.addEventListener(HoxEventType.ENFORCETYPE, (e) => {
   console.info('hoxEvent listen', e.type, e.detail);
-  //
+
+  // 발송종류에 따라, 탭(수신부서, 발송부서) 활성/비활성
   let enforceType = e.detail.value;
-  // 발송종류에 따라, 탭 활성/비활성
   switch (enforceType) {
     case 'enforcetype_external': {
       TabUI.active(document, 3, true);
-      TabUI.active(document, 4, true);
+      if (getContentCount() > 1) {
+        // 일괄기안이면, 1안 일때만 활성
+        TabUI.active(document, 4, getSelectedContentNumber() === 1);
+      } else {
+        TabUI.active(document, 4, true);
+      }
       break;
     }
     case 'enforcetype_internal': {
       TabUI.active(document, 3, true);
-      TabUI.active(document, 4, true);
+      if (getContentCount() > 1) {
+        // 일괄기안이면, 1안 일때만 활성
+        TabUI.active(document, 4, getSelectedContentNumber() === 1);
+      } else {
+        TabUI.active(document, 4, true);
+      }
       break;
     }
     case 'enforcetype_not': {
       TabUI.active(document, 3, false);
-      TabUI.active(document, 4, false);
+      if (getContentCount() > 1) {
+        // 일괄기안이면, 1안 일때만 활성
+        TabUI.active(document, 4, getSelectedContentNumber() === 1);
+      } else {
+        TabUI.active(document, 4, false);
+      }
       break;
     }
     default:
@@ -96,3 +124,44 @@ function close() {
 window.hox = () => {
   return hox;
 };
+
+/**
+ * 안선택 select 초기화
+ *
+ * - 안별 option 추가
+ * - 2안 이상이면 보이기
+ * - 안 선택 이벤트 추가
+ * - main의 안 번호로 selected 처리
+ */
+function initContentSelector() {
+  // 안선택 select 화면 처리
+  getNodes(hox, 'docInfo content').forEach((content, i) => {
+    const option = contentSelector.appendChild(document.createElement('option'));
+    option.value = i + 1;
+    option.innerHTML = `${i + 1} ${GWWEBMessage.cmsg_765}`;
+  });
+  if (getNodes(hox, 'docInfo content').length > 1) {
+    contentSelector.parentElement.classList.add('show');
+  }
+
+  // 안 선택 이벤트
+  contentSelector.addEventListener('change', (e) => {
+    console.info('hoxEvent dispatch', HoxEventType.CONTENT, 'select', e.target.value);
+    //
+    dispatchHoxEvent(hox, 'docInfo', HoxEventType.CONTENT, 'select', parseInt(e.target.value));
+  });
+
+  // main의 안 번호로 selected 처리
+  const mainContentNumber = opener.getCurrentContentNumber();
+  contentSelector.querySelectorAll('option')[mainContentNumber - 1].selected = true;
+  contentSelector.dispatchEvent(new Event('change'));
+}
+
+function getSelectedContentNumber() {
+  return parseInt(contentSelector.value);
+}
+function getContentCount() {
+  return contentSelector.querySelectorAll('option').length;
+}
+
+initContentSelector();

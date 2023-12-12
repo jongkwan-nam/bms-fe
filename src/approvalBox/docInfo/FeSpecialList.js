@@ -1,26 +1,17 @@
 import { addNode, existsNode, getNodes } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import './FeSpecialList.scss';
 
 /**
- *
+ * 검색어
  */
-export default class FeSpecialList extends HTMLElement {
+export default class FeSpecialList extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeSpecialList init');
   }
 
   connectedCallback() {
-    console.debug('FeSpecialList connected');
-    this.attachShadow({ mode: 'open' });
-
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-speciallist');
-    this.shadowRoot.append(LINK, wrapper);
+    const wrapper = super.init();
 
     for (let i = 0; i < 3; i++) {
       this.input = wrapper.appendChild(document.createElement('input'));
@@ -40,10 +31,9 @@ export default class FeSpecialList extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    super.setHox(hox);
 
     // element 존재여부 체크
-
     if (!existsNode(this.hox, 'docInfo specialList')) {
       addNode(this.hox, 'docInfo', 'specialList');
       addNode(this.hox, 'docInfo specialList', 'specialItem');
@@ -55,6 +45,10 @@ export default class FeSpecialList extends HTMLElement {
       //
       this.shadowRoot.querySelector('#specialItem' + i).value = item.textContent;
     });
+  }
+
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 

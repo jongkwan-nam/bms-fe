@@ -64,7 +64,10 @@ export const init = (root, listener) => {
  */
 export const active = (root, nth, force) => {
   console.debug('Tab active', nth, force);
-  root.querySelectorAll('[role="tab"]')[nth - 1].disabled = !force;
+  const tab = root.querySelectorAll('[role="tab"]')[nth - 1];
+  tab.disabled = !force;
+  const panel = root.querySelectorAll('[role="tabpanel"]')[nth - 1];
+  panel.classList.toggle('disabled', !force);
 };
 
 /**
