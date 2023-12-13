@@ -77,9 +77,12 @@ export default class FeAttach extends HTMLElement {
         <input type="radio" name="openFlag" id="openFlag_1" value="false"><label for="openFlag_1">${GWWEBMessage.cmsg_2087}</label>
       </span>
       <button class="file-remove">X</button>
+      <iframe class="sr-only"></iframe>
     `;
 
     this.shadowRoot.append(this.wrapper);
+
+    const iframe = this.shadowRoot.querySelector('iframe');
 
     // 첨부 삭제
     this.wrapper.querySelector('.file-remove').addEventListener('click', (e) => {
@@ -106,10 +109,10 @@ export default class FeAttach extends HTMLElement {
     this.wrapper.querySelector('.file-name a').addEventListener('click', (e) => {
       if (StringUtils.isBlank(this.id)) {
         // 신규첨부인지
-        downloadFileAttach(this.fileID, this.name);
+        downloadFileAttach(iframe, this.fileID, this.name);
       } else {
         // hox첨부인지
-        downloadHoxAttach(this.id);
+        downloadHoxAttach(iframe, this.id);
       }
     });
   }
@@ -298,7 +301,7 @@ function getOpenFlagCondition(publicationType) {
  * hox의 첨부 다운로드
  * @param {string} id objectID / ID
  */
-function downloadHoxAttach(id, name) {
+function downloadHoxAttach(iframe, id, name) {
   const formData = new FormData();
   formData.append('DOCID', rInfo.apprMsgID);
   formData.append('USERID', rInfo.user.ID);
@@ -315,26 +318,27 @@ function downloadHoxAttach(id, name) {
     .then((ret) => {
       //
       if (ret.ok) {
-        const formData2 = new FormData();
-        formData2.append('FILEID', id);
-        formData2.append('APPRID', ret.apprID);
-        formData2.append('fileName', name);
-        formData2.append('AUTHTOKEN', ret.authtoken);
-        formData2.append('useWasDRM', ret.useWasDRM);
-        fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/downloadDocFile.act`, {
-          method: 'POST',
-          body: formData2,
-        })
-          .then((res) => res.blob())
-          .then((blob) => {
-            let url = window.URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = name;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-          });
+        iframe.src = `${PROJECT_CODE}/com/hs/gwweb/appr/downloadDocFile.act?FILEID=${id}&APPRID=${ret.apprID}&fileName=${name}&AUTHTOKEN=${ret.authtoken}&useWasDRM=${ret.useWasDRM}`;
+        // const formData2 = new FormData();
+        // formData2.append('FILEID', id);
+        // formData2.append('APPRID', ret.apprID);
+        // formData2.append('fileName', name);
+        // formData2.append('AUTHTOKEN', ret.authtoken);
+        // formData2.append('useWasDRM', ret.useWasDRM);
+        // fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/downloadDocFile.act`, {
+        //   method: 'POST',
+        //   body: formData2,
+        // })
+        //   .then((res) => res.blob())
+        //   .then((blob) => {
+        //     let url = window.URL.createObjectURL(blob);
+        //     let a = document.createElement('a');
+        //     a.href = url;
+        //     a.download = name;
+        //     document.body.appendChild(a);
+        //     a.click();
+        //     a.remove();
+        //   });
       }
     });
 }
@@ -343,17 +347,17 @@ function downloadHoxAttach(id, name) {
  * 서버에 임시 저장된 파일 다운로드
  * @param {string} fileID TRID
  */
-function downloadFileAttach(fileID, name) {
-  // TODO 다운로드를 위해선, fetch로
-  fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageFileDwld.act?TRID=${fileID}&fileName=${name}`)
-    .then((res) => res.blob())
-    .then((blob) => {
-      let url = window.URL.createObjectURL(blob);
-      let a = document.createElement('a');
-      a.href = url;
-      a.download = name;
-      document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-      a.click();
-      a.remove();
-    });
+function downloadFileAttach(iframe, fileID, name) {
+  iframe.src = `${PROJECT_CODE}/com/hs/gwweb/appr/manageFileDwld.act?TRID=${fileID}&fileName=${name}`;
+  // fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageFileDwld.act?TRID=${fileID}&fileName=${name}`)
+  //   .then((res) => res.blob())
+  //   .then((blob) => {
+  //     let url = window.URL.createObjectURL(blob);
+  //     let a = document.createElement('a');
+  //     a.href = url;
+  //     a.download = name;
+  //     document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+  //     a.click();
+  //     a.remove();
+  //   });
 }
