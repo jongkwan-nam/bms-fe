@@ -1,7 +1,7 @@
-import * as DateUtils from '../utils/dateUtils';
-import { getAttr, getNodes, getText } from '../utils/hoxUtils';
-import Cell from './CellNames';
-import FeEditor from './FeEditor';
+import * as DateUtils from '../../utils/dateUtils';
+import { getAttr, getNodes, getText } from '../../utils/hoxUtils';
+import Cell from '../CellNames';
+import FeEditor from '../FeEditor';
 
 /*
  * hox 정보를 본문에 반영

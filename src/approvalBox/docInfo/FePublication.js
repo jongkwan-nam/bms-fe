@@ -1,6 +1,6 @@
 import * as ArrayUtils from '../../utils/arrayUtils';
 import * as DateUtils from '../../utils/dateUtils';
-import { HoxEventType, addNode, dispatchHoxEvent, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import data from './FePublication.json';
@@ -292,9 +292,6 @@ export default class FePublication extends FeApprovalBox {
     let publicflag = getAttr(this.hox, 'docInfo publication', 'type');
     let input = this.shadowRoot.querySelector(`#publictype_${publicflag}`);
     input.checked = true;
-
-    // docInfo publication openStartDate 추가
-    addNode(this.hox, 'docInfo publication', 'openStartDate');
 
     // 비공개사유 1~8호
     let publicationFlag = getText(this.hox, 'docInfo publication publicationFlag');

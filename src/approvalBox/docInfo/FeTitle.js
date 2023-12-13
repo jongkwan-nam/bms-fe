@@ -1,4 +1,4 @@
-import { getText, setTextCDATA } from '../../utils/hoxUtils';
+import { getText, setText } from '../../utils/hoxUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeTitle.scss';
 
@@ -20,9 +20,9 @@ export default class FeTitle extends FeApprovalBox {
       // set hox
       if (this.contentNumber === 1) {
         // 1안이면, docInfo/title도 수정
-        setTextCDATA(this.hox, 'docInfo title', title);
+        setText(this.hox, 'docInfo title', title, true);
       }
-      setTextCDATA(this.contentNode, 'title', title);
+      setText(this.contentNode, 'title', title, true);
     });
   }
 
@@ -33,11 +33,11 @@ export default class FeTitle extends FeApprovalBox {
   set(hox) {
     super.setHox(hox);
 
-    this.input.value = getText(hox, 'docInfo title');
+    this.input.value = getText(hox, 'docInfo title', true);
   }
 
   changeContentNumberCallback() {
-    this.input.value = getText(this.contentNode, 'title');
+    this.input.value = getText(this.contentNode, 'title', true);
   }
 
   set title(title) {

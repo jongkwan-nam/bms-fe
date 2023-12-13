@@ -1,4 +1,4 @@
-import { HoxEventType, dispatchHoxEvent, getNode, getNodes } from '../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getNode, getNodes, setText } from '../utils/hoxUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
 import FeHwpCtrl from './hwp/FeHwpCtrl';
@@ -84,18 +84,14 @@ export default class FeEditor extends FeHwpCtrl {
           const titleCellText = this.hwpCtrl.GetFieldText(titleCellName);
 
           // hox 제목
-          let titleNode;
-          if (this.contentCount > 1) {
-            titleNode = getNode(this.hox, 'docInfo content', i).querySelector('title');
-          } else {
-            titleNode = getNode(this.hox, 'docInfo title');
-          }
-          // console.log(i, titleCellText, titleNode.textContent);
-
-          if (titleCellText !== titleNode.textContent) {
-            titleNode.textContent = null;
-            titleNode.appendChild(this.hox.createCDATASection(titleCellText));
+          let contentTitleNode = getNode(this.hox, 'docInfo content', i).querySelector('title');
+          if (titleCellText !== contentTitleNode.textContent) {
+            setText(contentTitleNode, null, titleCellText, true);
             changed = true;
+
+            if (i === 0) {
+              setText(this.hox, 'docInfo title', titleCellText, true);
+            }
           }
         }
         if (changed) {

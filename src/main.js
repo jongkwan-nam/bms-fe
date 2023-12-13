@@ -8,7 +8,8 @@ import { loadHox } from './utils/hoxUtils';
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
 import FeEditor from './main/FeEditor';
-import reflectHoxInBody from './main/reflectHoxInBody';
+import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
+import reflectHoxInBody from './main/logic/reflectHoxInBody';
 
 let trid = rInfo.hoxFileTRID;
 let docUrl = `https://fe.handysoft.co.kr/bms/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
@@ -47,6 +48,11 @@ console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
   feEditor1.foldRibbon(false);
 
   await feEditor1.open(docUrl);
+
+  if (rInfo.cltType === 'draft') {
+    // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
+    checkMissingNodeAndFillNode(hox);
+  }
 
   feEditor1.set(hox);
 

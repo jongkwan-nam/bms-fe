@@ -1,4 +1,5 @@
 import * as ArrayUtils from './arrayUtils';
+import * as StringUtils from './stringUtils';
 
 /**
  * 서버에서 xml을 로딩
@@ -106,27 +107,29 @@ export const getNumber = (element, selectors) => {
 };
 
 /**
- * 해당 값 구하기
+ * 노드 값 구하기
  * @param {Element} element
  * @param {string} selectors
- * @param {number} nth
+ * @param {boolean} unescapeXml
  * @returns
  */
-export const getText = (element, selectors, nth = 0) => {
-  if (nth > 0) {
-    return getNode(element, selectors, nth).textContent;
+export const getText = (element, selectors, unescapeXml = false) => {
+  let text = element.querySelector(selectors)?.textContent;
+  if (unescapeXml) {
+    return StringUtils.unescapeXml(text);
   }
-  return element.querySelector(selectors)?.textContent;
+  return text;
 };
 
 /**
- * 해당 값 설정
+ * 노드 값 설정
  * @param {Element} element
  * @param {string} selectors
  * @param {string} text
+ * @param {boolean} escapeXml
  */
-export const setText = (element, selectors, text) => {
-  element.querySelector(selectors).textContent = text;
+export const setText = (element, selectors, text, escapeXml = false) => {
+  getNode(element, selectors).textContent = escapeXml ? StringUtils.escapeXml(text) : text;
 };
 
 /**

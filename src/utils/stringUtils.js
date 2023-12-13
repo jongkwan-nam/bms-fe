@@ -71,3 +71,22 @@ export function isBlank(str) {
 export function isNotBlank(str) {
   return !isBlank(str);
 }
+
+export function escapeXml(str) {
+  var map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  };
+
+  return str.replace(/[&<>"']/g, function (m) {
+    return map[m];
+  });
+}
+
+export function unescapeXml(str) {
+  var doc = new DOMParser().parseFromString(str, 'text/html');
+  return doc.documentElement.textContent;
+}
