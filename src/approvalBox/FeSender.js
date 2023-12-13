@@ -1,30 +1,25 @@
 import $ from 'jquery';
 import '../lib/dynatree';
 import { setText } from '../utils/hoxUtils';
+import FeApprovalBox from './FeApprovalBox';
 import './FeSender.scss';
 
-export default class FeSender extends HTMLElement {
+export default class FeSender extends FeApprovalBox {
   active = false;
 
   constructor() {
     super();
-    console.debug('FeSender init');
   }
 
   connectedCallback() {
-    console.debug('FeSender connected');
-    this.attachShadow({ mode: 'open' });
+    const wrapper = super.init();
 
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
+    const dynatreeLink = document.createElement('link');
+    dynatreeLink.setAttribute('rel', 'stylesheet');
+    dynatreeLink.setAttribute('href', './css/dynatree.css');
+    this.shadowRoot.append(dynatreeLink);
 
-    const LINK2 = document.createElement('link');
-    LINK2.setAttribute('rel', 'stylesheet');
-    LINK2.setAttribute('href', './css/dynatree.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-sender', 'tree-list');
+    wrapper.classList.add('tree-list');
     wrapper.innerHTML = `
       <div class="tree">
         <div class="search-input">
@@ -39,8 +34,6 @@ export default class FeSender extends HTMLElement {
         <ul id="list"></ul>
       </div>
     `;
-
-    this.shadowRoot.append(LINK, LINK2, wrapper);
   }
 
   /**
@@ -52,10 +45,15 @@ export default class FeSender extends HTMLElement {
       return;
     }
 
-    this.hox = hox;
+    super.setHox(hox);
     this.renderTree();
 
     this.active = true;
+  }
+
+  changeContentNumberCallback() {
+    // 발송부서는 어떤 경우든 1안에서만 보인다
+    super.toggleDisabled(this.contentNumber > 1);
   }
 
   renderTree() {

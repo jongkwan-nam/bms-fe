@@ -3,7 +3,7 @@ import syncFetch from 'sync-fetch';
 import '../../lib/dynatree';
 import feStorage from '../../utils/FeStorage';
 import * as DateUtils from '../../utils/dateUtils';
-import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getText, isNotNullID, setText } from '../../utils/hoxUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFolder.scss';
 
@@ -77,7 +77,10 @@ export default class FeFolder extends FeApprovalBox {
     }
 
     // 값 설정
-    this.shadowRoot.querySelector('select').value = getText(this.hox, 'docInfo folderInfo ID');
+    const folderID = getText(this.hox, 'docInfo folderInfo ID');
+    if (isNotNullID(folderID)) {
+      this.shadowRoot.querySelector('select').value = folderID;
+    }
 
     // 기록물철 select 선택
     this.shadowRoot.querySelector('select').addEventListener('change', (e) => {

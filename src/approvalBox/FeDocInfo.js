@@ -82,8 +82,8 @@ export default class FeDocInfo extends HTMLElement {
     this.feViewRange.set(hox);
     this.feViewRestriction.set(hox);
     this.feSecurityLevel.set(hox);
-    this.feSpecialDoc.set(hox); // fePublication 보다 먼저 설정되어야 한다. 이벤트를 전달받은후 정상동작 하려면
     this.fePublication.set(hox);
+    this.feSpecialDoc.set(hox);
     this.fePageCnt.set(hox);
     this.feSpecialList.set(hox);
 

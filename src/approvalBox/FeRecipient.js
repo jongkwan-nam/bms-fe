@@ -5,31 +5,30 @@ import * as TagUI from '../utils/TabUI';
 import * as ArrayUtils from '../utils/arrayUtils';
 import { HoxEventType, getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
 import * as StringUtils from '../utils/stringUtils';
+import FeApprovalBox from './FeApprovalBox';
 import './FeRecipient.scss';
 import './recipientInfo/FeRecList';
 
-export default class FeRecipient extends HTMLElement {
+/**
+ * 수신부서
+ */
+export default class FeRecipient extends FeApprovalBox {
   active = false;
 
   constructor() {
     super();
-    console.debug('FeRecipient init');
   }
 
   connectedCallback() {
-    console.debug('FeRecipient connected');
-    this.attachShadow({ mode: 'open' });
+    const wrapper = super.init();
 
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
+    const dynatreeLink = document.createElement('link');
+    dynatreeLink.setAttribute('rel', 'stylesheet');
+    dynatreeLink.setAttribute('href', './css/dynatree.css');
 
-    const LINK2 = document.createElement('link');
-    LINK2.setAttribute('rel', 'stylesheet');
-    LINK2.setAttribute('href', './css/dynatree.css');
+    this.shadowRoot.append(dynatreeLink);
 
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-recipient', 'tree-list');
+    wrapper.classList.add('tree-list');
     wrapper.innerHTML = `
       <div class="tree">
         <div class="tab-group" role="tablist">
@@ -70,8 +69,6 @@ export default class FeRecipient extends HTMLElement {
         </div>
       </div>
     `;
-
-    this.shadowRoot.append(LINK, LINK2, wrapper);
 
     this.orgTree = this.shadowRoot.querySelector('#tree');
     this.groupTree = this.shadowRoot.querySelector('#groupTree');
@@ -129,14 +126,14 @@ export default class FeRecipient extends HTMLElement {
     this.displayString.addEventListener('change', (e) => {
       console.log('Event', e.type, e.target, e.value);
       //
-      setText(this.hox, 'docInfo content displayString', e.target.value);
+      setText(this.contentNode, 'displayString', e.target.value);
     });
 
     // 발신명의 선택 이벤트
     this.senderName.addEventListener('change', (e) => {
       console.log('Event', e.type, e.target, e.value);
       //
-      setText(this.hox, 'docInfo content senderName', e.target.value);
+      setText(this.contentNode, 'senderName', e.target.value);
     });
   }
 
@@ -148,6 +145,8 @@ export default class FeRecipient extends HTMLElement {
     if (this.active) {
       return;
     }
+
+    super.setHox(hox);
 
     TagUI.init(this.shadowRoot, (activeTab) => {
       switch (activeTab.id) {
@@ -174,7 +173,6 @@ export default class FeRecipient extends HTMLElement {
 
     this.active = true;
 
-    this.hox = hox;
     this.feRecList.set(hox);
 
     // this.renderOrgTree(); // 첫탭. 조직도 트리 그리기
@@ -184,8 +182,16 @@ export default class FeRecipient extends HTMLElement {
     this.hox.addEventListener(HoxEventType.ENFORCETYPE, (e) => {
       console.info('hoxEvent listen', e.type, e.detail);
       //
+      this.#renderDisplayString();
       this.change();
     });
+  }
+
+  changeContentNumberCallback() {
+    console.log('FeRecipient changeContentNumberCallback');
+    // 선택된 안에 맞게, tree 선택, fe-reclist 다시 그리기
+    this.change();
+    this.#matchTreeAndHox();
   }
 
   /**
@@ -197,22 +203,25 @@ export default class FeRecipient extends HTMLElement {
     }
 
     // 발송종류에 따라
-    let enforcetype = getText(this.hox, 'docInfo enforceType');
+    let enforcetype = getText(this.contentNode, 'enforceType');
     switch (enforcetype) {
       case 'enforcetype_external': {
         TagUI.active(this.shadowRoot, 3, true);
         TagUI.active(this.shadowRoot, 4, true);
         TagUI.active(this.shadowRoot, 5, true);
+        super.toggleDisabled(false);
         break;
       }
       case 'enforcetype_internal': {
         TagUI.active(this.shadowRoot, 3, false);
         TagUI.active(this.shadowRoot, 4, false);
         TagUI.active(this.shadowRoot, 5, false);
+        super.toggleDisabled(false);
         break;
       }
       case 'enforcetype_not': {
-        // 내부결재면, 여기로 들어오지 못함
+        // 내부결재면, 트리선택, 수신부서표기명, 발신명의 disable
+        super.toggleDisabled(true);
         break;
       }
       default:
@@ -370,6 +379,23 @@ export default class FeRecipient extends HTMLElement {
     //
   }
 
+  #deselectAllTree() {
+    try {
+      $(this.orgTree)
+        .dynatree('getRoot')
+        .visit((dtnode) => dtnode._select(false, false));
+    } catch (ignore) {
+      console.log(ignore.message);
+    }
+    try {
+      $(this.groupTree)
+        .dynatree('getRoot')
+        .visit((dtnode) => dtnode._select(false, false));
+    } catch (ignore) {
+      console.log(ignore.message);
+    }
+  }
+
   #renderDisplayString() {
     //
     if (!this.displayCheckbox.checked) {
@@ -382,7 +408,7 @@ export default class FeRecipient extends HTMLElement {
    */
   #renderSenderName() {
     //
-    let enforcetype = getText(this.hox, 'docInfo enforceType');
+    let enforcetype = getText(this.contentNode, 'enforceType');
     let draftDeptId = rInfo.user.deptID; // TODO 결재선 기안자의 부서
     let lastSignDeptId = rInfo.user.deptID; // TODO 결재선 최종결재자의 부서
     let ret = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSenderNames.act?enforceType=${enforcetype}&draftDeptId=${draftDeptId}&lastSignDeptId=${lastSignDeptId}`).json();
@@ -396,7 +422,11 @@ export default class FeRecipient extends HTMLElement {
   }
 
   #matchTreeAndHox() {
-    getNodes(this.hox, 'docInfo content rec').forEach((rec) => {
+    // 모두 선택 해제
+    this.#deselectAllTree();
+
+    //
+    getNodes(this.contentNode, 'rec').forEach((rec) => {
       //
       let id = getText(rec, 'ID');
       let type = getAttr(rec, null, 'type');

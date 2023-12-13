@@ -292,7 +292,6 @@ export default class FePublication extends FeApprovalBox {
     let publicflag = getAttr(this.hox, 'docInfo publication', 'type');
     let input = this.shadowRoot.querySelector(`#publictype_${publicflag}`);
     input.checked = true;
-    input.dispatchEvent(new Event('change'));
 
     // docInfo publication openStartDate 추가
     addNode(this.hox, 'docInfo publication', 'openStartDate');

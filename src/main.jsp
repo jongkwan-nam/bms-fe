@@ -16,7 +16,7 @@
     <button type="button" id="btnDraft" class="btn btn-primary">결재올림</button>
     <button type="button" id="btnApprovalBox" class="btn">결재정보</button>
     <button type="button" id="btnContentAdd" class="btn">안 추가</button>
-    <button type="button" id="btnContentDel" class="btn">안 삭제(2)</button>
+    <button type="button" id="btnConfig" title="환경설정"></button>
   </header>
   <article class="editor-wrap">
     <!-- <fe-editor id="editor1"></fe-editor> -->
@@ -33,3 +33,7 @@
     <div class="modal-footer"></div>
   </div>
 </aside>
+<div id="config">
+  <label for="fontSize">글자크기</label>
+  <input type="range" id="fontSize" min="10" max="20" step="1" value="14" />
+</div>

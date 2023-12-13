@@ -1,11 +1,12 @@
 import { HoxEventType, getNode, getNodes } from '../utils/hoxUtils';
+import './FeApprovalBox.scss';
 
 /**
  * 결재정보 abstract class
  */
 export default class FeApprovalBox extends HTMLElement {
-  contentNumber = 1;
   contentCount = 1;
+  contentNumber = 1;
   contentNode = null;
 
   constructor() {
@@ -26,7 +27,10 @@ export default class FeApprovalBox extends HTMLElement {
     const wrapper = document.createElement('div');
     wrapper.classList.add(this.tagName.toLocaleLowerCase());
 
-    this.shadowRoot.append(link, wrapper);
+    this.disabledLayer = document.createElement('div');
+    this.disabledLayer.classList.add('disabled-layer');
+
+    this.shadowRoot.append(link, wrapper, this.disabledLayer);
 
     return wrapper;
   }
@@ -42,11 +46,12 @@ export default class FeApprovalBox extends HTMLElement {
     this.hox = hox;
 
     this.contentCount = getNodes(this.hox, 'docInfo content').length;
-    this.contentNode = getNode(this.hox, 'docInfo content');
+    this.contentNumber = parseInt(document.querySelector('select#contentSelector').value);
+    this.contentNode = getNode(this.hox, 'docInfo content', this.contentNumber - 1);
 
     // 안 선택 이벤트 수신
     this.hox.addEventListener(HoxEventType.CONTENT, (e) => {
-      console.log('hoxEvent listen', e.type, e.detail);
+      console.debug('hoxEvent listen', e.type, e.detail);
       //
       if (e.detail.type === 'select') {
         this.contentNumber = e.detail.value;
@@ -58,5 +63,13 @@ export default class FeApprovalBox extends HTMLElement {
 
   changeContentNumberCallback() {
     // 필요시 override
+  }
+
+  /**
+   * 사용자 입력이 되지 않도록 하는 레이어를 덮어 씌운다
+   * @param {boolean} force true: disabled
+   */
+  toggleDisabled(force) {
+    this.disabledLayer.classList.toggle('open', force);
   }
 }

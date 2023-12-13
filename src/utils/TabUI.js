@@ -1,12 +1,11 @@
 import './TabUI.scss';
 
-/**
+/*
  * 탭 UI 처리
- *
  */
 
 /**
- *  탭 초기화및 선택 이벤트 리스너 설정
+ * 탭 초기화및 선택 이벤트 리스너 설정
  * @param {ShadowRoot | Document} root
  * @param {function} listener 타겟 panel이 Element로 전달된다
  */

@@ -12,6 +12,7 @@ export default class FeRec extends HTMLElement {
 
     this.init();
   }
+
   connectedCallback() {
     // FeRecList에서 위치조정(insertBefore)을 하기 때문에, 반복 호출되므로 attachShadow가 위치하면 안된다
   }

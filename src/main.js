@@ -2,7 +2,8 @@ import './main.scss';
 // import './main/FeAttachBox';
 // import './main/FeContent';
 // import './main/FeEditor';
-import { loadHox, setTextCDATA } from './utils/hoxUtils';
+import SVG from './svg/SVG';
+import { loadHox } from './utils/hoxUtils';
 
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
@@ -95,16 +96,7 @@ window.hoxToText = () => {
 
 /* 상단 메뉴 버튼 --------------------------------------------------------- */
 
-// 결재정보 팝업 호출
-document.getElementById('btnApprovalBox').addEventListener('click', (e) => {
-  console.log('approvalBox show');
-
-  setTextCDATA(hox, 'docInfo title', feEditor1.title);
-
-  window.open('./approvalBox.html', 'approvalBox', 'width=1020px,height=720px');
-});
-
-// 결재올림 클릭
+/* 결재올림 click */
 document.getElementById('btnDraft').addEventListener('click', (e) => {
   console.log('btnDraft click');
   // appr id 채번
@@ -113,10 +105,13 @@ document.getElementById('btnDraft').addEventListener('click', (e) => {
   // bms로 submit
 });
 
+/* 결재정보 팝업 호출 */
+document.getElementById('btnApprovalBox').addEventListener('click', (e) => {
+  window.open('./approvalBox.html', 'approvalBox', 'width=1020px,height=720px');
+});
+
+/* 안 추가 click */
 document.querySelector('#btnContentAdd').addEventListener('click', (e) => {
-  //
-  // feAttachBox.addContent();
-  // feContent
   if (!feContent) {
     feContent = document.querySelector('main').appendChild(new FeContent());
     feContent.set(hox);
@@ -124,7 +119,13 @@ document.querySelector('#btnContentAdd').addEventListener('click', (e) => {
   feContent.classList.add('show');
   feContent.addContent();
 });
-document.querySelector('#btnContentDel').addEventListener('click', (e) => {
-  //
-  feAttachBox.removeContent(2);
+
+/* 환경설정 */
+document.getElementById('btnConfig').innerHTML = SVG.config;
+document.getElementById('btnConfig').addEventListener('click', (e) => {
+  document.querySelector('#config').classList.toggle('open');
+});
+document.querySelector('#fontSize').addEventListener('change', (e) => {
+  let size = e.target.value;
+  document.querySelector('html').style.fontSize = size + 'px';
 });

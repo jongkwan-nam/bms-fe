@@ -1,0 +1,10 @@
+.disabled-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+  display: none;
+}
+.disabled-layer.open {
+  display: block;
+}

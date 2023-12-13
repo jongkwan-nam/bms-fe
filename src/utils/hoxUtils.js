@@ -42,14 +42,14 @@ export const existsNode = (element, selectors) => {
 
 /**
  * 노드 추가
- * @param {Document} hox
+ * @param {Element} element
  * @param {string} selectors
  * @param {string} newNodeNames
  */
-export const addNode = (hox, selectors, ...newNodeNames) => {
-  hox.querySelectorAll(selectors).forEach((element) => {
+export const addNode = (element, selectors, ...newNodeNames) => {
+  element.querySelectorAll(selectors).forEach((element) => {
     newNodeNames.forEach((newNodeName) => {
-      element.appendChild(hox.createElement(newNodeName));
+      element.appendChild(element.getRootNode().createElement(newNodeName));
     });
   });
 };
@@ -229,6 +229,20 @@ export const toggleFlag = (element, selectors, flag, force) => {
 export const getFlagList = (element, selectors) => {
   return ArrayUtils.split(getText(element, selectors));
 };
+
+/**
+ *
+ * @param {string} id
+ * @returns
+ */
+export const isNullID = (id = null) => id === null || id.trim() === '00000000000000000000';
+
+/**
+ *
+ * @param {string} id
+ * @returns
+ */
+export const isNotNullID = (id) => !isNullID(id);
 
 /**
  * hox 이벤트 전파

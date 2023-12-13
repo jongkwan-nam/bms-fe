@@ -116,6 +116,11 @@ label {
   cursor: pointer;
 }
 
+[type="checkbox"] + label,
+[type="radio"] + label {
+  margin-right: 0.5rem;
+}
+
 [type="checkbox"]:hover + label,
 [type="radio"]:hover + label {
   cursor: pointer;

@@ -5,6 +5,12 @@
 @import "./css/tree-list.scss";
 @import "./css/scrollbar.scss";
 
+*,
+::after,
+::before {
+  transition: none;
+}
+
 body {
   position: fixed;
   inset: 0;

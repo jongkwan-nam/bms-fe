@@ -1,5 +1,6 @@
 import syncFetch from 'sync-fetch';
 import { addNode, createNode, existsNode, getAttr, getNode, getNodes, getText } from '../../utils/hoxUtils';
+import FeApprovalBox from '../FeApprovalBox';
 import FeRec from './FeRec';
 import './FeRecList.scss';
 
@@ -12,22 +13,14 @@ import './FeRecList.scss';
  * - hox recipient 업데이트
  * - 수신부서 표기명 제공
  */
-export default class FeRecList extends HTMLElement {
+export default class FeRecList extends FeApprovalBox {
   constructor() {
     super();
-    console.debug('FeRecList init');
   }
 
   connectedCallback() {
-    console.info('FeRecList connected');
-    this.attachShadow({ mode: 'open' });
+    const wrapper = super.init();
 
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './approvalBox.css');
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('fe-reclist');
     wrapper.innerHTML = `
       <header>
         <label>${GWWEBMessage.recvdept}</label>
@@ -39,8 +32,6 @@ export default class FeRecList extends HTMLElement {
       <ul id="list" class="list"></ul>
     `;
 
-    this.shadowRoot.append(LINK, wrapper);
-
     this.LIST = this.shadowRoot.querySelector('#list');
     this.LIST.addEventListener('deleteRec', (e) => {
       console.log('Event', e.type, e.target, e);
@@ -50,13 +41,12 @@ export default class FeRecList extends HTMLElement {
 
       // hox 업데이트
       this.#updateHox();
-      // this.postProcess();
     });
 
     // 수신부서 선택
     this.LIST.addEventListener('click', (e) => {
       this.LIST.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
-      e.target.closest('li').classList.add('selected');
+      e.target.closest('li')?.classList.add('selected');
     });
 
     // 수신부서 위로 버튼 이벤트
@@ -78,9 +68,15 @@ export default class FeRecList extends HTMLElement {
   }
 
   set(hox) {
-    this.hox = hox;
-    //
+    super.setHox(hox);
+
     this.#renderRecList();
+  }
+
+  changeContentNumberCallback() {
+    console.log('FeRecList changeContentNumberCallback');
+    this.#renderRecList();
+    this.dispatchEvent(new Event('change')); // 수신부서 표기명, 발신명의 업데이트를 위해
   }
 
   /**
@@ -169,10 +165,12 @@ export default class FeRecList extends HTMLElement {
       </charger>
       <displayString>${dtnode.data.title}${GWWEBMessage.cmsg_0034}</displayString>
     </rec>`;
-    let rec = getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
+
+    console.log(this.contentNumber, this.contentNode);
+    let recNode = getNode(this.contentNode, 'receiptInfo recipient').appendChild(createNode(xmlText));
     let li = this.LIST.appendChild(document.createElement('li'));
     li.setAttribute('uuid', `rectype_dept_${dtnode.data.key}`);
-    li.appendChild(new FeRec()).set(rec);
+    li.appendChild(new FeRec()).set(recNode);
   }
   #addUser(dtnode) {
     let saveDeptInfo = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSaveDeptInfo.act?DID=${dtnode.data.deptID}`).json();
@@ -197,7 +195,7 @@ export default class FeRecList extends HTMLElement {
       </charger>
       <displayString>${saveDeptInfo.dept.name}${GWWEBMessage.cmsg_0034}</displayString>
     </rec>`;
-    let rec = getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
+    let rec = getNode(this.contentNode, 'receiptInfo recipient').appendChild(createNode(xmlText));
     let li = this.LIST.appendChild(document.createElement('li'));
     li.setAttribute('uuid', `rectype_dept_${saveDeptInfo.dept.ID}`);
     li.appendChild(new FeRec()).set(rec);
@@ -221,7 +219,7 @@ export default class FeRecList extends HTMLElement {
       <displayString>${dtnode.data.name}</displayString>
       <recSymbolItems/>
     </rec>`;
-    let rec = getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
+    let rec = getNode(this.contentNode, 'receiptInfo recipient').appendChild(createNode(xmlText));
     let li = this.LIST.appendChild(document.createElement('li'));
     li.setAttribute('uuid', `rectype_unifiedgroup_${dtnode.data.key}`);
     li.appendChild(new FeRec()).set(rec);
@@ -249,7 +247,7 @@ export default class FeRecList extends HTMLElement {
         </charger>
         <displayString>${dept.name}${GWWEBMessage.cmsg_0034}</displayString>
       </rec>`;
-      let rec = getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(createNode(xmlText));
+      let rec = getNode(this.contentNode, 'receiptInfo recipient').appendChild(createNode(xmlText));
       let li = this.LIST.appendChild(document.createElement('li'));
       li.setAttribute('uuid', `rectype_dept_${dept.ID}`);
       li.appendChild(new FeRec()).set(rec);
@@ -297,12 +295,13 @@ export default class FeRecList extends HTMLElement {
   }
 
   #renderRecList() {
-    if (!existsNode(this.hox, 'docInfo content receiptInfo recipient')) {
-      addNode(this.hox, 'docInfo content receiptInfo', 'recipient');
+    if (!existsNode(this.contentNode, 'receiptInfo recipient')) {
+      addNode(this.contentNode, 'receiptInfo', 'recipient');
     }
 
-    getNodes(this.hox, 'docInfo content receiptInfo recipient rec').forEach((rec) => {
-      console.log('recipient rec', rec);
+    this.LIST.textContent = null;
+    getNodes(this.contentNode, 'receiptInfo recipient rec').forEach((rec) => {
+      console.log(this.contentNumber, 'recipient rec', rec);
       //
       let li = this.LIST.appendChild(document.createElement('li'));
       li.setAttribute('uuid', `${getAttr(rec, null, 'type')}_${getText(rec, 'ID')}`);
@@ -311,11 +310,11 @@ export default class FeRecList extends HTMLElement {
   }
 
   #updateHox() {
-    getNode(this.hox, 'docInfo content receiptInfo recipient').textContent = null;
+    getNode(this.contentNode, 'receiptInfo recipient').textContent = null;
     //
     this.LIST.querySelectorAll('fe-rec').forEach((feRec) => {
       //
-      getNode(this.hox, 'docInfo content receiptInfo recipient').appendChild(feRec.rec);
+      getNode(this.contentNode, 'receiptInfo recipient').appendChild(feRec.rec);
     });
 
     // 내용 변경 이벤트 전파
