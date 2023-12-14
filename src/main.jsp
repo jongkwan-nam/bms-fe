@@ -7,6 +7,7 @@
   GWWEBMessage['st_jeonhooyul_nosign'] = '전결(후열)';
   GWWEBMessage['st_jeonhooyul_sign'] = '전결(후결)';
   GWWEBMessage['st_jeonhooyul_nosanc'] = '전결(후열안함)';
+  GWWEBMessage['pen_sign'] = '펜서명';
 
   doccfg.docViewRatio = 1;
   doccfg.baseBodyContent = 1;

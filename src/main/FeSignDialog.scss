@@ -1,0 +1,36 @@
+fe-signdialog {
+  position: relative;
+  display: block;
+}
+
+.fe-signdialog {
+  & > div {
+    position: relative;
+    display: block;
+    padding: 1rem;
+  }
+  .sign-bar {
+    canvas {
+      margin: auto;
+      border: 1px solid var(--color-border-active);
+    }
+  }
+
+  .image-bar {
+    display: flex;
+    gap: 0.5rem;
+    overflow: auto;
+
+    img {
+      border: 1px solid var(--color-border);
+      width: auto;
+      height: 4rem;
+    }
+  }
+
+  &.stamp {
+    img:hover {
+      box-shadow: var(--box-shadow-small);
+    }
+  }
+}

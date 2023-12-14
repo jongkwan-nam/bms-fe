@@ -8,6 +8,7 @@ import { loadHox } from './utils/hoxUtils';
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
 import FeEditor from './main/FeEditor';
+import FeSignDialog from './main/FeSignDialog';
 import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 
@@ -105,6 +106,11 @@ window.hoxToText = () => {
 /* 결재올림 click */
 document.getElementById('btnDraft').addEventListener('click', (e) => {
   console.log('btnDraft click');
+  // 서명선택
+  document.querySelector('#approvalBox').classList.add('open');
+  const feSignDialog = document.querySelector('#approvalBox .modal-body').appendChild(new FeSignDialog());
+  feSignDialog.open();
+
   // appr id 채번
   // participant id 채번
   // 웹한글 본문 저장
