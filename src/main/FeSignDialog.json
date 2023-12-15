@@ -1,0 +1,13 @@
+{
+  "fontFamily": ["굴림체", "궁서체", "돋움체"],
+  "penSize": { "min": 3, "max": 16, "default": 6 },
+  "penColor": [
+    { "name": "검정색", "value": "black" },
+    { "name": "파란색", "value": "blue" },
+    { "name": "녹색", "value": "green" },
+    { "name": "노랑색", "value": "yellow" },
+    { "name": "회색", "value": "gray" },
+    { "name": "빨강색", "value": "red" },
+    { "name": "흰색", "value": "white" }
+  ]
+}

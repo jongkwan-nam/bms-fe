@@ -2,6 +2,7 @@ import './main.scss';
 // import './main/FeAttachBox';
 // import './main/FeContent';
 // import './main/FeEditor';
+import Cell from './main/CellNames';
 import SVG from './svg/SVG';
 import { loadHox } from './utils/hoxUtils';
 
@@ -104,12 +105,26 @@ window.hoxToText = () => {
 /* 상단 메뉴 버튼 --------------------------------------------------------- */
 
 /* 결재올림 click */
-document.getElementById('btnDraft').addEventListener('click', (e) => {
+document.getElementById('btnDraft').addEventListener('click', async (e) => {
   console.log('btnDraft click');
   // 서명선택
-  document.querySelector('#approvalBox').classList.add('open');
-  const feSignDialog = document.querySelector('#approvalBox .modal-body').appendChild(new FeSignDialog());
+  document.querySelector('.modal-container').classList.add('open');
+  let feSignDialog = document.querySelector('.modal-container fe-signdialog');
+  if (feSignDialog === null) {
+    feSignDialog = document.querySelector('.modal-container').appendChild(new FeSignDialog());
+  }
   feSignDialog.open();
+
+  const signImageURL = await feSignDialog.getSignImageURL();
+  console.log('signImageURL', signImageURL);
+  if (signImageURL === null) {
+    // 취소
+    document.querySelector('.modal-container').classList.remove('open');
+    return;
+  }
+  await feEditor1.setSign(Cell.SIGN + '.1', '12/15', signImageURL);
+
+  document.querySelector('.modal-container').classList.remove('open');
 
   // appr id 채번
   // participant id 채번

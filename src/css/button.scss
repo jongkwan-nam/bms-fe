@@ -16,4 +16,8 @@ button {
       background-color: var(--color-primary);
     }
   }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }

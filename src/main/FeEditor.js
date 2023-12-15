@@ -329,6 +329,17 @@ export default class FeEditor extends FeHwpCtrl {
     console.timeEnd('moveContent');
   }
 
+  async setSign(cellName, text, url) {
+    super.putFieldTextEmpty(cellName);
+    this.hwpCtrl.PutFieldText(cellName, text);
+
+    this.hwpCtrl.MoveToField(cellName);
+    this.hwpCtrl.MovePos(23); // moveEndOfLine
+    await super.insertPicture(url, true, 2, false, false, 0);
+
+    URL.revokeObjectURL(url);
+  }
+
   set title(title) {
     this.hwpCtrl.PutFieldText(Cell.DOC_TITLE, title);
   }

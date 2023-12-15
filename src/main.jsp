@@ -28,11 +28,11 @@
   </article>
 </main>
 <aside id="approvalBox" class="modal-container">
-  <div class="modal-content">
+  <!-- <div class="modal-content">
     <div class="modal-header"></div>
     <div class="modal-body"></div>
     <div class="modal-footer"></div>
-  </div>
+  </div> -->
 </aside>
 <div id="config">
   <label for="fontSize">글자크기</label>

@@ -104,6 +104,33 @@ export default class FeHwpCtrl extends HTMLElement {
   }
 
   /**
+   * 현재 캐럿의 위치에 그림을 삽입
+   * @param {URL} path 이미지 URL
+   * @param {boolean} embeded 이미지 파일을 문서내에 포함할지 여부
+   * @param {*} sizeOption 삽입할 그림의 크기
+   * - 0: 이미지 원래의 크기. width, height 무시
+   * - 1: width, height 크기
+   * - 2: 셀의 크기만큼 조정
+   * - 3: 표의 셀일 경우, 셀크기애 멎쳐 조정
+   * @param {*} reverse 이미지 반전
+   * @param {*} waterMark 워터마크 효과
+   * @param {*} effect 그림 효과
+   * - 0: 실제 이미지 그대로
+   * - 1: 그레이 스케일
+   * - 2: 흑백 효과
+   * @param {*} width 가로 크기. 단위 mm
+   * @param {*} height 높이 크기. 단위 mm
+   * @returns 성공기 생성된 오브젝트, 실패시 null
+   */
+  async insertPicture(path, embeded, sizeOption, reverse, waterMark, effect, width, height) {
+    return new Promise((resolve, reject) => {
+      this.hwpCtrl.InsertPicture(path, embeded, sizeOption, reverse, waterMark, effect, width, height, (ctrl) => {
+        resolve(ctrl);
+      });
+    });
+  }
+
+  /**
    * 새로 추가된 안의 셀명 정리
    */
   reAssignContentCellName() {
