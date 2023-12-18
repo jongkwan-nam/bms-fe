@@ -131,6 +131,44 @@ export default class FeHwpCtrl extends HTMLElement {
   }
 
   /**
+   *
+   * @param {string} fileName 파일 이름. arg에 download:true 일때 사용
+   * @param {string} format 문서 형식. default 'HWP'
+   * @param {string} arg 세부 옵션
+   * - lock     = boolean; true;  저장한 후 해당파일을 계속 오픈한 상태로 lock을 걸지 여부
+   * - backup   = boolean; false; 백업파일 생성 여부
+   * - compress = boolean; true;  압출 여부
+   * - fullsave = boolean; false; 스토리지 파일을 완전히 새로 생성하여 저장
+   * - prvimage = number;  2;     미리보기 이미지(0=off, 1=BMP, 2=GIF)
+   * - prvtext  = numberl; 1;     미리보기 텍스트(0=off, 1=0)
+   * - autosave = boolean; false; 자동저장 파일로 저장할지 여부(true=자동저장, false=지정파일로 저장)
+   * - export   =                 다른 이름으로 저장은 하고, 열린문서는 바꾸지 않는다. (lock:false와 함께 설정시 동작)
+   * - download = boolean; false; Download폴더에 다운로드. false 다운로드 하지 않음
+   * @returns
+   */
+  async saveAs(fileName, format, arg) {
+    return new Promise((resolve, reject) => {
+      this.hwpCtrl.SaveAs(fileName, format, arg, (ret) => {
+        /*
+          {
+              "result": true,
+              "fileName": "a9203aef-8f20-4e44-98ac-82ab27d895b7.hwp",
+              "size": 52736,
+              "uniqueId": "6e6cb75c-a921-4f66-b6ab-793a54affc9a",
+              "resultCode": 0
+          }
+          GET URL `/webhwpctrl/get/${uniqueId}/${fileName}`
+         */
+        if (ret.result) {
+          resolve(ret);
+        } else {
+          reject(ret);
+        }
+      });
+    });
+  }
+
+  /**
    * 새로 추가된 안의 셀명 정리
    */
   reAssignContentCellName() {

@@ -2,14 +2,13 @@ import './main.scss';
 // import './main/FeAttachBox';
 // import './main/FeContent';
 // import './main/FeEditor';
-import Cell from './main/CellNames';
+import actionDraft from './main/logic/actionDraft';
 import SVG from './svg/SVG';
 import { loadHox } from './utils/hoxUtils';
 
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
 import FeEditor from './main/FeEditor';
-import FeSignDialog from './main/FeSignDialog';
 import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 
@@ -60,6 +59,8 @@ console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
 
   reflectHoxInBody(hox, feEditor1);
 
+  feEditor1.setEditMode(2);
+
   feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
   feAttachBox.set(hox);
   //
@@ -105,31 +106,10 @@ window.hoxToText = () => {
 /* 상단 메뉴 버튼 --------------------------------------------------------- */
 
 /* 결재올림 click */
-document.getElementById('btnDraft').addEventListener('click', async (e) => {
-  console.log('btnDraft click');
-  // 서명선택
-  document.querySelector('.modal-container').classList.add('open');
-  let feSignDialog = document.querySelector('.modal-container fe-signdialog');
-  if (feSignDialog === null) {
-    feSignDialog = document.querySelector('.modal-container').appendChild(new FeSignDialog());
-  }
-  feSignDialog.open();
-
-  const signImageURL = await feSignDialog.getSignImageURL();
-  console.log('signImageURL', signImageURL);
-  if (signImageURL === null) {
-    // 취소
-    document.querySelector('.modal-container').classList.remove('open');
-    return;
-  }
-  await feEditor1.setSign(Cell.SIGN + '.1', '12/15', signImageURL);
-
-  document.querySelector('.modal-container').classList.remove('open');
-
-  // appr id 채번
-  // participant id 채번
-  // 웹한글 본문 저장
-  // bms로 submit
+document.getElementById('btnDraft').addEventListener('click', () => {
+  actionDraft(hox).then(() => {
+    // 기안 처리 후 할것들
+  });
 });
 
 /* 결재정보 팝업 호출 */
@@ -148,7 +128,7 @@ document.querySelector('#btnContentAdd').addEventListener('click', (e) => {
 });
 
 /* 환경설정 */
-document.getElementById('btnConfig').innerHTML = SVG.config;
+document.getElementById('btnConfig').innerHTML = SVG.option;
 document.getElementById('btnConfig').addEventListener('click', (e) => {
   document.querySelector('#config').classList.toggle('open');
 });

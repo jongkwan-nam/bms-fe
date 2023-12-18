@@ -234,20 +234,6 @@ export const getFlagList = (element, selectors) => {
 };
 
 /**
- *
- * @param {string} id
- * @returns
- */
-export const isNullID = (id = null) => id === null || id.trim() === '00000000000000000000';
-
-/**
- *
- * @param {string} id
- * @returns
- */
-export const isNotNullID = (id) => !isNullID(id);
-
-/**
  * hox 이벤트 전파
  * @param {Element} element
  * @param {string} selectors

@@ -1,8 +1,15 @@
+[role="tab"] {
+  font-weight: 700;
+  color: var(--color-text);
+  padding-bottom: 4px;
+  border-bottom: 1px solid transparent;
+}
 [role="tab"]:not([disabled]):hover {
-  text-shadow: var(--text-shadow-hover);
+  border-color: var(--color-primary);
 }
 [role="tab"][active] {
-  color: var(--color-checked);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 [role="tabpanel"] {

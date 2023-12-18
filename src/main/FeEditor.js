@@ -106,8 +106,9 @@ export default class FeEditor extends FeHwpCtrl {
    *
    * @param {HwpCtrl} hwpCtrl
    */
-  buildWebHwpCtrlCallback(hwpCtrl) {
+  buildWebHwpCtrlCallback(hwpCtrl, hwpServerUrl) {
     this.hwpCtrl = hwpCtrl;
+    this.hwpServerUrl = hwpServerUrl;
     this.active = true;
   }
 
@@ -155,6 +156,18 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
+   * 편집 모드를 변경한다.
+   * @param {number} mode
+   * - 0: 읽기 전용
+   * - 1: 일반 편집 모드
+   * - 2: 양식 모드. Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진것만 편집 가능
+   * - 16: 배포용 문서(SetEditMode로 지정 불가능)
+   */
+  setEditMode(mode) {
+    this.hwpCtrl.EditMode = mode;
+  }
+
+  /**
    *
    * @param {string} name
    * @param {string} text
@@ -197,6 +210,8 @@ export default class FeEditor extends FeHwpCtrl {
   async addContent() {
     console.time('addContent');
     this.detectTitle = false;
+
+    this.setEditMode(1);
 
     this.contentCount = getNodes(this.hox, 'docInfo content').length;
     console.log('addContent ', this.contentCount);
@@ -258,6 +273,8 @@ export default class FeEditor extends FeHwpCtrl {
 
     super.toggleViewOptionCtrkMark(false);
 
+    this.setEditMode(2);
+
     this.detectTitle = true;
     console.timeEnd('addContent');
   }
@@ -272,6 +289,8 @@ export default class FeEditor extends FeHwpCtrl {
   deleteContent(...contentNumbers) {
     console.time('deleteContent');
     this.detectTitle = false;
+
+    this.setEditMode(1);
 
     super.toggleViewOptionCtrkMark(true);
     contentNumbers.reverse().forEach((contentNumber) => {
@@ -297,9 +316,11 @@ export default class FeEditor extends FeHwpCtrl {
         super.renameContentCellName(n, i + 1);
       }
     });
-    this.contentNumber = getNodes(this.hox, 'docInfo content').length; // 뻬고 남은 안 번호
+    this.contentCount = getNodes(this.hox, 'docInfo content').length; // 뻬고 남은 안 번호
 
     super.toggleViewOptionCtrkMark(false);
+
+    this.setEditMode(2);
 
     this.detectTitle = true;
     console.timeEnd('deleteContent');
@@ -329,6 +350,13 @@ export default class FeEditor extends FeHwpCtrl {
     console.timeEnd('moveContent');
   }
 
+  /**
+   * 서명하기
+   *
+   * @param {string} cellName 셀명
+   * @param {string} text 날짜 텍스트
+   * @param {URL} url 서명 이미지 url
+   */
   async setSign(cellName, text, url) {
     super.putFieldTextEmpty(cellName);
     this.hwpCtrl.PutFieldText(cellName, text);
@@ -338,6 +366,21 @@ export default class FeEditor extends FeHwpCtrl {
     await super.insertPicture(url, true, 2, false, false, 0);
 
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * 서버로 저장하고, 다운로드 가능한 URL 반환
+   * @param {string} fileName
+   * @param {string} format
+   * @param {string} arg
+   * @returns 다운로드 URL
+   */
+  async saveServer(fileName = '', format = 'HWP', arg = 'lock:FALSE;prvimage:0;prvtext:0;code:acp;') {
+    //
+    const ret = await super.saveAs(fileName, format, arg);
+
+    // this.hwpServerUrl: 'https://fewebhwp.handysoft.co.kr/webhwpctrl/'
+    return `${this.hwpServerUrl}get/${ret.uniqueId}/${ret.fileName}`;
   }
 
   set title(title) {

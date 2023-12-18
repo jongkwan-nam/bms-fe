@@ -1,3 +1,5 @@
+import { unshift } from './stringUtils';
+
 /**
  *
  * @param {*} date
@@ -32,9 +34,5 @@ export function format(date = new Date(), pattern = 'yyyy-mm-dd hh:mi:ss') {
 }
 
 function zero(num, len) {
-  let str = num.toString();
-  for (let i = 0; i < len - str.length; i++) {
-    str = '0' + str;
-  }
-  return str;
+  return unshift(num, len, '0');
 }

@@ -90,3 +90,21 @@ export function unescapeXml(str) {
   var doc = new DOMParser().parseFromString(str, 'text/html');
   return doc.documentElement.textContent;
 }
+
+/**
+ * 총 길이가 len이 되도록 str 앞에 bit를 추가
+ * @param {string | number} str
+ * @param {number} len
+ * @param {string} bit
+ * @returns
+ */
+export function unshift(str, len, bit) {
+  if (typeof str === 'number') {
+    str = str.toString();
+  }
+  let end = len - str.length;
+  for (let i = 0; i < end; i++) {
+    str = bit + str;
+  }
+  return str;
+}
