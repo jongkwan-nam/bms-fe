@@ -1,16 +1,20 @@
-import './main.scss';
 // import './main/FeAttachBox';
 // import './main/FeContent';
 // import './main/FeEditor';
-import actionDraft from './main/logic/actionDraft';
-import SVG from './svg/SVG';
-import { loadHox } from './utils/hoxUtils';
+import './main.scss';
 
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
 import FeEditor from './main/FeEditor';
+
+import actionDraft from './main/logic/actionDraft';
 import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
+import validateReceivedHox from './main/logic/validateReceivedHox';
+
+import SVG from './svg/SVG';
+
+import { loadHox } from './utils/hoxUtils';
 
 let trid = rInfo.hoxFileTRID;
 let docUrl = `https://fe.handysoft.co.kr/bms/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
@@ -77,16 +81,17 @@ window.hwpCtrl = () => {
   return document.querySelector('fe-editor').hwpCtrl;
 };
 
-window.receiveHox = (modifiedHox) => {
-  // modifiedHox 검증
+window.receiveHox = (receivedHox) => {
+  // receivedHox 검증
+  const validationResult = validateReceivedHox(receivedHox, feEditor1);
+  if (!validationResult.ok) {
+    return validationResult;
+  }
 
-  hox = modifiedHox;
+  hox = receivedHox;
+  reflectHoxInBody(receivedHox, feEditor1);
 
-  reflectHoxInBody(hox, feEditor1);
-
-  return {
-    ok: true,
-  };
+  return { ok: true };
 };
 
 window.getCurrentContentNumber = () => {

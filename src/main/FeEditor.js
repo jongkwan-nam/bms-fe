@@ -14,6 +14,7 @@ export default class FeEditor extends FeHwpCtrl {
   hwpCtrl = null;
   contentCount = 1;
   detectTitle = true;
+  fieldList = [];
 
   constructor() {
     super();
@@ -381,6 +382,10 @@ export default class FeEditor extends FeHwpCtrl {
 
     // this.hwpServerUrl: 'https://fewebhwp.handysoft.co.kr/webhwpctrl/'
     return `${this.hwpServerUrl}get/${ret.uniqueId}/${ret.fileName}`;
+  }
+
+  existField(name) {
+    return this.hwpCtrl.FieldExist(name);
   }
 
   set title(title) {

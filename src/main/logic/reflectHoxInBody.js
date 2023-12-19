@@ -1,3 +1,4 @@
+import { colorNameToHex } from '../../utils/colorUtils';
 import * as DateUtils from '../../utils/dateUtils';
 import { getAttr, getNodes, getText } from '../../utils/hoxUtils';
 import Cell from '../CellNames';
@@ -8,7 +9,7 @@ import FeEditor from '../FeEditor';
  */
 
 /**
- * @param {Document} hox
+ * @param {XMLDocument} hox
  * @param {FeEditor} editor
  */
 export default (hox, editor) => {
@@ -32,9 +33,15 @@ export default (hox, editor) => {
   console.log('기안자 exist?', editor.hwpCtrl.FieldExist('기안자'));
   console.log('결재제목 exist?', editor.hwpCtrl.FieldExist('결재제목'));
 
-  console.log('GetFieldList 0 1', editor.hwpCtrl.GetFieldList(0, 1).split(String.fromCharCode(2)));
-  console.log('GetFieldList 0 2', editor.hwpCtrl.GetFieldList(0, 2));
-  console.log('GetFieldList 0 4', editor.hwpCtrl.GetFieldList(0, 4));
+  // console.log('GetFieldList 0 1', editor.hwpCtrl.GetFieldList(0, 1).split(String.fromCharCode(2)));
+  // console.log('GetFieldList 0 2', editor.hwpCtrl.GetFieldList(0, 2));
+  // console.log('GetFieldList 0 4', editor.hwpCtrl.GetFieldList(0, 4));
+
+  // 서식내 전체 field를 구한다
+  const fieldList = [];
+  fieldList.push(...editor.hwpCtrl.GetFieldList(0, 1).split(String.fromCharCode(2)));
+  fieldList.push(...editor.hwpCtrl.GetFieldList(0, 2).split(String.fromCharCode(2)));
+  console.log('fieldList', fieldList);
 
   // 기안자
   editor.putFieldText(Cell.DRAFTER, rInfo.user.name);
@@ -71,6 +78,19 @@ export default (hox, editor) => {
   editor.putFieldText(Cell.SENDERNAME, getText(hox, 'docInfo content receiptInfo senderName'));
   // 직위.1 ~ .n
   // 서명.1 ~ .n
+  // 서식의 dummy 값 초기화
+  let posCellCount = fieldList.filter((field) => field.startsWith(Cell.POS + '.')).length;
+  let signCellCount = fieldList.filter((field) => field.startsWith(Cell.SIGN + '.')).length;
+  let agreePosCellCount = fieldList.filter((field) => field.startsWith(Cell.AGREE_POS + '.')).length;
+  let agreeSignCellCount = fieldList.filter((field) => field.startsWith(Cell.AGREE_SIGN + '.')).length;
+
+  console.log(`
+          posCellCount: ${posCellCount}
+         signCellCount: ${signCellCount}
+     agreePosCellCount: ${agreePosCellCount}
+    agreeSignCellCount: ${agreeSignCellCount}
+  `);
+
   let signCellIndex = 0;
   getNodes(hox, 'approvalFlow participant').forEach((paricipant) => {
     //
@@ -82,6 +102,38 @@ export default (hox, editor) => {
       ++signCellIndex;
       editor.putFieldText(`${Cell.POS}.${signCellIndex}`, position);
       editor.putFieldText(`${Cell.SIGN}.${signCellIndex}`, name);
+
+      if (doccfg.usePreviewSignerName) {
+        editor.hwpCtrl.MoveToField(`${Cell.SIGN}.${signCellIndex}`, true, true, true);
+
+        let charShape = editor.hwpCtrl.CharShape;
+        console.log(`
+          Height:         ${charShape.Item('Height')}
+          TextColor:      ${charShape.Item('TextColor')}
+          FaceNameHangul: ${charShape.Item('FaceNameHangul')}
+          UnderlineType:  ${charShape.Item('UnderlineType')}
+        `);
+
+        // doccfg.previewSignerNameFontSize: pt를 HWPUNIT로 변경 필요. html 기안을 위한 값으로 판단해서 미적용
+        // doccfg.previewSignerNameFontColor
+
+        const hwpAction = editor.hwpCtrl.CreateAction('CharShape');
+        const hwpActionSet = hwpAction.CreateSet();
+        hwpAction.GetDefault(hwpActionSet);
+        hwpActionSet.SetItem('Height', sizeToHwpUnit(doccfg.previewSignerNameFontSize));
+        hwpActionSet.SetItem('TextColor', colorNameToHex(doccfg.previewSignerNameFontColor));
+        hwpAction.Execute(hwpActionSet);
+
+        charShape = editor.hwpCtrl.CharShape;
+        console.log(`
+          Height:         ${charShape.Item('Height')}
+          TextColor:      ${charShape.Item('TextColor')}
+          FaceNameHangul: ${charShape.Item('FaceNameHangul')}
+          UnderlineType:  ${charShape.Item('UnderlineType')}
+        `);
+
+        editor.hwpCtrl.Run('Cancel');
+      }
     }
   });
   // 협조직위.1 ~ .n AGREE_POS
@@ -102,3 +154,13 @@ export default (hox, editor) => {
   // 관인 SEAL_STAMP
   // 관인생략 SEAL_OMISSION
 };
+
+/**
+ * 12pt를 1200 HWPUNIT으로 변환
+ * @param {string} sizeValue
+ */
+function sizeToHwpUnit(sizeValue) {
+  if (sizeValue.includes('pt')) {
+    return parseInt(sizeValue) * 100;
+  }
+}

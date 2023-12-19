@@ -9,8 +9,9 @@
   GWWEBMessage['st_jeonhooyul_nosanc'] = '전결(후열안함)';
   GWWEBMessage['pen_sign'] = '펜서명';
 
-  doccfg.docViewRatio = 1;
+  doccfg.docViewRatio = 2;
   doccfg.baseBodyContent = 1;
+  doccfg.usePreviewSignerName = true;
 </script>
 <main>
   <header class="menu-wrap">
