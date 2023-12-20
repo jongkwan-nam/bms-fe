@@ -37,7 +37,7 @@ export default async (hox) => {
   const serverTime = new Date(serverTimeInfo.currentDate);
   console.log('serverTime', serverTime);
 
-  const mmdd = DateUtils.format(serverTime, 'mm/dd');
+  const mmdd = DateUtils.format(serverTime, 'M/D');
 
   await feEditor1.setSign(Cell.SIGN + '.1', mmdd, signImageURL);
   console.log('feEditor1.setSign', Cell.SIGN + '.1');

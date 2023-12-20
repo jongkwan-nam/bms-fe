@@ -201,7 +201,7 @@ export class HoxToBody {
    * 기안일자
    */
   setDraftDate() {
-    this.editor.putFieldText(Cell.DRAFT_DATE, DateUtils.format(getText(this.hox, 'draftDate'), 'yyyy.mm.dd'));
+    this.editor.putFieldText(Cell.DRAFT_DATE, DateUtils.format(getText(this.hox, 'draftDate'), 'YYYY.MM.DD'));
   }
 
   /**
@@ -249,7 +249,7 @@ export class HoxToBody {
    * 시행일자
    */
   setEnforceDate() {
-    this.editor.putFieldText(Cell.ENFORCE_DATE, DateUtils.format(new Date(), 'yyyy.mm.dd'));
+    this.editor.putFieldText(Cell.ENFORCE_DATE, DateUtils.format(new Date(), 'YYYY.MM.DD'));
   }
 
   /**

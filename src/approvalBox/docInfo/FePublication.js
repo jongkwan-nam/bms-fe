@@ -178,7 +178,7 @@ export default class FePublication extends FeApprovalBox {
           if (StringUtils.isBlank(this.openstartdateValue)) {
             let d = new Date();
             d.setDate(d.getDate() + 90);
-            this.openstartdateValue = DateUtils.format(d, 'yyyy-mm-dd');
+            this.openstartdateValue = DateUtils.format(d, 'YYYY-MM-DD');
           }
           //
           this.shadowRoot.querySelector('#openstartdate_permanent').dispatchEvent(new Event('change'));

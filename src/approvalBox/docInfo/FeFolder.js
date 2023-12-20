@@ -66,7 +66,7 @@ export default class FeFolder extends FeApprovalBox {
         continue;
       }
       // folderId 검증 후 option 추가
-      const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${DateUtils.format(Date.now(), 'yyyy-mm-dd')}`).json();
+      const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${DateUtils.format(Date.now(), 'YYYY-MM-DD')}`).json();
       if (data.ok) {
         //
         const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveFldrInfo.act?fldrID=${folderId}&applID=${7010}`).json();

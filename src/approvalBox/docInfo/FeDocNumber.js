@@ -70,8 +70,8 @@ export default class FeDocNumber extends HTMLElement {
         ['@d', rInfo.dept.alias],
         ['@r', rInfo.repDept.alias],
         ['@R', rInfo.repDept.name],
-        ['@Y', DateUtils.format(rInfo.currentDate, 'yyyy')],
-        ['@y', DateUtils.format(rInfo.currentDate, 'yy')],
+        ['@Y', DateUtils.format(rInfo.currentDate, 'YYYY')],
+        ['@y', DateUtils.format(rInfo.currentDate, 'YY')],
       ];
 
       params.forEach((param) => {
