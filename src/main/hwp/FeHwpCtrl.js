@@ -1,3 +1,4 @@
+import { getContentCellName } from '../../utils/contentUtils';
 import { getNodes } from '../../utils/hoxUtils';
 import Cell from '../CellNames';
 
@@ -16,12 +17,12 @@ export default class FeHwpCtrl extends HTMLElement {
    */
   getBoundingContentRect(contentNumber) {
     // 시작위치 이동 -> getDocumentInfo
-    this.hwpCtrl.MoveToFieldEx(this.getContentCellName(Cell.DOC_TITLE, contentNumber), true, true, false);
+    this.hwpCtrl.MoveToFieldEx(getContentCellName(Cell.DOC_TITLE, contentNumber), true, true, false);
     this.hwpCtrl.MovePos(24, 0, 0);
     let startSet = this.getDocumentInfo();
 
     // 마지막위치 이동 -> getDocumentInfo
-    this.hwpCtrl.MoveToFieldEx(this.getContentCellName(Cell.SENDERNAME, contentNumber), true, false, false);
+    this.hwpCtrl.MoveToFieldEx(getContentCellName(Cell.SENDERNAME, contentNumber), true, false, false);
     this.hwpCtrl.MovePos(24, 0, 0);
     this.hwpCtrl.MovePos(23, 0, 0);
     let endSet = this.getDocumentInfo();
@@ -195,8 +196,8 @@ export default class FeHwpCtrl extends HTMLElement {
     let [oldNames, newNames] = [[], []];
     this.separatedContentFieldNames.forEach((cellName) => {
       //
-      oldNames.push(this.getContentCellName(cellName, fromContentNumber));
-      newNames.push(this.getContentCellName(cellName, toContentNumber));
+      oldNames.push(getContentCellName(cellName, fromContentNumber));
+      newNames.push(getContentCellName(cellName, toContentNumber));
     });
     this.renameField(oldNames, newNames);
   }
@@ -222,15 +223,5 @@ export default class FeHwpCtrl extends HTMLElement {
    */
   putFieldTextEmpty(cellName) {
     this.hwpCtrl.PutFieldText(cellName, String.fromCharCode(2));
-  }
-
-  /**
-   * 안번호에 맞는 셀명 반환
-   * @param {string} cellName 셀명
-   * @param {*} contentNumber 안 번호
-   * @returns 1안은 셀명 그대로, 2안부터 셀명_안번호
-   */
-  getContentCellName(cellName, contentNumber) {
-    return contentNumber > 1 ? `${cellName}_${contentNumber}` : cellName;
   }
 }

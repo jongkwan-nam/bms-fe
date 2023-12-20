@@ -95,4 +95,6 @@ export default {
   SEAL_OMISSION: '관인생략',
   SIGN: '서명',
   AUDITCOMMENT_STAMPDATE: '감사인일자',
+  BUDGET_PLANNER_POS: '기획예산직위',
+  BUDGET_PLANNER_SIGN: '기획예산',
 };

@@ -126,7 +126,7 @@ export default class FeRecipient extends FeApprovalBox {
     this.displayString.addEventListener('change', (e) => {
       console.log('Event', e.type, e.target, e.value);
       //
-      setText(this.contentNode, 'displayString', e.target.value);
+      setText(this.contentNode, 'receiptInfo > displayString', e.target.value);
     });
 
     // 발신명의 선택 이벤트
@@ -400,6 +400,7 @@ export default class FeRecipient extends FeApprovalBox {
     //
     if (!this.displayCheckbox.checked) {
       this.displayString.value = this.feRecList.displayString;
+      setText(this.contentNode, 'receiptInfo > displayString', this.feRecList.displayString);
     }
   }
 

@@ -1,3 +1,4 @@
+import { getContentCellName } from '../utils/contentUtils';
 import { HoxEventType, dispatchHoxEvent, getNode, getNodes, setText } from '../utils/hoxUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
@@ -15,28 +16,68 @@ export default class FeEditor extends FeHwpCtrl {
   contentCount = 1;
   detectTitle = true;
   fieldList = [];
+  cellCount = {
+    pos: 0,
+    sign: 0,
+    agreePos: 0,
+    agreeSign: 0,
+  };
 
   constructor() {
     super();
-    console.debug('FeEditor init');
   }
 
   connectedCallback() {
-    console.debug('FeEditor connected');
     this.attachShadow({ mode: 'open' });
 
-    const LINK = document.createElement('link');
-    LINK.setAttribute('rel', 'stylesheet');
-    LINK.setAttribute('href', './main.css');
+    const link = document.createElement('link');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('href', './main.css');
 
     const wrapper = document.createElement('iframe');
     wrapper.classList.add(this.tagName.toLocaleLowerCase());
 
-    this.shadowRoot.append(LINK, wrapper);
+    this.shadowRoot.append(link, wrapper);
   }
 
   /**
+   * 에디터 로딩
    *
+   * 로딩 완료까지 대기
+   */
+  async init() {
+    console.time(TIME_LABEL_INIT);
+
+    this.id = this.getAttribute('id');
+
+    return new Promise((resolve, reject) => {
+      this.shadowRoot.querySelector('iframe').src = './hwpctrlframe.html?id=' + this.id;
+
+      const timer = setInterval(() => {
+        if (this.hwpCtrl !== null) {
+          console.timeEnd(TIME_LABEL_INIT);
+          clearInterval(timer);
+          resolve();
+        }
+      }, 100);
+    });
+  }
+
+  /**
+   * hwpctrlframe.html 에서 에디터 빌드가 완료되면 호출되는 콜백
+   *
+   * @param {HwpCtrl} hwpCtrl
+   */
+  buildWebHwpCtrlCallback(hwpCtrl, hwpServerUrl) {
+    this.hwpCtrl = hwpCtrl;
+    this.hwpServerUrl = hwpServerUrl;
+    this.active = true;
+  }
+
+  /**
+   * hox 설정
+   * - hox 이벤트 리스너 추가
+   * - 제목 변경 감지 -> hoxEvent 발행
    * @param {XMLDocument} hox
    */
   set(hox) {
@@ -81,7 +122,7 @@ export default class FeEditor extends FeHwpCtrl {
         let changed = false;
         for (let i = 0; i < this.contentCount; i++) {
           // 제목셀
-          const titleCellName = this.getContentCellName(Cell.DOC_TITLE, i + 1);
+          const titleCellName = getContentCellName(Cell.DOC_TITLE, i + 1);
           const titleCellText = this.hwpCtrl.GetFieldText(titleCellName);
 
           // hox 제목
@@ -103,40 +144,7 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
-   * hwpctrlframe.html 에서 에디터 빌드가 완료되면 호출되는 콜백
-   *
-   * @param {HwpCtrl} hwpCtrl
-   */
-  buildWebHwpCtrlCallback(hwpCtrl, hwpServerUrl) {
-    this.hwpCtrl = hwpCtrl;
-    this.hwpServerUrl = hwpServerUrl;
-    this.active = true;
-  }
-
-  /**
-   *
-   * @param {URL} docUrl
-   */
-  async init() {
-    console.time(TIME_LABEL_INIT);
-
-    this.id = this.getAttribute('id');
-
-    return new Promise((resolve, reject) => {
-      this.shadowRoot.querySelector('iframe').src = './hwpctrlframe.html?id=' + this.id;
-
-      let timer = setInterval(() => {
-        if (this.hwpCtrl !== null) {
-          console.timeEnd(TIME_LABEL_INIT);
-          clearInterval(timer);
-          resolve();
-        }
-      }, 100);
-    });
-  }
-
-  /**
-   *
+   * 문서 열기
    * @param {string} docUrl
    * @returns
    */
@@ -148,6 +156,26 @@ export default class FeEditor extends FeHwpCtrl {
         console.timeEnd(TIME_LABEL_OPEN);
         console.log('hwpCtrl.Open callback', e);
         if (e.result) {
+          // 문서 열기 완료.
+          // 필드 정보 구하기
+          this.fieldList = [];
+          this.fieldList.push(...this.hwpCtrl.GetFieldList(0, 1).split(String.fromCharCode(2)));
+          this.fieldList.push(...this.hwpCtrl.GetFieldList(0, 2).split(String.fromCharCode(2)));
+          console.log('fieldList', this.fieldList);
+
+          // 셀(직위, 서명, 협조 등) 카운트 구하기
+          this.cellCount = {
+            pos: this.fieldList.filter((field) => field.startsWith(Cell.POS + '.')).length,
+            sign: this.fieldList.filter((field) => field.startsWith(Cell.SIGN + '.')).length,
+            agreePos: this.fieldList.filter((field) => field.startsWith(Cell.AGREE_POS + '.')).length,
+            agreeSign: this.fieldList.filter((field) => field.startsWith(Cell.AGREE_SIGN + '.')).length,
+            budgetControlPos: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_CONTROL_POS + '.')).length,
+            budgetControlSign: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_CONTROL_SIGN + '.')).length,
+            budgetPlannerPos: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_PLANNER_POS + '.')).length,
+            budgetPlannerSign: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_PLANNER_SIGN + '.')).length,
+          };
+          console.log('cellCount', this.cellCount);
+
           resolve();
         } else {
           reject(e.errorMessage);
@@ -158,7 +186,8 @@ export default class FeEditor extends FeHwpCtrl {
 
   /**
    * 편집 모드를 변경한다.
-   * @param {number} mode
+   *
+   * @param {number} mode 편집모드
    * - 0: 읽기 전용
    * - 1: 일반 편집 모드
    * - 2: 양식 모드. Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진것만 편집 가능
@@ -169,12 +198,42 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
+   * 필드의 내용을 채운다
    *
+   * - 입력되어 있는 내용은 지워진다.
+   * - 글자 모양은 필드에 지정해 놓은 글자모양을 따라간다.
+   * - 존재하지 않는 필드는 무시한다.
    * @param {string} name
    * @param {string} text
+   * @param {number} textColor 색상값. 0xffffff 로 표현되는 rgb형식의 숫자값
+   * @param {number} height 높이. HWPUNIT 단위
+   * @param {string} faceNameHangul 폰트
+   * @param {number} underlineType 밑줄. 0: none, 1: bottom, 2: center, 3: top
    */
-  putFieldText(name, text) {
+  putFieldText(name, text, textColor = null, height = null, faceNameHangul = null, underlineType = null) {
     this.hwpCtrl.PutFieldText(name, text);
+
+    if (height !== null || textColor !== null || faceNameHangul !== null || underlineType !== null) {
+      this.hwpCtrl.MoveToField(name, true, true, true);
+      const hwpAction = this.hwpCtrl.CreateAction('CharShape');
+      const hwpActionSet = hwpAction.CreateSet();
+      hwpAction.GetDefault(hwpActionSet);
+      if (height !== null) {
+        hwpActionSet.SetItem('Height', height);
+      }
+      if (textColor !== null) {
+        hwpActionSet.SetItem('TextColor', textColor);
+      }
+      if (faceNameHangul !== null) {
+        hwpActionSet.SetItem('FaceNameHangul', faceNameHangul);
+      }
+      if (underlineType !== null) {
+        hwpActionSet.SetItem('UnderlineType', underlineType);
+      }
+
+      hwpAction.Execute(hwpActionSet);
+      this.hwpCtrl.Run('Cancel');
+    }
   }
 
   /**
@@ -334,7 +393,7 @@ export default class FeEditor extends FeHwpCtrl {
    */
   selectContent(contentNumber) {
     // 안번호의 제목셀을 찾고, 현재 페이지를 구하여 스크롤 이동한다.
-    this.hwpCtrl.MoveToFieldEx(super.getContentCellName(Cell.DOC_TITLE, contentNumber), true, true, false);
+    this.hwpCtrl.MoveToFieldEx(getContentCellName(Cell.DOC_TITLE, contentNumber), true, true, false);
     // let set = super.getDocumentInfo(true);
     // let curPage = set.Item('DetailCurPage');
     // console.log('curPage', curPage);
@@ -384,8 +443,61 @@ export default class FeEditor extends FeHwpCtrl {
     return `${this.hwpServerUrl}get/${ret.uniqueId}/${ret.fileName}`;
   }
 
+  /**
+   * 필드가 있는지
+   * @param {string} name
+   * @returns
+   */
   existField(name) {
     return this.hwpCtrl.FieldExist(name);
+  }
+
+  /**
+   * 사인 관련 셀 내용 지우기
+   * - 직위, 서명, 협조직위, 협조, 예산통제직위, 예산통제, 기획예산직위, 기획예산
+   */
+  clearSignCell() {
+    // 직위
+    for (let i = 0; i < this.cellCount.pos; i++) {
+      super.putFieldTextEmpty(Cell.POS + '.' + (i + 1));
+    }
+    // 서명
+    for (let i = 0; i < this.cellCount.sign; i++) {
+      super.putFieldTextEmpty(Cell.SIGN + '.' + (i + 1));
+    }
+    // 협조직위
+    for (let i = 0; i < this.cellCount.agreePos; i++) {
+      super.putFieldTextEmpty(Cell.AGREE_POS + '.' + (i + 1));
+    }
+    // 협조
+    for (let i = 0; i < this.cellCount.agreeSign; i++) {
+      super.putFieldTextEmpty(Cell.AGREE_SIGN + '.' + (i + 1));
+    }
+    // 예산통제직위: BUDGET_CONTROL_POS
+    for (let i = 0; i < this.cellCount.budgetControlPos; i++) {
+      super.putFieldTextEmpty(Cell.BUDGET_CONTROL_POS + '.' + (i + 1));
+    }
+    // 예산통제: BUDGET_CONTROL_SIGN
+    for (let i = 0; i < this.cellCount.budgetControlSign; i++) {
+      super.putFieldTextEmpty(Cell.BUDGET_CONTROL_SIGN + '.' + (i + 1));
+    }
+    // 기획예산직위: BUDGET_PLANNER_POS
+    for (let i = 0; i < this.cellCount.budgetPlannerPos; i++) {
+      super.putFieldTextEmpty(Cell.BUDGET_PLANNER_POS + '.' + (i + 1));
+    }
+    // 기획예산: BUDGET_PLANNER_SIGN
+    for (let i = 0; i < this.cellCount.budgetPlannerSign; i++) {
+      super.putFieldTextEmpty(Cell.BUDGET_PLANNER_SIGN + '.' + (i + 1));
+    }
+  }
+
+  /**
+   * hox approvalFlow participant를 본문 서명셀들에 반영한다
+   *
+   * - 결재 완료 상태
+   */
+  reflectApprovalFlow() {
+    //
   }
 
   set title(title) {

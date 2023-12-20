@@ -1,6 +1,9 @@
 /**
  * hox에 누락된 부분이 있는지 검사해서 채운다
  *
+ * hox의 초기값 설정
+ * - receiptInfo/sendOrgName 발신기관명 설정
+ *
  * @param {XMLDocument} hox
  */
 export default (hox) => {
@@ -28,6 +31,10 @@ export default (hox) => {
       recipient = hox.createElement('recipient');
       receiptInfo.insertAdjacentElement('afterbegin', recipient);
     }
+
+    // receiptInfo / sendOrgName
+    let sendOrgName = receiptInfo.querySelector('sendOrgName');
+    sendOrgName.textContent = rInfo.repDept.name;
 
     // pageCnt
     let pageCnt = content.querySelector('pageCnt');
