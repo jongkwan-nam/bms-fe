@@ -417,14 +417,14 @@ export default class FeEditor extends FeHwpCtrl {
    * @param {string} text 날짜 텍스트
    * @param {URL} url 서명 이미지 url
    */
-  async setSign(cellName, text, url) {
-    super.putFieldTextEmpty(cellName);
-    this.hwpCtrl.PutFieldText(cellName, text);
-
-    this.hwpCtrl.MoveToField(cellName);
+  async doSign(cellName, text, url) {
+    this.setEditMode(1);
+    this.putFieldText(cellName, text, 0x000000);
+    this.hwpCtrl.MoveToField(cellName, true, true, true);
+    this.hwpCtrl.Run('ParagraphShapeAlignCenter');
     this.hwpCtrl.MovePos(23); // moveEndOfLine
-    await super.insertPicture(url, true, 2, false, false, 0);
-
+    await super.insertPicture(url, true, 3, false, false, 0);
+    this.setEditMode(2);
     URL.revokeObjectURL(url);
   }
 

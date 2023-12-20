@@ -112,7 +112,7 @@ export default class FeHwpCtrl extends HTMLElement {
    * - 0: 이미지 원래의 크기. width, height 무시
    * - 1: width, height 크기
    * - 2: 셀의 크기만큼 조정
-   * - 3: 표의 셀일 경우, 셀크기애 멎쳐 조정
+   * - 3: 표의 셀일 경우, 셀크기애 맞쳐 조정
    * @param {*} reverse 이미지 반전
    * @param {*} waterMark 워터마크 효과
    * @param {*} effect 그림 효과

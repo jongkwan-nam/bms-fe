@@ -39,7 +39,7 @@ export default async (hox) => {
 
   const mmdd = DateUtils.format(serverTime, 'M/D');
 
-  await feEditor1.setSign(Cell.SIGN + '.1', mmdd, signImageURL);
+  await feEditor1.doSign(Cell.SIGN + '.1', mmdd, signImageURL);
   console.log('feEditor1.setSign', Cell.SIGN + '.1');
 
   document.querySelector('.modal-container').classList.remove('open');
