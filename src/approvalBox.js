@@ -8,7 +8,7 @@ import { HoxEventType, dispatchHoxEvent, getNodes } from './utils/hoxUtils';
 
 import * as TabUI from './utils/TabUI';
 
-let hox = opener.hox().cloneNode(true);
+let hox = opener.main.hox.cloneNode(true);
 
 const feDocInfo = document.querySelector('fe-docinfo');
 const feFlow = document.querySelector('fe-flow');
@@ -100,7 +100,7 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
   // 발송종류가 내부라면, hox 내용 지우기
 
   // opener에 hox 전달
-  let ret = opener.receiveHox(hox);
+  let ret = opener.main.receiveHox(hox);
   if (ret.ok) {
     // 닫기
     close();
@@ -152,7 +152,7 @@ function initContentSelector() {
   });
 
   // main의 안 번호로 selected 처리
-  const mainContentNumber = opener.getCurrentContentNumber();
+  const mainContentNumber = opener.main.getCurrentContentNumber();
   contentSelector.querySelectorAll('option')[mainContentNumber - 1].selected = true;
   contentSelector.dispatchEvent(new Event('change'));
 }

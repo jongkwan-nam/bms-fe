@@ -23,8 +23,9 @@ export default class FeEditor extends FeHwpCtrl {
     agreeSign: 0,
   };
 
-  constructor() {
+  constructor(id) {
     super();
+    this.setAttribute('id', id);
   }
 
   connectedCallback() {
