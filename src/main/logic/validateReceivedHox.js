@@ -11,10 +11,10 @@ import * as StringUtils from '../../utils/stringUtils';
  * @param {FeEditor} editor
  */
 export default (hox, editor) => {
-  // 결재선이 서명cell을 초과하였는지
   let ok = true;
   let msg = '';
 
+  // 결재선이 서명cell을 초과하였는지
   const missingParticipants = [];
   const cellNameNodeList = hox.querySelectorAll('approvalFlow participant mappingCell cellName');
   Array.from(cellNameNodeList)

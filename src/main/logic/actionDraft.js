@@ -1,17 +1,70 @@
 import * as DateUtils from '../../utils/dateUtils';
-import { getNodes, setText } from '../../utils/hoxUtils';
+import { addNode, getNode, getNodes, getNumber, getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
 import { getObjectID, isNullID } from '../../utils/idUtils';
+import * as StringUtils from '../../utils/stringUtils';
 import Cell from '../CellNames';
 import FeSignDialog from '../FeSignDialog';
+
+/**
+ * 기안전 정합성 체크
+ * - 결재제목
+ * - 기록물철
+ * - 쪽수
+ * - 발송종류별 수신자 검증
+ * @param {XMLDocument} hox
+ */
+export const validate = (hox) => {
+  let ok = true;
+  let msg = '';
+
+  // 제목
+  if (StringUtils.isBlank(getText(hox, 'docInfo title'))) {
+    ok = false;
+    msg += `결재제목이 설정되지 않았습니다.\n`;
+  }
+  getNodes(hox, 'docInfo content').forEach((content, i) => {
+    if (StringUtils.isBlank(getText(content, 'title'))) {
+      ok = false;
+      msg += `${i + 1}안의 결재제목이 설정되지 않았습니다.\n`;
+    }
+  });
+
+  // 기록물철
+  if (isNullID(getText(hox, 'docInfo folderInfo ID'))) {
+    ok = false;
+    msg += `기록물철이 선택되지 않았습니다.\n`;
+  }
+
+  // 쪽수
+  // TODO 단순이 0보다 크다가 아니고, 본문과 첨북 갯수로 체크해야 한다
+  if (getNumber(hox, 'docInfo > pageCnt') < 1) {
+    ok = false;
+    msg += `쪽수가 잘못 되었습니다.\n`;
+  }
+  getNodes(hox, 'docInfo content').forEach((content, i) => {
+    if (getNumber(content, 'pageCnt') < 1) {
+      ok = false;
+      msg += `${i + 1}안의 쪽수가 잘못 되었습니다.\n`;
+    }
+  });
+
+  return {
+    ok: ok,
+    message: msg,
+  };
+};
 
 /**
  * 기안처리
  *
  * @param {XMLDocument} hox
  */
-export default async (hox) => {
+export const process = async (hox) => {
+  let ok = true;
+  let msg = '';
   //
-  const feEditor1 = document.querySelector('fe-editor#editor1');
+  const feEditor1 = window.main.feEditor1;
+  const feAttachBox = window.main.feAttachBox;
   // 서명선택
   document.querySelector('.modal-container').classList.add('open');
   let feSignDialog = document.querySelector('.modal-container fe-signdialog');
@@ -70,6 +123,23 @@ export default async (hox) => {
       pID.textContent = newParticipantIDs[i];
     });
 
+  // 첨부ID처리: 채번된 apprid와 participantid로 이용
+  const drafterParticipantID = getText(hox, 'approvalFlow participant participantID');
+  getNodes(hox, 'docInfo objectIDList objectID').forEach((objectID, i) => {
+    const newObjectId = getObjectID(newDocId, 100 + i);
+    setText(objectID, 'ID', newObjectId);
+    setText(objectID, 'participantID', drafterParticipantID);
+
+    // content attachInfo attach ID 추가
+    let contentNumber = getNumber(objectID, 'contentNumber', 0);
+    if (contentNumber === 0) {
+      // 공통 첨부라면 1안 content에 붙인다
+      contentNumber = 1;
+    }
+    const contentNode = getNode(hox, 'content', contentNumber - 1);
+    addNode(contentNode, 'attachInfo attach', 'ID')[0].textContent = newObjectId;
+  });
+
   // 웹한글 본문 저장
   const downloadURL = await feEditor1.saveServer(newDocId);
   console.log('downloadURL', downloadURL);
@@ -93,11 +163,23 @@ export default async (hox) => {
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
   formData.append('ref_' + getObjectID(newDocId, 1), bodyTRID); // 본문TRID
-  formData.append('block_' + getObjectID(newDocId, 2), new XMLSerializer().serializeToString(hox));
+  feAttachBox.listFileIDs().forEach((trid, i) => {
+    formData.append('ref_' + getObjectID(newDocId, 100 + i), trid); // 첨부
+  });
+  formData.append('block_' + getObjectID(newDocId, 2), serializeHoxToString(hox)); // hox
 
   const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocDrft.act`, {
     method: 'POST',
     body: formData,
   }).then((res) => res.text());
+  //  {RESULT:OK}
   console.log('ret', ret);
+
+  ok = '{RESULT:OK}' === ret.trim();
+  msg = ret;
+
+  return {
+    ok: ok,
+    message: msg,
+  };
 };

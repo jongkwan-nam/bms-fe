@@ -55,9 +55,13 @@ export function cutByMaxBytes(str, max) {
 }
 
 /**
- *
+ * 빈값인지
  * @param {string} str
  * @returns
+ * - undefined = true
+ * - null = true
+ * - '' = true
+ * - ' ' = true
  */
 export function isBlank(str) {
   return typeof str === 'undefined' || str === null || str.trim() === '';

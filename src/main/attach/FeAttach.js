@@ -200,6 +200,7 @@ export default class FeAttach extends HTMLElement {
    * @param {number} contentNumber
    */
   setUploadedFile(file, contentNumber) {
+    console.log('setUploadedFile', file, contentNumber);
     /*
       orgFileName: 2023.11월 4주 주간식단표 (1).pdf
       sysFileName: /20231130/09/12/10001db1336f2278e0f0c180822a776e01df3.pdf
@@ -225,9 +226,10 @@ export default class FeAttach extends HTMLElement {
    * @param {number} n
    */
   setContentNumber(n) {
+    // 이동 전 content attachInfo attach 에서 제거
+
     this.contentNumber = n;
     if (this.objectID) {
-      setText(this.objectID, 'attachType', n);
       setText(this.objectID, 'contentNumber', n);
     }
   }
@@ -273,9 +275,8 @@ export default class FeAttach extends HTMLElement {
         <openFlag>${this.openFlag}</openFlag>
       </objectID>
     `;
-    console.log(xmlText);
-    this.objectID = createNode(xmlText);
-    this.hox.querySelector('docInfo objectIDList').append(this.objectID);
+    this.objectID = this.hox.querySelector('docInfo objectIDList').appendChild(createNode(xmlText));
+    console.log(this.objectID);
   }
 }
 

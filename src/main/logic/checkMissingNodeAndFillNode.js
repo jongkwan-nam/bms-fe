@@ -32,7 +32,7 @@ export default (hox) => {
       receiptInfo.insertAdjacentElement('afterbegin', recipient);
     }
 
-    // receiptInfo / sendOrgName
+    // receiptInfo / sendOrgName 발신기관명 초기값 설정
     let sendOrgName = receiptInfo.querySelector('sendOrgName');
     sendOrgName.textContent = rInfo.repDept.name;
 

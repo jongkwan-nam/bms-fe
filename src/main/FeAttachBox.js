@@ -15,6 +15,7 @@
 
 import * as FileUtils from '../utils/fileUtils';
 import { HoxEventType, getAttr, getNodes, getNumber } from '../utils/hoxUtils';
+import * as StringUtils from '../utils/stringUtils';
 import './FeAttachBox.scss';
 import FeAttach from './attach/FeAttach';
 
@@ -617,6 +618,16 @@ export default class FeAttachBox extends HTMLElement {
       method: 'POST',
       body: formData,
     });
+  }
+
+  /**
+   * 신규 첨부의 TRID 배열
+   * @returns
+   */
+  listFileIDs() {
+    return Array.from(this.shadowRoot.querySelectorAll('fe-attach'))
+      .filter((feAttach) => StringUtils.isNotBlank(feAttach.fileID))
+      .map((feAttach) => feAttach.fileID);
   }
 }
 

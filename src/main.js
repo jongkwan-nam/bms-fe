@@ -2,7 +2,7 @@ import './main.scss';
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
 import FeEditor from './main/FeEditor';
-import actionDraft from './main/logic/actionDraft';
+import * as actionDraft from './main/logic/actionDraft';
 import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import initiateBodyByHox from './main/logic/initiateBodyByHox';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
@@ -40,6 +40,7 @@ if (rInfo.appType === 'sancgian' && rInfo.cltType === 'draft') {
 }
 
 const trid = rInfo.hoxFileTRID;
+const hoxUrl = '/bms/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=' + trid;
 const docUrl = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
 
 class Main {
@@ -56,7 +57,6 @@ class Main {
 
   /**
    * 이벤트 추가
-   *
    * - 결재올림
    * - 결재정보 popup
    * - 안추가 click
@@ -65,10 +65,24 @@ class Main {
    */
   appendEventListener() {
     /* 결재올림 click */
-    document.getElementById('btnDraft').addEventListener('click', () => {
-      actionDraft(this.hox).then(() => {
-        // 기안 처리 후 할것들
-      });
+    document.getElementById('btnDraft').addEventListener('click', async () => {
+      // 기안전, validation check
+      const validationResult = actionDraft.validate(this.hox);
+      if (!validationResult.ok) {
+        alert(validationResult.message);
+        return;
+      }
+      // 기안 처리
+      console.time('actionDraft.process');
+      const processResult = await actionDraft.process(this.hox);
+      console.timeEnd('actionDraft.process');
+      if (processResult.ok) {
+        // 기안 성공 후처리
+        alert('완료되었습니다.');
+      } else {
+        // 기안 실패 후처리
+        alert('실패하였습니다. code: ' + processResult.message);
+      }
     });
 
     /* 결재정보 팝업 호출 */
@@ -148,7 +162,7 @@ class Main {
     await this.feEditor1.open(docUrl);
 
     // hox 로딩
-    this.hox = await loadHox(trid);
+    this.hox = await loadHox(hoxUrl);
     // hox 설정
     this.feEditor1.set(this.hox);
     // 기안시 할 것들
@@ -167,7 +181,6 @@ class Main {
     // 첨부박스 생성, 초기화
     this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
     this.feAttachBox.set(this.hox);
-    //
   }
 }
 
@@ -175,10 +188,10 @@ class Main {
   console.time('main');
 
   const main = new Main();
-  window.main = main;
-
   main.appendEventListener();
   await main.start();
 
   console.timeEnd('main');
+
+  window.main = main;
 })();

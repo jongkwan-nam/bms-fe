@@ -1,17 +1,19 @@
 import * as ArrayUtils from './arrayUtils';
 import * as StringUtils from './stringUtils';
 
+const domParser = new DOMParser();
+const xmlSerializer = new XMLSerializer();
+
 /**
  * 서버에서 xml을 로딩
- * @param {string} trid
+ * @param {string} url
  * @returns
  */
-export const loadHox = async (trid) => {
-  const res = await fetch('/bms/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=' + trid);
+export const loadHox = async (url) => {
+  const res = await fetch(url);
   const xmlText = await res.text();
 
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+  const xmlDoc = domParser.parseFromString(xmlText, 'application/xml');
   console.debug(xmlDoc);
 
   // hox 정상인지 체크
@@ -23,12 +25,21 @@ export const loadHox = async (trid) => {
 };
 
 /**
+ * hox를 문자열로 변환
+ * @param {XMLDocument} hox
+ * @returns
+ */
+export const serializeHoxToString = (hox) => {
+  return xmlSerializer.serializeToString(hox);
+};
+
+/**
  * text로 xml node를 만든다
  * @param {string} xmlText
  * @returns
  */
 export const createNode = (xmlText) => {
-  return new DOMParser().parseFromString(xmlText, 'text/xml').childNodes[0];
+  return domParser.parseFromString(xmlText, 'application/xml').childNodes[0];
 };
 
 /**
@@ -48,11 +59,17 @@ export const existsNode = (element, selectors) => {
  * @param {string} newNodeNames
  */
 export const addNode = (element, selectors, ...newNodeNames) => {
+  const addedNodes = [];
   element.querySelectorAll(selectors).forEach((element) => {
     newNodeNames.forEach((newNodeName) => {
-      element.appendChild(element.getRootNode().createElement(newNodeName));
+      const node = element.getRootNode().createElement(newNodeName);
+      if (node.hasAttribute('xmlns')) {
+        node.removeAttribute('xmlns');
+      }
+      addedNodes.push(element.appendChild(node));
     });
   });
+  return addedNodes;
 };
 
 /**
@@ -99,11 +116,12 @@ export const getBoolean = (element, selectors) => {
  * element의 값을 number로 반환
  * @param {Element} element
  * @param {string} selectors
+ * @param {number} def 빈값일때 초기값
  * @returns
  */
-export const getNumber = (element, selectors) => {
+export const getNumber = (element, selectors, def) => {
   let text = element.querySelector(selectors)?.textContent;
-  return text ? parseInt(text) : 0;
+  return text ? parseInt(text) : def;
 };
 
 /**
