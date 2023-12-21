@@ -181,8 +181,6 @@ export default class FeHwpCtrl extends HTMLElement {
       oldNames.push(cellName + '{{1}}');
       newNames.push(cellName + '_' + contentNumber);
     });
-    // console.log(oldNames.join(String.fromCharCode(2)));
-    // console.log(newNames.join(String.fromCharCode(2)));
 
     this.renameField(oldNames, newNames);
   }
@@ -213,15 +211,5 @@ export default class FeHwpCtrl extends HTMLElement {
     for (let i = 0; i < oldNames.length; i++) {
       this.hwpCtrl.RenameField(oldNames[i], newNames[i]);
     }
-  }
-
-  /**
-   * 필드값을 비운다
-   *
-   * FIXHWP 빈값을 넣고 싶은데, \x02를 추가해야 한다
-   * @param {string} cellName
-   */
-  putFieldTextEmpty(cellName) {
-    this.hwpCtrl.PutFieldText(cellName, String.fromCharCode(2));
   }
 }

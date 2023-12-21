@@ -110,7 +110,7 @@ export class HoxToBody {
 
       const enforceType = getText(content, 'enforceType');
       if (enforceType === 'enforcetype_not') {
-        [receiveCellValueName, receCaptionCellValueName, reclistCellValueName] = [GWWEBMessage[enforceType], String.fromCharCode(2), String.fromCharCode(2)];
+        [receiveCellValueName, receCaptionCellValueName, reclistCellValueName] = [GWWEBMessage[enforceType], '', ''];
       } else {
         // content receiptInfo recipient rec 갯수로 수신, 수신처캡션, 수신처 설정
         if (getNodes(content, 'receiptInfo recipient rec').length > 1) {
@@ -118,7 +118,7 @@ export class HoxToBody {
           [receiveCellValueName, receCaptionCellValueName, reclistCellValueName] = [GWWEBMessage.cmsg_1080, GWWEBMessage.cmsg_2718, getText(content, 'receiptInfo > displayString')];
         } else {
           // 단일 수신처
-          [receiveCellValueName, receCaptionCellValueName, reclistCellValueName] = [getText(content, 'receiptInfo > displayString'), String.fromCharCode(2), String.fromCharCode(2)];
+          [receiveCellValueName, receCaptionCellValueName, reclistCellValueName] = [getText(content, 'receiptInfo > displayString'), '', ''];
         }
       }
       this.editor.putFieldText(receiveCellName, receiveCellValueName);
@@ -172,21 +172,21 @@ export class HoxToBody {
     });
 
     // assist_signer_caption: 결재선에 협조자(부서/개인)가 있으면 "협조" 표시, 없으면 빈값
-    this.editor.putFieldText('assist_signer_caption', agreeCellIndex > 0 ? GWWEBMessage.assist_signer_caption : String.fromCharCode(2));
+    this.editor.putFieldText('assist_signer_caption', agreeCellIndex > 0 ? GWWEBMessage.assist_signer_caption : '');
     // TODO enforcement_caption: 쓰는건가?
 
     // 남는 서명칸 비우기
     for (signCellIndex++; signCellIndex <= this.editor.cellCount.sign; signCellIndex++) {
       // 남는 서명
-      this.editor.putFieldText(`${Cell.POS}.${signCellIndex}`, String.fromCharCode(2));
-      this.editor.putFieldText(`${Cell.SIGN}.${signCellIndex}`, String.fromCharCode(2));
-      console.debug('putFieldText', `${Cell.SIGN}.${signCellIndex}`, String.fromCharCode(2));
+      this.editor.putFieldText(`${Cell.POS}.${signCellIndex}`, '');
+      this.editor.putFieldText(`${Cell.SIGN}.${signCellIndex}`, '');
+      console.debug('putFieldText', `${Cell.SIGN}.${signCellIndex}`, '');
     }
     for (agreeCellIndex++; agreeCellIndex <= this.editor.cellCount.agreeSign; agreeCellIndex++) {
       // 남는 협조
-      this.editor.putFieldText(`${Cell.AGREE_POS}.${agreeCellIndex}`, String.fromCharCode(2));
-      this.editor.putFieldText(`${Cell.AGREE_SIGN}.${agreeCellIndex}`, String.fromCharCode(2));
-      console.debug('putFieldText', `${Cell.AGREE_SIGN}.${agreeCellIndex}`, String.fromCharCode(2));
+      this.editor.putFieldText(`${Cell.AGREE_POS}.${agreeCellIndex}`, '');
+      this.editor.putFieldText(`${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
+      console.debug('putFieldText', `${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
     }
   }
 

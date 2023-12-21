@@ -1,5 +1,6 @@
 import { getContentCellName } from '../utils/contentUtils';
 import { HoxEventType, dispatchHoxEvent, getNode, getNodes, setText } from '../utils/hoxUtils';
+import * as StringUtils from '../utils/stringUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
 import FeHwpCtrl from './hwp/FeHwpCtrl';
@@ -212,7 +213,11 @@ export default class FeEditor extends FeHwpCtrl {
    * @param {number} underlineType 밑줄. 0: none, 1: bottom, 2: center, 3: top
    */
   putFieldText(name, text, textColor = null, height = null, faceNameHangul = null, underlineType = null) {
-    this.hwpCtrl.PutFieldText(name, text);
+    if (StringUtils.isBlank(text)) {
+      this.hwpCtrl.PutFieldText(name, String.fromCharCode(2));
+    } else {
+      this.hwpCtrl.PutFieldText(name, text);
+    }
 
     if (height !== null || textColor !== null || faceNameHangul !== null || underlineType !== null) {
       this.hwpCtrl.MoveToField(name, true, true, true);
@@ -307,7 +312,7 @@ export default class FeEditor extends FeHwpCtrl {
       case 0: {
         // 결재제목, 본문 내용 삭제
         [Cell.DOC_TITLE, Cell.CBODY].forEach((cellName) => {
-          super.putFieldTextEmpty(cellName + '_' + this.contentCount);
+          this.putFieldText(cellName + '_' + this.contentCount, '');
         });
         break;
       }
@@ -460,35 +465,35 @@ export default class FeEditor extends FeHwpCtrl {
   clearSignCell() {
     // 직위
     for (let i = 0; i < this.cellCount.pos; i++) {
-      super.putFieldTextEmpty(Cell.POS + '.' + (i + 1));
+      this.putFieldText(Cell.POS + '.' + (i + 1), '');
     }
     // 서명
     for (let i = 0; i < this.cellCount.sign; i++) {
-      super.putFieldTextEmpty(Cell.SIGN + '.' + (i + 1));
+      this.putFieldText(Cell.SIGN + '.' + (i + 1), '');
     }
     // 협조직위
     for (let i = 0; i < this.cellCount.agreePos; i++) {
-      super.putFieldTextEmpty(Cell.AGREE_POS + '.' + (i + 1));
+      this.putFieldText(Cell.AGREE_POS + '.' + (i + 1), '');
     }
     // 협조
     for (let i = 0; i < this.cellCount.agreeSign; i++) {
-      super.putFieldTextEmpty(Cell.AGREE_SIGN + '.' + (i + 1));
+      this.putFieldText(Cell.AGREE_SIGN + '.' + (i + 1), '');
     }
     // 예산통제직위: BUDGET_CONTROL_POS
     for (let i = 0; i < this.cellCount.budgetControlPos; i++) {
-      super.putFieldTextEmpty(Cell.BUDGET_CONTROL_POS + '.' + (i + 1));
+      this.putFieldText(Cell.BUDGET_CONTROL_POS + '.' + (i + 1), '');
     }
     // 예산통제: BUDGET_CONTROL_SIGN
     for (let i = 0; i < this.cellCount.budgetControlSign; i++) {
-      super.putFieldTextEmpty(Cell.BUDGET_CONTROL_SIGN + '.' + (i + 1));
+      this.putFieldText(Cell.BUDGET_CONTROL_SIGN + '.' + (i + 1), '');
     }
     // 기획예산직위: BUDGET_PLANNER_POS
     for (let i = 0; i < this.cellCount.budgetPlannerPos; i++) {
-      super.putFieldTextEmpty(Cell.BUDGET_PLANNER_POS + '.' + (i + 1));
+      this.putFieldText(Cell.BUDGET_PLANNER_POS + '.' + (i + 1), '');
     }
     // 기획예산: BUDGET_PLANNER_SIGN
     for (let i = 0; i < this.cellCount.budgetPlannerSign; i++) {
-      super.putFieldTextEmpty(Cell.BUDGET_PLANNER_SIGN + '.' + (i + 1));
+      this.putFieldText(Cell.BUDGET_PLANNER_SIGN + '.' + (i + 1), '');
     }
   }
 

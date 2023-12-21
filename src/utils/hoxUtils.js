@@ -30,6 +30,7 @@ export const loadHox = async (url) => {
  * @returns
  */
 export const serializeHoxToString = (hox) => {
+  // TODO 신규 추가한 node에 xmlns="" 자동 추가되는 현상. .replace(/xmlns=""/gi, '') 로 지우는거보다, 처음부터 안생기게 하는 방법
   return xmlSerializer.serializeToString(hox);
 };
 
@@ -43,6 +44,23 @@ export const createNode = (xmlText) => {
 };
 
 /**
+ * 노드 추가
+ * @param {Element} element
+ * @param {string} selectors
+ * @param {string} newNodeNames
+ * @returns 추가된 node array
+ */
+export const addNode = (element, selectors, ...newNodeNames) => {
+  const addedNodes = [];
+  element.querySelectorAll(selectors).forEach((element) => {
+    newNodeNames.forEach((newNodeName) => {
+      addedNodes.push(element.appendChild(element.getRootNode().createElement(newNodeName)));
+    });
+  });
+  return addedNodes;
+};
+
+/**
  * hox에 해당 노드가 존재하는지
  * @param {Element} element
  * @param {string} selectors
@@ -50,26 +68,6 @@ export const createNode = (xmlText) => {
  */
 export const existsNode = (element, selectors) => {
   return element.querySelectorAll(selectors).length > 0;
-};
-
-/**
- * 노드 추가
- * @param {Element} element
- * @param {string} selectors
- * @param {string} newNodeNames
- */
-export const addNode = (element, selectors, ...newNodeNames) => {
-  const addedNodes = [];
-  element.querySelectorAll(selectors).forEach((element) => {
-    newNodeNames.forEach((newNodeName) => {
-      const node = element.getRootNode().createElement(newNodeName);
-      if (node.hasAttribute('xmlns')) {
-        node.removeAttribute('xmlns');
-      }
-      addedNodes.push(element.appendChild(node));
-    });
-  });
-  return addedNodes;
 };
 
 /**
