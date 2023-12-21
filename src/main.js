@@ -39,9 +39,9 @@ if (rInfo.appType === 'sancgian' && rInfo.cltType === 'draft') {
   // 발송처리
 }
 
-const trid = rInfo.hoxFileTRID;
-const hoxUrl = '/bms/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=' + trid;
-const docUrl = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
+const hoxTRID = rInfo.hoxFileTRID;
+const hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
+const docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
 
 class Main {
   hox = null;
@@ -112,10 +112,6 @@ class Main {
     });
   }
 
-  hoxToText() {
-    return new XMLSerializer().serializeToString(this.hox);
-  }
-
   /**
    * 결재정보에서 수정된 hox 수신
    *
@@ -159,10 +155,10 @@ class Main {
     // 리본메뉴 보이기
     this.feEditor1.foldRibbon(false);
     // 문서 열기
-    await this.feEditor1.open(docUrl);
+    await this.feEditor1.open(docURL);
 
     // hox 로딩
-    this.hox = await loadHox(hoxUrl);
+    this.hox = await loadHox(hoxURL);
     // hox 설정
     this.feEditor1.set(this.hox);
     // 기안시 할 것들

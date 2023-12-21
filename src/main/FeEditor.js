@@ -10,6 +10,11 @@ const TIME_LABEL_OPEN = 'Editor-open';
 
 /**
  * 웹한글 에디터
+ *
+ * - 에디터를 컨트롤하기 위한 기능만 정의
+ * - 결재 로직은 포함시키지 않는다
+ * - 동일 인터페이스 차원에서 외부에서 호출되는 함수만 public, 그외 함수는 private. [Polaris, HTML]
+ * - 콜백구조 API는 FeHwpCtrl에 async 구조로 변경하여 작성
  */
 export default class FeEditor extends FeHwpCtrl {
   active = false;
@@ -152,38 +157,37 @@ export default class FeEditor extends FeHwpCtrl {
    */
   async open(docUrl) {
     console.time(TIME_LABEL_OPEN);
-    return new Promise((resolve, reject) => {
-      //
-      this.hwpCtrl.Open(docUrl, '', 'imagedownsize', (e) => {
-        console.timeEnd(TIME_LABEL_OPEN);
-        console.log('hwpCtrl.Open callback', e);
-        if (e.result) {
-          // 문서 열기 완료.
-          // 필드 정보 구하기
-          this.fieldList = [];
-          this.fieldList.push(...this.hwpCtrl.GetFieldList(0, 1).split(String.fromCharCode(2)));
-          this.fieldList.push(...this.hwpCtrl.GetFieldList(0, 2).split(String.fromCharCode(2)));
-          console.log('fieldList', this.fieldList);
+    await super.openDocument(docUrl, '', 'imagedownsize');
+    console.timeEnd(TIME_LABEL_OPEN);
 
-          // 셀(직위, 서명, 협조 등) 카운트 구하기
-          this.cellCount = {
-            pos: this.fieldList.filter((field) => field.startsWith(Cell.POS + '.')).length,
-            sign: this.fieldList.filter((field) => field.startsWith(Cell.SIGN + '.')).length,
-            agreePos: this.fieldList.filter((field) => field.startsWith(Cell.AGREE_POS + '.')).length,
-            agreeSign: this.fieldList.filter((field) => field.startsWith(Cell.AGREE_SIGN + '.')).length,
-            budgetControlPos: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_CONTROL_POS + '.')).length,
-            budgetControlSign: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_CONTROL_SIGN + '.')).length,
-            budgetPlannerPos: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_PLANNER_POS + '.')).length,
-            budgetPlannerSign: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_PLANNER_SIGN + '.')).length,
-          };
-          console.log('cellCount', this.cellCount);
+    this.#resolveDocInfo();
+  }
 
-          resolve();
-        } else {
-          reject(e.errorMessage);
-        }
-      });
-    });
+  /**
+   * 문서에서 필요한 정보를 구한다.
+   *
+   * - fieldList: 전체 필드명 목록
+   * - cellCount: 서명 관련 셀 갯수. 직위,서명,협조 등
+   */
+  #resolveDocInfo() {
+    // 필드 정보 구하기
+    this.fieldList = [];
+    this.fieldList.push(...this.hwpCtrl.GetFieldList(0, 1).split(String.fromCharCode(2)));
+    this.fieldList.push(...this.hwpCtrl.GetFieldList(0, 2).split(String.fromCharCode(2)));
+    console.log('fieldList', this.fieldList);
+
+    // 셀(직위, 서명, 협조 등) 카운트 구하기
+    this.cellCount = {
+      pos: this.fieldList.filter((field) => field.startsWith(Cell.POS + '.')).length,
+      sign: this.fieldList.filter((field) => field.startsWith(Cell.SIGN + '.')).length,
+      agreePos: this.fieldList.filter((field) => field.startsWith(Cell.AGREE_POS + '.')).length,
+      agreeSign: this.fieldList.filter((field) => field.startsWith(Cell.AGREE_SIGN + '.')).length,
+      budgetControlPos: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_CONTROL_POS + '.')).length,
+      budgetControlSign: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_CONTROL_SIGN + '.')).length,
+      budgetPlannerPos: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_PLANNER_POS + '.')).length,
+      budgetPlannerSign: this.fieldList.filter((field) => field.startsWith(Cell.BUDGET_PLANNER_SIGN + '.')).length,
+    };
+    console.log('cellCount', this.cellCount);
   }
 
   /**

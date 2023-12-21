@@ -2,12 +2,18 @@ import { getContentCellName } from '../../utils/contentUtils';
 import { getNodes } from '../../utils/hoxUtils';
 import Cell from '../CellNames';
 
+/**
+ * 웹한글 API wrapper class
+ *
+ * - callback 구조 api를 async/await로 변경
+ * - 복수의 api를 사용하는 단일 기능 wrapping
+ */
 export default class FeHwpCtrl extends HTMLElement {
+  /** 안추가시 넘버링(_n)이 필요한 필드들 */
   separatedContentFieldNames = ['결재제목', '본문', '수신', '수신처', '수신처캡션', '발신기관명', '발신명의', '각안발신명의', '각안수신처', '경유'];
 
   constructor() {
     super();
-    console.debug('FeHwpCtrl init');
   }
 
   /**
@@ -55,6 +61,26 @@ export default class FeHwpCtrl extends HTMLElement {
     let vo = vp.Item('OptionFlag');
     vp.SetItem('OptionFlag', force ? vo + 0x0002 : vo - 0x0002);
     this.hwpCtrl.ViewProperties = vp;
+  }
+
+  /**
+   * 문서 파일을 연다
+   * @param {string | Blob} path 서버URL, blob
+   * @param {string} format 문서형식. 생략하면 자동 디텍트. HWP, HTML, TEXT, HWPML2X, MSWORD, PUBDOCBODY
+   * @param {string} arg 세부옵션. format에 따라 형식이 다르다. syntex) key:value;key:value;...
+   * @returns - ex) {fileName: '', orgName: '', result: true., size: 50688}
+   */
+  async openDocument(path, format, arg) {
+    return new Promise((resolve, reject) => {
+      this.hwpCtrl.Open(path, format, arg, (ret) => {
+        console.debug('hwpCtrl.Open', ret);
+        if (ret.result) {
+          resolve(ret);
+        } else {
+          reject(ret);
+        }
+      });
+    });
   }
 
   /**
