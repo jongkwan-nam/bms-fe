@@ -9,41 +9,50 @@ import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import SVG from './svg/SVG';
 import { loadHox } from './utils/hoxUtils';
+import { getObjectID } from './utils/idUtils';
+
+import ButtonController from './main/button/ButtonController';
+
+import { FeMode, getFeMode } from './main/FeMode';
 
 window.onerror = (e) => {
   console.error(e);
   alert(e.message);
 };
 
-console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
-/*
- *            rInfo.appType   rInfo.cltType   rInfo.applID
- * 기안       sancgian        draft
- * 결재       sanckyul        kyul
- * 보기       sancview        view
- * 접수       sancgian        accept
- * 발송의뢰   ctrlmana        request
- * 발송처리   ctrlmana        control
- */
-if (rInfo.appType === 'sancgian' && rInfo.cltType === 'draft') {
-  // 기안
-} else if (rInfo.appType === 'sancgian' && rInfo.cltType === 'accept') {
-  // 접수
-} else if (rInfo.appType === 'sanckyul' && rInfo.cltType === 'kyul') {
-  // 결재
-} else if (rInfo.appType === 'sancview' && rInfo.cltType === 'view') {
-  // 보기
-} else if (rInfo.appType === 'ctrlmana' && rInfo.cltType === 'request') {
-  // 발송의뢰
-} else if (rInfo.appType === 'ctrlmana' && rInfo.cltType === 'control') {
-  // 발송처리
-}
-
 const hoxTRID = rInfo.hoxFileTRID;
 const hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
-const docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
 
-class Main {
+let docURL = null;
+let feMode = getFeMode();
+switch (feMode) {
+  case FeMode.DRAFT: {
+    document.title = 'FE 기안기';
+    docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
+    break;
+  }
+  case FeMode.KYUL: {
+    document.title = 'FE 결재기';
+    docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
+    break;
+  }
+  case FeMode.VIEW: {
+    break;
+  }
+  case FeMode.ACCEPT: {
+    break;
+  }
+  case FeMode.REQUEST: {
+    break;
+  }
+  case FeMode.CONTROL: {
+    break;
+  }
+  default:
+    throw new Error('undefiend FeMode: ' + feMode);
+}
+
+class FeMain {
   hox = null;
   feEditor1 = null;
   feEditor2 = null;
@@ -127,6 +136,7 @@ class Main {
       return validationResult;
     }
 
+    // TODO this.hox가 재할당되므로, 이전에 this.hox를 받은 class들은 hox 갱신이 되지 않는다!!!
     this.hox = receivedHox;
     // 결재정보에서 설정한 내용을 본문에 반영
     reflectHoxInBody(receivedHox, this.feEditor1);
@@ -177,17 +187,21 @@ class Main {
     // 첨부박스 생성, 초기화
     this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
     this.feAttachBox.set(this.hox);
+
+    //
+    const buttonController = new ButtonController('.menu-wrap');
+    buttonController.start();
   }
 }
 
 (async () => {
   console.time('main');
 
-  const main = new Main();
-  main.appendEventListener();
-  await main.start();
+  const feMain = new FeMain();
+  feMain.appendEventListener();
+  await feMain.start();
 
   console.timeEnd('main');
 
-  window.main = main;
+  window.feMain = feMain;
 })();

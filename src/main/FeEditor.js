@@ -87,7 +87,7 @@ export default class FeEditor extends FeHwpCtrl {
    * - 제목 변경 감지 -> hoxEvent 발행
    * @param {XMLDocument} hox
    */
-  set(hox) {
+  start(hox) {
     this.hox = hox;
 
     this.hox.addEventListener(HoxEventType.CONTENT, (e) => {

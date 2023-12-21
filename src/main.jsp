@@ -23,6 +23,7 @@
     <button type="button" id="btnApprovalBox" class="btn">결재정보</button>
     <button type="button" id="btnContentAdd" class="btn">안 추가</button>
     <button type="button" id="btnConfig" title="환경설정"></button>
+    <!-- <button type="button" is="draft-button" class="btn">draft-button</button> -->
   </header>
   <article class="editor-wrap">
     <!-- <fe-editor id="editor1"></fe-editor> -->
