@@ -1,5 +1,7 @@
 import { FeMode, getFeMode } from '../FeMode';
+import ApprovalBoxButton from './ApprovalBoxButton';
 import DraftButton from './DraftButton';
+import MultiContentButton from './MultiContentButton';
 
 /**
  * 상황에 맞쳐 버튼의 노출을 관리한다.
@@ -17,9 +19,11 @@ export default class ButtonController {
         this.#append(new DraftButton());
         // 읽어오기
         // 결재정보
+        this.#append(new ApprovalBoxButton());
         // 요약
         // 임시저장
         // 안추가
+        this.#append(new MultiContentButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
         // 인쇄
         break;
@@ -29,7 +33,8 @@ export default class ButtonController {
         // 반려
         // 중단
         // 보류
-        // 결재경로
+        // 결재정보
+        this.#append(new ApprovalBoxButton());
         // 메일쓰기
         // PC저장, PC저장(배포용), PC저장(hwpx)
         // 인쇄
@@ -40,7 +45,8 @@ export default class ButtonController {
         // 메일쓰기
         // 게시하기
         // 회수
-        // 결재경로
+        // 결재정보
+        this.#append(new ApprovalBoxButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
         // 인쇄
         break;
@@ -49,7 +55,8 @@ export default class ButtonController {
         // 접수
         // 지정
         // 배부
-        // 결재경로
+        // 결재정보
+        this.#append(new ApprovalBoxButton());
         // 요약
         // PC저장
         // 인쇄
@@ -58,7 +65,8 @@ export default class ButtonController {
       case FeMode.REQUEST: {
         // 발송의뢰 <-> none
         // 기안문   <-> 시행문
-        // 결재경로
+        // 결재정보
+        this.#append(new ApprovalBoxButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
         // 인쇄
         break;
@@ -67,7 +75,8 @@ export default class ButtonController {
         // 관인
         // 발송처리
         // 반송
-        // 결재경로
+        // 결재정보
+        this.#append(new ApprovalBoxButton());
         // PC저장
         // 인쇄
         break;

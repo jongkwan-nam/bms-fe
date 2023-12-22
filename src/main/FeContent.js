@@ -62,7 +62,7 @@ export default class FeContent extends HTMLElement {
         if (li === selectedLi) {
           li.classList.add('selected');
           this.currentContentNumber = i + 1;
-          dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
+          dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
         } else {
           li.classList.remove('selected');
         }
@@ -82,7 +82,7 @@ export default class FeContent extends HTMLElement {
           // TODO 위로 이동
           let from = selectedLi.querySelector('input').value;
           let to = prevLi.querySelector('input').value;
-          dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
+          dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
         }
       }
     });
@@ -97,7 +97,7 @@ export default class FeContent extends HTMLElement {
           // TODO 아래로 이동
           let from = selectedLi.querySelector('input').value;
           let to = nextLi.querySelector('input').value;
-          dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
+          dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
         }
       }
     });
@@ -110,6 +110,20 @@ export default class FeContent extends HTMLElement {
 
     moveableElement(this, this.shadowRoot.querySelector('div.header > label'));
     resizableElement(this, this.shadowRoot.querySelector('.resizable'));
+
+    this.#appendLastContentItem();
+
+    feMain.hox.addEventListener(HoxEventType.TITLE, (e) => {
+      if (e.detail.type === 'change') {
+        // 변경된 제목 반영
+        this.shadowRoot.querySelectorAll('.body ol li').forEach((li, i) => {
+          //
+          const nodeContent = getNode(feMain.hox, 'docInfo content', i);
+          const title = getText(nodeContent, 'title');
+          li.querySelector('.content-title').innerHTML = title;
+        });
+      }
+    });
   }
 
   /**
@@ -117,22 +131,22 @@ export default class FeContent extends HTMLElement {
    * @param {XMLDocument} hox
    */
   set(hox) {
-    this.hox = hox;
+    feMain.hox = hox;
 
     // set 호출 -> 일괄기안이 처음 설정 -> 첫 content에 title, enforceMethod, pageCnt 추가
-    const titleNode = createNode(`<title><![CDATA[${getText(this.hox, 'docInfo title')}]]></title>`);
+    const titleNode = createNode(`<title><![CDATA[${getText(feMain.hox, 'docInfo title')}]]></title>`);
     const enforceMethodNode = createNode('<enforceMethod>enforcemethod_direct</enforceMethod>');
     const pageCntNode = createNode('<pageCnt>1</pageCnt>');
-    getNode(this.hox, 'docInfo content').append(titleNode, enforceMethodNode, pageCntNode);
+    getNode(feMain.hox, 'docInfo content').append(titleNode, enforceMethodNode, pageCntNode);
 
     this.#appendLastContentItem();
 
-    this.hox.addEventListener(HoxEventType.TITLE, (e) => {
+    feMain.hox.addEventListener(HoxEventType.TITLE, (e) => {
       if (e.detail.type === 'change') {
         // 변경된 제목 반영
         this.shadowRoot.querySelectorAll('.body ol li').forEach((li, i) => {
           //
-          const nodeContent = getNode(this.hox, 'docInfo content', i);
+          const nodeContent = getNode(feMain.hox, 'docInfo content', i);
           const title = getText(nodeContent, 'title');
           li.querySelector('.content-title').innerHTML = title;
         });
@@ -144,8 +158,8 @@ export default class FeContent extends HTMLElement {
    * 안추가
    */
   addContent() {
-    const title = getText(this.hox, 'docInfo title');
-    const enforceType = getText(this.hox, 'docInfo enforceType');
+    const title = getText(feMain.hox, 'docInfo title');
+    const enforceType = getText(feMain.hox, 'docInfo enforceType');
     //
     const xml = `
       <content>
@@ -168,15 +182,15 @@ export default class FeContent extends HTMLElement {
       </content>
     `;
     const contentNode = createNode(xml);
-    const docInfoNode = this.hox.querySelector('docInfo');
-    const contentNodeList = this.hox.querySelectorAll('docInfo content');
+    const docInfoNode = feMain.hox.querySelector('docInfo');
+    const contentNodeList = feMain.hox.querySelectorAll('docInfo content');
     const contentLength = contentNodeList.length;
     const lastContentNode = contentNodeList[contentLength - 1];
     docInfoNode.insertBefore(contentNode, lastContentNode.nextSibling);
     //
     this.#appendLastContentItem();
     // hox 이벤트 전파
-    dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'add', contentNode);
+    dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'add', contentNode);
     // 추가된 안(마지막 안) 선택
     this.shadowRoot.querySelector('.body ol li:last-child').click();
   }
@@ -185,17 +199,17 @@ export default class FeContent extends HTMLElement {
    * hox content 내용으로 안바로가기에 li 추가
    */
   #appendLastContentItem() {
-    const contentNodeList = this.hox.querySelectorAll('docInfo content');
-    const contentNumber = contentNodeList.length;
-    const lastContentNode = contentNodeList[contentNumber - 1];
+    const contentNodeList = feMain.hox.querySelectorAll('docInfo content');
+    const contentLength = contentNodeList.length;
+    const lastContentNode = contentNodeList[contentLength - 1];
     const enforceType = getText(lastContentNode, 'enforceType');
     const title = getText(lastContentNode, 'title');
 
     const ol = this.shadowRoot.querySelector('.body ol');
     const li = ol.appendChild(document.createElement('li'));
     li.innerHTML = `
-      <input type="checkbox" name="contentChecker" value="${contentNumber}" ${contentNumber === 1 ? 'disabled' : ''}>
-      <label class="content-number">${contentNumber} ${GWWEBMessage.cmsg_765}</label>
+      <input type="checkbox" name="contentChecker" value="${contentLength}" ${contentLength === 1 ? 'disabled' : ''}>
+      <label class="content-number">${contentLength} ${GWWEBMessage.cmsg_765}</label>
       <label class="content-enforcetype">[${GWWEBMessage[enforceType]}]</label>
       <label class="content-title">${title}</label>
     `;
@@ -209,7 +223,7 @@ export default class FeContent extends HTMLElement {
       return;
     }
 
-    const contentNodeList = this.hox.querySelectorAll('docInfo content');
+    const contentNodeList = feMain.hox.querySelectorAll('docInfo content');
     const checkedContentNumberArray = [];
     checkedContentCheckerList.forEach((contentChecker) => {
       console.log('checked ContentNumber', contentChecker.value);
@@ -228,7 +242,7 @@ export default class FeContent extends HTMLElement {
     });
 
     // hox 이벤트 전파
-    dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.CONTENT, 'delete', checkedContentNumberArray);
+    dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'delete', checkedContentNumberArray);
 
     // 1개 안만 있으면, 스스로 숨기기
     if (this.shadowRoot.querySelectorAll('.body ol li').length === 1) {

@@ -82,15 +82,11 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
-   * hox 설정
    * - hox 이벤트 리스너 추가
    * - 제목 변경 감지 -> hoxEvent 발행
-   * @param {XMLDocument} hox
    */
-  start(hox) {
-    this.hox = hox;
-
-    this.hox.addEventListener(HoxEventType.CONTENT, (e) => {
+  start() {
+    feMain.hox.addEventListener(HoxEventType.CONTENT, (e) => {
       console.info('hoxEvent listen', e.type, e.detail);
       switch (e.detail.type) {
         case 'add': {
@@ -133,18 +129,18 @@ export default class FeEditor extends FeHwpCtrl {
           const titleCellText = this.hwpCtrl.GetFieldText(titleCellName);
 
           // hox 제목
-          let contentTitleNode = getNode(this.hox, 'docInfo content', i).querySelector('title');
+          let contentTitleNode = getNode(feMain.hox, 'docInfo content', i).querySelector('title');
           if (titleCellText !== contentTitleNode.textContent) {
             setText(contentTitleNode, null, titleCellText, true);
             changed = true;
 
             if (i === 0) {
-              setText(this.hox, 'docInfo title', titleCellText, true);
+              setText(feMain.hox, 'docInfo title', titleCellText, true);
             }
           }
         }
         if (changed) {
-          dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.TITLE, 'change', null);
+          dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.TITLE, 'change', null);
         }
       }
     });
@@ -283,7 +279,7 @@ export default class FeEditor extends FeHwpCtrl {
 
     this.setEditMode(1);
 
-    this.contentCount = getNodes(this.hox, 'docInfo content').length;
+    this.contentCount = getNodes(feMain.hox, 'docInfo content').length;
     console.log('addContent ', this.contentCount);
     //
     super.toggleViewOptionCtrkMark(true);
@@ -386,7 +382,7 @@ export default class FeEditor extends FeHwpCtrl {
         super.renameContentCellName(n, i + 1);
       }
     });
-    this.contentCount = getNodes(this.hox, 'docInfo content').length; // 뻬고 남은 안 번호
+    this.contentCount = getNodes(feMain.hox, 'docInfo content').length; // 뻬고 남은 안 번호
 
     super.toggleViewOptionCtrkMark(false);
 

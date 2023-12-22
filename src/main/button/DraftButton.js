@@ -13,16 +13,15 @@ export default class DraftButton extends HTMLButtonElement {
   }
 
   async #doAction() {
-    const hox = window.feMain.hox;
     // 기안전, validation check
-    const validationResult = actionDraft.validate(hox);
+    const validationResult = actionDraft.validate(feMain.hox);
     if (!validationResult.ok) {
       alert(validationResult.message);
       return;
     }
     // 기안 처리
     console.time('actionDraft.process');
-    const processResult = await actionDraft.process(hox);
+    const processResult = await actionDraft.process(feMain.hox);
     console.timeEnd('actionDraft.process');
     if (processResult.ok) {
       // 기안 성공 후처리

@@ -117,6 +117,41 @@ export default class FeAttachBox extends HTMLElement {
     this.#addAttachSelectEventListener();
     this.#addContentSelectEventListener();
     this.#addFileUpDownEventListener();
+
+    //
+    // hox: docInfo objectIDList objectID ID
+    // hox: docInfo content attachInfo attach ID
+
+    // hox 이벤트 수신
+    feMain.hox.addEventListener(HoxEventType.CONTENT, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      switch (e.detail.type) {
+        case 'add': {
+          this.addContent();
+          break;
+        }
+        case 'delete': {
+          const deletedContentNumbers = e.detail.value;
+          this.deleteContent(...deletedContentNumbers);
+          break;
+        }
+        case 'select': {
+          const selectedContentNumber = e.detail.value;
+          this.selectContent(selectedContentNumber);
+          break;
+        }
+        case 'move': {
+          let { from, to } = e.detail.value;
+          this.moveContent(from, to);
+          break;
+        }
+        default:
+          throw new Error('undefinded detatil.type: ' + e.detail.type);
+      }
+    });
+
+    this.addContent();
+    this.renderFileListByHox();
   }
 
   /**
@@ -269,48 +304,6 @@ export default class FeAttachBox extends HTMLElement {
         }
       });
     });
-  }
-
-  /**
-   *
-   * @param {XMLDocument} hox
-   */
-  set(hox) {
-    this.hox = hox;
-
-    // hox: docInfo objectIDList objectID ID
-    // hox: docInfo content attachInfo attach ID
-
-    // hox 이벤트 수신
-    this.hox.addEventListener(HoxEventType.CONTENT, (e) => {
-      console.info('hoxEvent listen', e.type, e.detail);
-      switch (e.detail.type) {
-        case 'add': {
-          this.addContent();
-          break;
-        }
-        case 'delete': {
-          const deletedContentNumbers = e.detail.value;
-          this.deleteContent(...deletedContentNumbers);
-          break;
-        }
-        case 'select': {
-          const selectedContentNumber = e.detail.value;
-          this.selectContent(selectedContentNumber);
-          break;
-        }
-        case 'move': {
-          let { from, to } = e.detail.value;
-          this.moveContent(from, to);
-          break;
-        }
-        default:
-          throw new Error('undefinded detatil.type: ' + e.detail.type);
-      }
-    });
-
-    this.addContent();
-    this.renderFileListByHox();
   }
 
   addContent() {
@@ -524,13 +517,13 @@ export default class FeAttachBox extends HTMLElement {
    */
   renderFileListByHox() {
     //
-    let contentLength = getNodes(this.hox, 'docInfo content').length;
+    let contentLength = getNodes(feMain.hox, 'docInfo content').length;
     for (let i = 1; i < contentLength; i++) {
       this.addContent();
     }
     //
 
-    getNodes(this.hox, 'docInfo objectIDList objectID').forEach((objectID) => {
+    getNodes(feMain.hox, 'docInfo objectIDList objectID').forEach((objectID) => {
       console.log('objectID', objectID);
       //
       if (getAttr(objectID, null, 'type') === 'objectidtype_attach') {
@@ -542,7 +535,6 @@ export default class FeAttachBox extends HTMLElement {
 
       const li = ol.appendChild(document.createElement('li'));
       const feAttach = li.appendChild(new FeAttach());
-      feAttach.set(this.hox);
       feAttach.setObjectID(objectID);
     });
 
@@ -565,7 +557,6 @@ export default class FeAttachBox extends HTMLElement {
       const li = ol.appendChild(document.createElement('li'));
       li.classList.add('uploading');
       const feAttach = li.appendChild(new FeAttach());
-      feAttach.set(this.hox);
       feAttach.setFile(file, this.contentSelector.value);
     });
 
@@ -587,7 +578,6 @@ export default class FeAttachBox extends HTMLElement {
       const ol = this.attachList.querySelector(`#content_${this.contentSelector.value} ol`);
       const li = ol.appendChild(document.createElement('li'));
       const feAttach = li.appendChild(new FeAttach());
-      feAttach.set(this.hox);
       feAttach.setUploadedFile(file, this.contentSelector.value);
     });
 

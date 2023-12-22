@@ -63,8 +63,8 @@ export const process = async (hox) => {
   let ok = true;
   let msg = '';
   //
-  const feEditor1 = window.main.feEditor1;
-  const feAttachBox = window.main.feAttachBox;
+  const feEditor1 = feMain.feEditor1;
+  const feAttachBox = feMain.feAttachBox;
   // 서명선택
   document.querySelector('.modal-container').classList.add('open');
   let feSignDialog = document.querySelector('.modal-container fe-signdialog');

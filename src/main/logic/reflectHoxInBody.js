@@ -17,11 +17,18 @@ import { HoxToBody } from './HoxToBody';
 export default (hox, editor) => {
   const hoxToBody = new HoxToBody(hox, editor);
 
-  hoxToBody.setTitle(); // 결재제목
-  hoxToBody.setSenderName(); // 발신명의
-  hoxToBody.setReceive(); // 수신
-  hoxToBody.setDocNumber(); // 문서번호
-  hoxToBody.setPublication(); // 공개여부
-  hoxToBody.setApprovalFlow(); // 결재선
-  hoxToBody.setEnforceDate(); // 시행일자
+  const result = { ok: true, message: '' };
+  try {
+    hoxToBody.setTitle(); // 결재제목
+    hoxToBody.setSenderName(); // 발신명의
+    hoxToBody.setReceive(); // 수신
+    hoxToBody.setDocNumber(); // 문서번호
+    hoxToBody.setPublication(); // 공개여부
+    hoxToBody.setApprovalFlow(); // 결재선
+    hoxToBody.setEnforceDate(); // 시행일자
+  } catch (error) {
+    result.ok = false;
+    result.message = error.toString();
+  }
+  return result;
 };

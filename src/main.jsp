@@ -12,35 +12,16 @@
   GWWEBMessage['pubtype_open'] = GWWEBMessage.publicflag_public;
   GWWEBMessage['pubtype_partial'] = GWWEBMessage.publicflag_partial;
   GWWEBMessage['pubtype_not'] = GWWEBMessage.publicflag_private;
+  GWWEBMessage['font_size'] = '글자 크기';
+  GWWEBMessage['color_theme'] = '색상 테마';
 
   doccfg.docViewRatio = 2;
   doccfg.baseBodyContent = 1;
   doccfg.usePreviewSignerName = true;
 </script>
 <main>
-  <header class="menu-wrap">
-    <button type="button" id="btnDraft" class="btn btn-primary">결재올림</button>
-    <button type="button" id="btnApprovalBox" class="btn">결재정보</button>
-    <button type="button" id="btnContentAdd" class="btn">안 추가</button>
-    <button type="button" id="btnConfig" title="환경설정"></button>
-    <!-- <button type="button" is="draft-button" class="btn">draft-button</button> -->
-  </header>
-  <article class="editor-wrap">
-    <!-- <fe-editor id="editor1"></fe-editor> -->
-    <!-- <fe-editor id="editor2" style="display: none"></fe-editor> -->
-  </article>
-  <article class="attach-wrap">
-    <!-- <fe-attachbox></fe-attachbox> -->
-  </article>
+  <header class="menu-wrap"></header>
+  <article class="editor-wrap"></article>
+  <article class="attach-wrap"></article>
 </main>
-<aside id="approvalBox" class="modal-container">
-  <!-- <div class="modal-content">
-    <div class="modal-header"></div>
-    <div class="modal-body"></div>
-    <div class="modal-footer"></div>
-  </div> -->
-</aside>
-<div id="config">
-  <label for="fontSize">글자크기</label>
-  <input type="range" id="fontSize" min="10" max="20" step="1" value="14" />
-</div>
+<aside id="approvalBox" class="modal-container"></aside>

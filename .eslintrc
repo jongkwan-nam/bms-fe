@@ -28,10 +28,11 @@
     "es6": true
   },
   "globals": {
+    "feMain": true,
     "rInfo": true,
-    "GWWEBMessage": true,
     "szKEY": true,
     "doccfg": true,
+    "GWWEBMessage": true,
     "PROJECT_CODE": true
   },
   "rules": {

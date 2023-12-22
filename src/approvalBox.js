@@ -1,14 +1,14 @@
 import './approvalBox.scss';
-
 import './approvalBox/FeDocInfo';
 import './approvalBox/FeFlow';
 import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
+import StyleController from './config/styleController';
 import { HoxEventType, dispatchHoxEvent, getNodes } from './utils/hoxUtils';
 
 import * as TabUI from './utils/TabUI';
 
-let hox = opener.main.hox.cloneNode(true);
+let hox = opener.feMain.hox.cloneNode(true);
 
 const feDocInfo = document.querySelector('fe-docinfo');
 const feFlow = document.querySelector('fe-flow');
@@ -100,7 +100,7 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
   // 발송종류가 내부라면, hox 내용 지우기
 
   // opener에 hox 전달
-  let ret = opener.main.receiveHox(hox);
+  let ret = opener.feMain.receiveHox(hox);
   if (ret.ok) {
     // 닫기
     close();
@@ -120,10 +120,6 @@ function close() {
   //
   window.close();
 }
-
-window.hox = () => {
-  return hox;
-};
 
 /**
  * 안선택 select 초기화
@@ -152,7 +148,7 @@ function initContentSelector() {
   });
 
   // main의 안 번호로 selected 처리
-  const mainContentNumber = opener.main.getCurrentContentNumber();
+  const mainContentNumber = opener.feMain.getCurrentContentNumber();
   contentSelector.querySelectorAll('option')[mainContentNumber - 1].selected = true;
   contentSelector.dispatchEvent(new Event('change'));
 }
@@ -165,3 +161,14 @@ function getContentCount() {
 }
 
 initContentSelector();
+
+const styleController = new StyleController();
+styleController.start();
+
+window.hox = () => {
+  return hox;
+};
+
+window.onerror = (error) => {
+  alert(error.toString());
+};

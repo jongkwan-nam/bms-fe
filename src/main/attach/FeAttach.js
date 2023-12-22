@@ -91,7 +91,7 @@ export default class FeAttach extends HTMLElement {
       } else {
         this.objectID.remove();
       }
-      dispatchHoxEvent(this.hox, 'docInfo objectIDList', HoxEventType.OBJECTIDLIST, 'delete', this.id);
+      dispatchHoxEvent(feMain.hox, 'docInfo objectIDList', HoxEventType.OBJECTIDLIST, 'delete', this.id);
 
       this.remove();
       this.parentElement?.remove(); // TODO 삭제 전파 필요!!!
@@ -122,17 +122,9 @@ export default class FeAttach extends HTMLElement {
     let n = this.parentElement.closest('.content').dataset.number;
     console.log('FeAttach connectedCallback', n);
     this.setContentNumber(n);
-  }
 
-  /**
-   *
-   * @param {XMLDocument} hox
-   */
-  set(hox) {
-    this.hox = hox;
-
-    // 공개여부 변경에 따라  let publicationType = getAttr(this.hox, 'docInfo publication', 'type');
-    this.hox.addEventListener(HoxEventType.PUBLICATIONTYPE, (e) => {
+    // 공개여부 변경에 따라  let publicationType = getAttr(feMain.hox, 'docInfo publication', 'type');
+    feMain.hox.addEventListener(HoxEventType.PUBLICATIONTYPE, (e) => {
       console.info('hoxEvent listen', e.type, e.detail);
       let publicationType = e.detail.value;
       // 공개여부의 disabled 설정과, 체크 변경
@@ -246,7 +238,7 @@ export default class FeAttach extends HTMLElement {
     this.shadowRoot.querySelector('.file-name a').innerHTML = this.name;
     this.shadowRoot.querySelector('.file-size').innerHTML = FileUtils.formatSize(this.size);
 
-    let publicationType = getAttr(this.hox, 'docInfo publication', 'type');
+    let publicationType = getAttr(feMain.hox, 'docInfo publication', 'type');
     let [disabled0, disabled1, checked0, checked1] = getOpenFlagCondition(publicationType);
 
     this.shadowRoot.querySelector('#openFlag_0').toggleAttribute('disabled', disabled0);
@@ -275,7 +267,7 @@ export default class FeAttach extends HTMLElement {
         <openFlag>${this.openFlag}</openFlag>
       </objectID>
     `;
-    this.objectID = this.hox.querySelector('docInfo objectIDList').appendChild(createNode(xmlText));
+    this.objectID = feMain.hox.querySelector('docInfo objectIDList').appendChild(createNode(xmlText));
     console.log(this.objectID);
   }
 }

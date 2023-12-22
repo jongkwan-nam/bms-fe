@@ -1,0 +1,62 @@
+fe-config {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.fe-config {
+  padding: 1rem;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+
+  &.open {
+    border-radius: 4px;
+    box-shadow: var(--box-shadow);
+
+    .config-header {
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0.5rem;
+
+      .config-title {
+        display: inline;
+      }
+    }
+
+    .config-body {
+      display: grid;
+      grid-template-columns: 7rem 12rem;
+      align-items: stretch;
+    }
+  }
+
+  .config-header {
+    display: flex;
+
+    .config-title {
+      display: none;
+      font-weight: 700;
+    }
+    #btnConfig {
+      margin-left: auto;
+    }
+  }
+
+  .config-body {
+    display: none;
+
+    & > label,
+    & > div {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    #fontSize {
+      text-align: end;
+    }
+    .theme-wrap {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
