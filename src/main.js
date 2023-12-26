@@ -20,7 +20,7 @@ import { loadHox } from './utils/hoxUtils';
 import { getObjectID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
-popupSizeRestorer('feMain.window.size');
+popupSizeRestorer('feMain.window.size', 1270, 900);
 
 class FeMain {
   hox = null;
