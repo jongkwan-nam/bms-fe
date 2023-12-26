@@ -18,6 +18,9 @@ import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import { loadHox } from './utils/hoxUtils';
 import { getObjectID } from './utils/idUtils';
+import popupSizeRestorer from './utils/popupSizeRestorer';
+
+popupSizeRestorer('feMain.window.size');
 
 class FeMain {
   hox = null;

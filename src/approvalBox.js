@@ -4,9 +4,11 @@ import './approvalBox/FeFlow';
 import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
 import StyleController from './config/styleController';
-import { HoxEventType, dispatchHoxEvent, getNodes } from './utils/hoxUtils';
-
 import * as TabUI from './utils/TabUI';
+import { HoxEventType, dispatchHoxEvent, getNodes } from './utils/hoxUtils';
+import popupSizeRestorer from './utils/popupSizeRestorer';
+
+popupSizeRestorer('approvalBox.window.size', 1020, 720);
 
 let hox = opener.feMain.hox.cloneNode(true);
 

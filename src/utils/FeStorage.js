@@ -3,6 +3,9 @@ const FeStorage = {
     set: (name, value) => {
       localStorage.setItem(name, value);
     },
+    setObject: (name, valueObject) => {
+      localStorage.setItem(name, JSON.stringify(valueObject));
+    },
     get: (name, defaultValue) => {
       let value = localStorage.getItem(name);
       return value !== null ? value : defaultValue ? defaultValue : '';
@@ -30,6 +33,9 @@ const FeStorage = {
   session: {
     set: (name, value) => {
       sessionStorage.setItem(name, value);
+    },
+    setObject: (name, valueObject) => {
+      localStorage.setItem(name, JSON.stringify(valueObject));
     },
     get: (name, defaultValue) => {
       let value = sessionStorage.getItem(name);
