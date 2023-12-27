@@ -123,6 +123,18 @@ fe-attachbox {
         margin: 0;
         padding: 1rem;
 
+        &:only-child {
+          // 1안뿐일때
+          box-shadow: none !important;
+          // '공통첨부' 라벨 가리기
+          label {
+            display: none !important;
+          }
+          ol {
+            margin-top: 0 !important;
+          }
+        }
+
         &:not(:first-child) {
           border-top: 1px solid var(--color-border);
         }
