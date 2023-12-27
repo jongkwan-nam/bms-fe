@@ -52,6 +52,21 @@ export default class FeHwpCtrl extends HTMLElement {
     return set;
   }
 
+  getPageCount() {
+    // const set = this.getDocumentInfo(true);
+    // return set.Item('DetailPageCount');
+    return this.hwpCtrl.PageCount;
+  }
+
+  getCharCount() {
+    const set = this.getDocumentInfo(true);
+    return set.Item('DetailCharCount');
+  }
+
+  isEmptyDocument() {
+    return this.hwpCtrl.IsEmpty;
+  }
+
   /**
    * 누름틀 보기 토글
    * @param {boolean} force true: 보이기, false: 숨기기

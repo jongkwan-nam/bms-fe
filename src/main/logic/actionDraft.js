@@ -162,11 +162,18 @@ export const process = async (hox) => {
   formData.append('apprID', newDocId);
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
-  formData.append('ref_' + getObjectID(newDocId, 1), bodyTRID); // 본문TRID
+  // 본문
+  formData.append('ref_' + getObjectID(newDocId, 1), bodyTRID);
+  // 첨부
   feAttachBox.listFileIDs().forEach((trid, i) => {
-    formData.append('ref_' + getObjectID(newDocId, 100 + i), trid); // 첨부
+    formData.append('ref_' + getObjectID(newDocId, 100 + i), trid);
   });
-  formData.append('block_' + getObjectID(newDocId, 2), serializeHoxToString(hox)); // hox
+  // 요약
+  if (feMain.summary.TRID !== null) {
+    formData.append('ref_' + getObjectID(newDocId, 3), feMain.summary.TRID);
+  }
+  // hox
+  formData.append('block_' + getObjectID(newDocId, 2), serializeHoxToString(hox));
 
   const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocDrft.act`, {
     method: 'POST',

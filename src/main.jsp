@@ -22,6 +22,7 @@
 <main>
   <header class="menu-wrap"></header>
   <article class="editor-wrap"></article>
+  <div class="divider"></div>
   <article class="attach-wrap"></article>
 </main>
 <aside id="approvalBox" class="modal-container"></aside>

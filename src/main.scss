@@ -12,10 +12,10 @@ main {
   color: var(--color-text);
 
   display: grid;
-  grid-template-rows: 60px 1fr 20rem;
+  grid-template-rows: 60px 1fr 4px 250px;
 
   &.fold-attachbox {
-    grid-template-rows: 60px 1fr 2rem;
+    grid-template-rows: 60px 1fr 4px 2rem !important;
   }
 
   .menu-wrap {
@@ -31,7 +31,51 @@ main {
 
   .editor-wrap {
     border-top: 1px solid #c5c5c5;
-    border-bottom: 1px solid #c5c5c5;
     width: 100%;
+  }
+}
+
+main {
+  & > .divider {
+    border-top: 1px solid #c5c5c5;
+    height: 4px;
+    z-index: 9999;
+
+    &:hover {
+      background-color: #c5c5c5;
+      cursor: ns-resize;
+    }
+  }
+  & + .divider-layer {
+    display: none;
+  }
+}
+
+main.fold-attachbox {
+  & > .divider:hover {
+    background-color: transparent;
+    cursor: default;
+  }
+}
+
+main.resize {
+  transition: none !important;
+  & > .divider {
+    background-color: rgba(0, 120, 212, 0.75);
+  }
+  & + .divider-layer {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-rows: 300px 1fr 120px;
+    z-index: 99;
+
+    .divider-top,
+    .divider-bottom {
+      background-color: rgba(0, 0, 0, 0.125);
+    }
+    .divider-middle {
+      background-color: rgba(0, 0, 0, 0);
+    }
   }
 }

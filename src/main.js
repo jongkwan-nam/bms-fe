@@ -16,6 +16,7 @@ import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNod
 import initiateBodyByHox from './main/logic/initiateBodyByHox';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
+import FeStorage from './utils/FeStorage';
 import { loadHox } from './utils/hoxUtils';
 import { getObjectID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
@@ -29,6 +30,7 @@ class FeMain {
   feContent = null;
   feAttachBox = null;
   buttonController = null;
+  summary = { filePath: null, TRID: null };
 
   constructor() {
     //
@@ -149,3 +151,58 @@ window.feMain.start();
 window.onerror = (error) => {
   alert(error.toString());
 };
+
+resizableGrid();
+
+function resizableGrid() {
+  const TOP_HEIGHT = 300;
+  const BOTTOM_HEIGHT = 150;
+  const WINDOW_HEIGHT = window.innerHeight;
+  let attachBoxHeight = FeStorage.local.getNumber('FeMain.attachBoxHeight', 250);
+
+  const main = document.querySelector('main');
+  main.insertAdjacentHTML(
+    'afterend',
+    ` <div class="divider-layer">
+        <div class="divider-top"></div>
+        <div class="divider-middle"></div>
+        <div class="divider-bottom"></div>
+      </div>`
+  );
+  main.style.gridTemplateRows = `60px 1fr 4px ${attachBoxHeight}px`;
+  const dividerLayer = document.querySelector('.divider-layer');
+  dividerLayer.style.gridTemplateRows = `${TOP_HEIGHT}px 1fr ${BOTTOM_HEIGHT}px`;
+  const divider = document.querySelector('.divider');
+  divider.onmousedown = startResize;
+
+  function startResize(e) {
+    e.preventDefault();
+    if (main.classList.contains('fold-attachbox')) {
+      return;
+    }
+    document.onmouseup = stopResize;
+    document.onmousemove = doResize;
+    main.classList.add('resize');
+  }
+
+  function doResize(e) {
+    e.preventDefault();
+
+    let y = e.clientY;
+    y = Math.max(y, TOP_HEIGHT);
+    y = Math.min(y, WINDOW_HEIGHT - BOTTOM_HEIGHT);
+
+    attachBoxHeight = WINDOW_HEIGHT - y;
+
+    document.querySelector('main').style.gridTemplateRows = `60px 1fr 4px ${attachBoxHeight}px`;
+    // console.log(`e.clientY: ${e.clientY} y: ${y} h: ${attachBoxHeight}`);
+  }
+
+  function stopResize(e) {
+    e.preventDefault();
+    document.onmouseup = null;
+    document.onmousemove = null;
+    main.classList.remove('resize');
+    FeStorage.local.set('FeMain.attachBoxHeight', attachBoxHeight);
+  }
+}

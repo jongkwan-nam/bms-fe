@@ -31,7 +31,7 @@ export default class FeEditor extends FeHwpCtrl {
 
   constructor(id) {
     super();
-    this.setAttribute('id', id);
+    id && this.setAttribute('id', id);
   }
 
   connectedCallback() {
@@ -148,15 +148,30 @@ export default class FeEditor extends FeHwpCtrl {
 
   /**
    * 문서 열기
-   * @param {string} docUrl
+   * 열기 성공 후 문서내 필드값 등 조사한다.
+   * @param {string | Blob} docUrl
    * @returns
    */
-  async open(docUrl) {
+  async open(docUrl, format = '', arg = 'imagedownsize') {
     console.time(TIME_LABEL_OPEN);
-    await super.openDocument(docUrl, '', 'imagedownsize');
+    await super.openDocument(docUrl, format, arg);
     console.timeEnd(TIME_LABEL_OPEN);
 
     this.#resolveDocInfo();
+  }
+
+  /**
+   * 문서 열기
+   *
+   * 요약전, 감사의견서 등에서 문서만 열 경우 사용
+   * @param {string | Blob} docUrl
+   * @param {string} format
+   * @param {string} arg
+   */
+  async openOnly(docUrl, format = '', arg = 'imagedownsize') {
+    console.time(TIME_LABEL_OPEN);
+    await super.openDocument(docUrl, format, arg);
+    console.timeEnd(TIME_LABEL_OPEN);
   }
 
   /**
@@ -450,6 +465,20 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
+   * PC에 저장한다. 정확히는 다운로드 된다
+   * @param {string} fileName PC에 저장될 파일 이름
+   * @param {*} format 문서 형식
+   * @returns
+   */
+  async saveLocal(fileName, format = 'HWP') {
+    return await super.saveAs(fileName, format, 'download:true');
+  }
+
+  printDocument() {
+    this.hwpCtrl.PrintDocument();
+  }
+
+  /**
    * 필드가 있는지
    * @param {string} name
    * @returns
@@ -506,11 +535,43 @@ export default class FeEditor extends FeHwpCtrl {
     //
   }
 
+  getText() {
+    this.hwpCtrl.InitScan(0x00, 0x0070);
+    const text = this.hwpCtrl.GetText();
+    this.hwpCtrl.ReleaseScan();
+    return text;
+  }
+
+  /**
+   * 특정 페이지의 텍스트를 얻는다
+   *
+   * @param {number} pageNo 텍스트를 얻을 페이지 번호
+   * @param {number?} option 생략하면, 모든 컨트롤에 대햐 텍스트를 얻는다. 본문 텍스는는 옵션에 관계없이 얻는다
+   * - 1: 표 내부 텍스트만 얻는다
+   * - 2: 글상자 내부 텍스트만 얻는다
+   * - 3: 캡션 내부 텍스트만 얻는다
+   * @returns
+   */
+  getPageText(pageNo, option) {
+    return this.hwpCtrl.GetPageText(pageNo, option).trim();
+  }
+
+  focusToField(cellName) {
+    this.hwpCtrl.MoveToFieldEx(cellName, true, true, false);
+  }
+
   set title(title) {
     this.hwpCtrl.PutFieldText(Cell.DOC_TITLE, title);
   }
   get title() {
     return this.hwpCtrl.GetFieldText(Cell.DOC_TITLE);
+  }
+
+  set modified(val) {
+    this.hwpCtrl.IsModified = val;
+  }
+  get modified() {
+    return this.hwpCtrl.IsModified;
   }
 }
 

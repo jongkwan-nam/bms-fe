@@ -9,6 +9,7 @@ module.exports = {
     'dependencies-viewer': './src/dependencies-viewer.js',
     main: './src/main.js',
     approvalBox: './src/approvalBox.js',
+    summaryBox: './src/summaryBox.js',
   },
   devtool: 'source-map',
   output: {

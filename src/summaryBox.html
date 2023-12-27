@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>요약전 작성</title>
+    <link rel="stylesheet" type="text/css" href="/bms/fe/summaryBox.css" />
+    <script defer type="text/javascript" src="/bms/fe/summaryBox.js"></script>
+    <script type="text/javascript">
+      var PROJECT_CODE = opener.PROJECT_CODE;
+      var GWWEBMessage = opener.GWWEBMessage;
+      var doccfg = opener.doccfg;
+      var rInfo = opener.rInfo;
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <button type="button" class="btn btn-primary" id="btnSave">저장</button>
+      <button type="button" class="btn" id="btnDelete">삭제</button>
+      <button type="button" class="btn" id="btnPCOpen">읽어오기</button>
+      <button type="button" class="btn" id="btnPCSave">PC저장</button>
+      <button type="button" class="btn" id="btnPrint">인쇄</button>
+      <button type="button" class="btn" id="btnClose">종료</button>
+      <input type="file" id="pcOpenFile" accept=".hwx, .hwp, .hwpx, .odt, .txt, .html" style="visibility: hidden; width: 1px" />
+    </div>
+    <div class="body">
+      <fe-editor id="editor"></fe-editor>
+    </div>
+  </body>
+</html>

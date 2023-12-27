@@ -1,0 +1,36 @@
+@import "./css/root.scss";
+@import "./css/initiate.scss";
+@import "./css/modal.scss";
+@import "./css/button.scss";
+@import "./css/tree-list.scss";
+@import "./css/scrollbar.scss";
+
+*,
+::after,
+::before {
+  transition: none;
+}
+
+body {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  overflow: hidden;
+
+  display: grid;
+  grid-template-rows: 3rem 1fr;
+
+  .header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+  }
+
+  .body {
+    border-top: 1px solid #c5c5c5;
+    border-bottom: 1px solid #c5c5c5;
+    width: 100%;
+  }
+}
