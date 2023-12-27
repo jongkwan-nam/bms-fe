@@ -2,7 +2,8 @@ import StyleController from './config/styleController';
 import Cell from './main/CellNames';
 import './main/FeEditor';
 import './summaryBox.scss';
-import { getText } from './utils/hoxUtils';
+import { createNode, getAttr, getNode, getNodeArray, getText, toggleFlag } from './utils/hoxUtils';
+import { getObjectID, isNotNullID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
 popupSizeRestorer('approvalBox.window.size', 800, 920);
@@ -10,8 +11,10 @@ popupSizeRestorer('approvalBox.window.size', 800, 920);
 const styleController = new StyleController();
 styleController.start();
 
-let hox = opener.feMain.hox.cloneNode(true);
-
+// let hox = opener.feMain.hox.cloneNode(true);
+const hox = opener.feMain.hox;
+let nodeObjectIDOfSummary = null;
+let apprID = getText(hox, 'docInfo apprID');
 const feEditor = document.querySelector('fe-editor');
 
 (async () => {
@@ -37,6 +40,14 @@ const feEditor = document.querySelector('fe-editor');
 
   // 본문으로 커서 이동
   feEditor.focusToField(Cell.CBODY);
+
+  // 기존 요약이 있는지
+  let foundSummaryNodes = getNodeArray(hox, 'docInfo objectIDList objectID').filter((objectID) => 'objectidtype_summary' === getAttr(objectID, null, 'type'));
+  if (foundSummaryNodes.length === 0) {
+    document.querySelector('#btnDelete').disabled = true;
+  } else {
+    nodeObjectIDOfSummary = foundSummaryNodes[0];
+  }
 })();
 
 window.hox = () => {
@@ -51,12 +62,30 @@ window.onerror = (error) => {
 
 document.querySelector('#btnSave').addEventListener('click', async () => {
   // 저장
-  const downloadURL = await feEditor.saveServer(getText(hox, 'docInfo apprID') + '_summary');
+  const downloadURL = await feEditor.saveServer(apprID + '_summary');
   const { ok, location, TRID, size } = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
   console.log('summaryFileInfo', ok, location, TRID, size);
   if (!ok) {
     throw new Error('웹한글 본문 파일 정보 구하기 실패');
   }
+
+  // hox 처리
+  toggleFlag(hox, 'docInfo approvalFlag', 'apprflag_summary', true);
+  if (nodeObjectIDOfSummary === null) {
+    let id = '00000000000000000000';
+    if (isNotNullID(apprID)) {
+      id = getObjectID(apprID, 3);
+    }
+    const nodeObjectID = createNode(`
+      <objectID dirty="new" type="objectidtype_summary">
+        <ID>${id}</ID>
+        <name>OBJECTTYPE_SUMMARY</name>
+        <participantID>00000000000000000000</participantID>
+      </objectID>  
+    `);
+    getNode(hox, 'docInfo objectIDList').appendChild(nodeObjectID);
+  }
+
   opener.feMain.summary.filePath = `${PROJECT_CODE}/${location}`;
   opener.feMain.summary.TRID = TRID;
   alert(GWWEBMessage.cmsg_1699);
@@ -70,6 +99,11 @@ document.querySelector('#btnDelete').addEventListener('click', (e) => {
     // 요약을 삭제하시겠습니까?
     return;
   }
+
+  // hox 처리
+  toggleFlag(hox, 'docInfo approvalFlag', 'apprflag_summary', false);
+  nodeObjectIDOfSummary.remove();
+
   opener.feMain.summary.filePath = null;
   opener.feMain.summary.TRID = null;
 
