@@ -66,7 +66,7 @@ document.querySelector('#btnSave').addEventListener('click', async () => {
   const { ok, location, TRID, size } = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
   console.log('summaryFileInfo', ok, location, TRID, size);
   if (!ok) {
-    throw new Error('웹한글 본문 파일 정보 구하기 실패');
+    throw new Error('요약전 저장 실패');
   }
 
   // hox 처리
@@ -88,7 +88,7 @@ document.querySelector('#btnSave').addEventListener('click', async () => {
 
   opener.feMain.summary.filePath = `${PROJECT_CODE}/${location}`;
   opener.feMain.summary.TRID = TRID;
-  alert(GWWEBMessage.cmsg_1699);
+  alert(GWWEBMessage.cmsg_1699); // 저장하였습니다.
 
   closeBox();
 });

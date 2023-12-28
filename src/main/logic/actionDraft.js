@@ -1,5 +1,5 @@
 import * as DateUtils from '../../utils/dateUtils';
-import { addNode, getNode, getNodes, getNumber, getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
+import { addNode, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
 import { getObjectID, isNullID } from '../../utils/idUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import Cell from '../CellNames';
@@ -76,25 +76,34 @@ export const process = async (hox) => {
   const signImageURL = await feSignDialog.getSignImageURL();
   console.log('signImageURL', signImageURL);
   if (signImageURL === null) {
-    // 취소
+    // 서명 취소 => 결재 취소
     document.querySelector('.modal-container').classList.remove('open');
     return;
   }
 
-  // 서버시간 구하기
-  /**
-   * /bms/com/hs/gwweb/appr/getServerTime.act K: 00G392eYq
-   * > {"currentDate":1702859639184,"ok":true}
-   */
-  const serverTimeInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getServerTime.act`).then((res) => res.json());
-  const serverTime = new Date(serverTimeInfo.currentDate);
-  console.log('serverTime', serverTime);
+  let signExtraText = '';
+  if (doccfg.signShowSignerDate) {
+    // 서명칸에 날짜 표시(서명일자) 여부 설정
+    // true : 기안자/검토자/협조자/결재권자/협조부서 서명칸에 날짜 표시
+    // false : 결재권자(최종결재자) 서명칸에만 날짜 표시 (default)
+    // 서버시간 구하기
+    /**
+     * /bms/com/hs/gwweb/appr/getServerTime.act K: 00G392eYq
+     * > {"currentDate":1702859639184,"ok":true}
+     */
+    const serverTimeInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getServerTime.act`).then((res) => res.json());
+    const serverTime = new Date(serverTimeInfo.currentDate);
+    console.log('serverTime', serverTime);
+    // doccfg.signDateFormat
+    const mmdd = DateUtils.format(serverTime, doccfg.signDateFormat);
 
-  const mmdd = DateUtils.format(serverTime, 'M/D');
-
-  await feEditor1.doSign(Cell.SIGN + '.1', mmdd, signImageURL);
+    signExtraText = mmdd;
+  }
+  // TODO doccfg.signShowSignerDataAlign: 서명칸에 날짜 표시(서명일자) 위치 설정. [ top : 서명 위 (default) ,  bottom : 서명 아래 ]
+  await feEditor1.doSign(Cell.SIGN + '.1', signExtraText, signImageURL);
   console.log('feEditor1.setSign', Cell.SIGN + '.1');
 
+  // 서명창 닫기
   document.querySelector('.modal-container').classList.remove('open');
 
   // appr id 채번
@@ -125,20 +134,31 @@ export const process = async (hox) => {
 
   // 첨부ID처리: 채번된 apprid와 participantid로 이용
   const drafterParticipantID = getText(hox, 'approvalFlow participant participantID');
-  getNodes(hox, 'docInfo objectIDList objectID').forEach((objectID, i) => {
-    const newObjectId = getObjectID(newDocId, 100 + i);
-    setText(objectID, 'ID', newObjectId);
-    setText(objectID, 'participantID', drafterParticipantID);
+  getNodeArray(hox, 'docInfo objectIDList objectID')
+    .filter((objectID) => getAttr(objectID, null, 'type') === 'objectidtype_attach')
+    .forEach((objectID, i) => {
+      const newObjectId = getObjectID(newDocId, 100 + i);
+      setText(objectID, 'ID', newObjectId);
+      setText(objectID, 'participantID', drafterParticipantID);
 
-    // content attachInfo attach ID 추가
-    let contentNumber = getNumber(objectID, 'contentNumber', 0);
-    if (contentNumber === 0) {
-      // 공통 첨부라면 1안 content에 붙인다
-      contentNumber = 1;
-    }
-    const contentNode = getNode(hox, 'content', contentNumber - 1);
-    addNode(contentNode, 'attachInfo attach', 'ID')[0].textContent = newObjectId;
-  });
+      // content attachInfo attach ID 추가
+      let contentNumber = getNumber(objectID, 'contentNumber', 0);
+      if (contentNumber === 0) {
+        // 공통 첨부라면 1안 content에 붙인다
+        contentNumber = 1;
+      }
+      const contentNode = getNode(hox, 'content', contentNumber - 1);
+      addNode(contentNode, 'attachInfo attach', 'ID')[0].textContent = newObjectId;
+    });
+
+  // 요약전
+  getNodeArray(hox, 'docInfo objectIDList objectID')
+    .filter((objectID) => getAttr(objectID, null, 'type') === 'objectidtype_summary')
+    .forEach((objectID) => {
+      const newObjectId = getObjectID(newDocId, 3);
+      setText(objectID, 'ID', newObjectId);
+      setText(objectID, 'participantID', drafterParticipantID);
+    });
 
   // 웹한글 본문 저장
   const downloadURL = await feEditor1.saveServer(newDocId);
@@ -168,7 +188,7 @@ export const process = async (hox) => {
   feAttachBox.listFileIDs().forEach((trid, i) => {
     formData.append('ref_' + getObjectID(newDocId, 100 + i), trid);
   });
-  // 요약
+  // 요약전
   if (feMain.summary.TRID !== null) {
     formData.append('ref_' + getObjectID(newDocId, 3), feMain.summary.TRID);
   }
