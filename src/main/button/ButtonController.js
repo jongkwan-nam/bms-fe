@@ -1,11 +1,12 @@
 import { FeMode, getFeMode } from '../FeMode';
 import ApprovalBoxButton from './ApprovalBoxButton';
+import CommentButton from './CommentButton';
 import DraftButton from './DraftButton';
 import MultiContentButton from './MultiContentButton';
 import SummaryButton from './SummaryButton';
 
 /**
- * 상황에 맞쳐 버튼의 노출을 관리한다.
+ * 상황에 맞쳐 버튼의 노출을 관리
  */
 export default class ButtonController {
   constructor(parentSelector) {
@@ -23,6 +24,8 @@ export default class ButtonController {
         this.#append(new ApprovalBoxButton());
         // 요약
         this.#append(new SummaryButton());
+        // 의견
+        this.#append(new CommentButton());
         // 임시저장
         // 안추가
         this.#append(new MultiContentButton());
@@ -39,6 +42,8 @@ export default class ButtonController {
         this.#append(new ApprovalBoxButton());
         // 요약
         this.#append(new SummaryButton());
+        // 의견
+        this.#append(new CommentButton());
         // 메일쓰기
         // PC저장, PC저장(배포용), PC저장(hwpx)
         // 인쇄
@@ -53,6 +58,8 @@ export default class ButtonController {
         this.#append(new ApprovalBoxButton());
         // 요약
         this.#append(new SummaryButton());
+        // 의견
+        this.#append(new CommentButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
         // 인쇄
         break;

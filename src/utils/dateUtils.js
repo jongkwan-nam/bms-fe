@@ -32,11 +32,11 @@ export function format(date = new Date(), pattern = 'YYYY-MM-DD HH24:MI:SS') {
   formatDate = formatDate.replace('YY', zero(year - 2000, 2));
   formatDate = formatDate.replace('MMM', GWWEBMessage.cmsg_2154.split(',')[month - 1]);
   formatDate = formatDate.replace('MM', zero(month, 2));
+  formatDate = formatDate.replace('MI', zero(minute, 2));
   formatDate = formatDate.replace('M', month);
   formatDate = formatDate.replace('DD', zero(day, 2));
   formatDate = formatDate.replace('D', day);
   formatDate = formatDate.replace('HH24', zero(hour, 2));
-  formatDate = formatDate.replace('MI', zero(minute, 2));
   formatDate = formatDate.replace('SS', zero(second, 2));
 
   return formatDate;

@@ -55,16 +55,16 @@ export const validate = (hox) => {
 };
 
 /**
- * 기안처리
+ * 서명 다이얼로그
  *
  * @param {XMLDocument} hox
+ * @returns
  */
-export const process = async (hox) => {
-  let ok = true;
-  let msg = '';
+export const preProcessSign = async (hox) => {
+  const result = { ok: true, message: '' };
   //
   const feEditor1 = feMain.feEditor1;
-  const feAttachBox = feMain.feAttachBox;
+
   // 서명선택
   document.querySelector('.modal-container').classList.add('open');
   let feSignDialog = document.querySelector('.modal-container fe-signdialog');
@@ -78,7 +78,8 @@ export const process = async (hox) => {
   if (signImageURL === null) {
     // 서명 취소 => 결재 취소
     document.querySelector('.modal-container').classList.remove('open');
-    return;
+    result.ok = false;
+    return result;
   }
 
   let signExtraText = '';
@@ -105,6 +106,20 @@ export const process = async (hox) => {
 
   // 서명창 닫기
   document.querySelector('.modal-container').classList.remove('open');
+
+  return result;
+};
+
+/**
+ * 기안처리
+ *
+ * @param {XMLDocument} hox
+ */
+export const process = async (hox) => {
+  const result = { ok: true, message: '' };
+  //
+  const feEditor1 = feMain.feEditor1;
+  const feAttachBox = feMain.feAttachBox;
 
   // appr id 채번
   /**
@@ -202,11 +217,8 @@ export const process = async (hox) => {
   //  {RESULT:OK}
   console.log('ret', ret);
 
-  ok = '{RESULT:OK}' === ret.trim();
-  msg = ret;
+  result.ok = '{RESULT:OK}' === ret.trim();
+  result.message = ret.trim();
 
-  return {
-    ok: ok,
-    message: msg,
-  };
+  return result;
 };

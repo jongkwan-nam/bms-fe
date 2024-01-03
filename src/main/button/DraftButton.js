@@ -19,6 +19,21 @@ export default class DraftButton extends HTMLButtonElement {
       alert(validationResult.message);
       return;
     }
+
+    // 의견 입력
+    // const commentResult = await actionDraft.preProcessComment(feMain.hox);
+    // if (!commentResult.ok) {
+    //   // 의견 미작성
+    //   // return;
+    // }
+
+    // 서명 선택
+    const signResult = await actionDraft.preProcessSign(feMain.hox);
+    if (!signResult.ok) {
+      // 서명 취소
+      return;
+    }
+
     // 기안 처리
     console.time('actionDraft.process');
     const processResult = await actionDraft.process(feMain.hox);

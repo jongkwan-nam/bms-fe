@@ -17,7 +17,7 @@ import initiateBodyByHox from './main/logic/initiateBodyByHox';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
-import { loadHox } from './utils/hoxUtils';
+import { getNodes, getText, loadHox } from './utils/hoxUtils';
 import { getObjectID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
@@ -96,6 +96,8 @@ class FeMain {
     this.feEditor1.setEditMode(2);
     // 첫 페이지 이동
     this.feEditor1.selectContent(1);
+    // 에디터의 이벤트 시작. 제목변경, hox 이벤트(안 관련)
+    this.feEditor1.start();
 
     // 첨부박스 생성, 초기화
     this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
@@ -143,6 +145,31 @@ class FeMain {
 
     return reflectResult;
   }
+
+  getCurrentParticipant() {
+    //
+    for (const participant of getNodes(this.hox, 'approvalFlow participant')) {
+      const id = getText(participant, 'ID');
+      const type = getText(participant, 'type');
+      const approvalType = getText(participant, 'approvalType');
+      const approvalStatus = getText(participant, 'approvalStatus');
+      const validStatus = getText(participant, 'validStatus');
+      const chargerID = getText(participant, 'charger ID');
+      console.log(`participant: id=${id}, type=${type}, approvalType=${approvalType}, approvalStatus=${approvalStatus}, validStatus=${validStatus}, chargerID=${chargerID}`);
+      if (validStatus !== 'valid') {
+        continue;
+      }
+      if (type !== 'user') {
+        continue;
+      }
+      if (!['partapprstatus_draft', 'partapprstatus_now', 'partapprstatus_will'].includes(approvalStatus)) {
+        continue;
+      }
+      if (id === rInfo.user.ID || chargerID === rInfo.user.ID) {
+        return participant;
+      }
+    }
+  }
 }
 
 window.feMain = new FeMain();
@@ -154,6 +181,9 @@ window.onerror = (error) => {
 
 resizableGrid();
 
+/**
+ * 본문과 첨부박스 크기 조정
+ */
 function resizableGrid() {
   const TOP_HEIGHT = 300;
   const BOTTOM_HEIGHT = 150;
