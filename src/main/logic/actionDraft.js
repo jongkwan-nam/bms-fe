@@ -66,18 +66,18 @@ export const preProcessSign = async (hox) => {
   const feEditor1 = feMain.feEditor1;
 
   // 서명선택
-  document.querySelector('.modal-container').classList.add('open');
-  let feSignDialog = document.querySelector('.modal-container fe-signdialog');
-  if (feSignDialog === null) {
-    feSignDialog = document.querySelector('.modal-container').appendChild(new FeSignDialog());
-  }
+  let feSignDialog = new FeSignDialog();
+  const modalContainer = document.querySelector('.modal-container');
+  modalContainer.textContent = null;
+  modalContainer.append(feSignDialog);
+  modalContainer.classList.add('open');
   feSignDialog.open();
 
   const signImageURL = await feSignDialog.getSignImageURL();
   console.log('signImageURL', signImageURL);
   if (signImageURL === null) {
     // 서명 취소 => 결재 취소
-    document.querySelector('.modal-container').classList.remove('open');
+    modalContainer.classList.remove('open');
     result.ok = false;
     return result;
   }
@@ -105,7 +105,7 @@ export const preProcessSign = async (hox) => {
   console.log('feEditor1.setSign', Cell.SIGN + '.1');
 
   // 서명창 닫기
-  document.querySelector('.modal-container').classList.remove('open');
+  modalContainer.classList.remove('open');
 
   return result;
 };
