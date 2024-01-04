@@ -18,7 +18,7 @@ export default (hox) => {
       continue;
     }
 
-    if (['partapprstatus_draft', 'partapprstatus_now', 'partapprstatus_will'].includes(approvalStatus) && (id === rInfo.user.ID || chargerID === rInfo.user.ID)) {
+    if (['partapprstatus_draft', 'partapprstatus_now', 'partapprstatus_will', 'partapprstatus_postpone'].includes(approvalStatus) && (id === rInfo.user.ID || chargerID === rInfo.user.ID)) {
       console.log('이게 현재 사용자의 participant이다');
       setAttr(participant, null, 'current', 'true');
     } else {
