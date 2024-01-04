@@ -93,6 +93,8 @@ class FeMain {
       initiateBodyByHox(this.hox, this.feEditor1);
     } else if (feMode === FeMode.VIEW) {
       this.feEditor1.setReadMode(true);
+    } else if (feMode === FeMode.KYUL) {
+      // TODO 현재 participant의 수정권한 여부로 readmode 설정
     }
 
     // 양식모드 설정
