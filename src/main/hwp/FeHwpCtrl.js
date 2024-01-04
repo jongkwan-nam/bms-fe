@@ -1,5 +1,4 @@
 import { getContentCellName } from '../../utils/contentUtils';
-import { getNodes } from '../../utils/hoxUtils';
 import Cell from '../CellNames';
 
 /**
@@ -214,13 +213,12 @@ export default class FeHwpCtrl extends HTMLElement {
    * 새로 추가된 안의 셀명 정리
    */
   reAssignContentCellName() {
-    const contentNumber = getNodes(this.hox, 'docInfo content').length;
     // let cellNames = ['결재제목', '본문', '수신', '수신', '수신처', '수신처캡션', '발신기관명', '발신명의', '틀', '각안', '각안발신명의', '각안수신처', '첨부정보', '경유', 'enforcement_caption', '공개여부'];
     // const separatedContentFieldNames = ['결재제목', '본문', '수신', '수신처', '수신처캡션', '발신기관명', '발신명의', '각안발신명의', '각안수신처', '경유'];
     let [oldNames, newNames] = [[], []];
     this.separatedContentFieldNames.forEach((cellName) => {
       oldNames.push(cellName + '{{1}}');
-      newNames.push(cellName + '_' + contentNumber);
+      newNames.push(cellName + '_' + this.contentCount);
     });
 
     this.renameField(oldNames, newNames);
