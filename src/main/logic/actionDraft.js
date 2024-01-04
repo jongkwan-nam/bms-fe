@@ -101,6 +101,7 @@ export const preProcessSign = async (hox) => {
     signExtraText = mmdd;
   }
   // TODO doccfg.signShowSignerDataAlign: 서명칸에 날짜 표시(서명일자) 위치 설정. [ top : 서명 위 (default) ,  bottom : 서명 아래 ]
+  // TODO 다안 처리
   await feEditor1.doSign(Cell.SIGN + '.1', signExtraText, signImageURL);
   console.log('feEditor1.setSign', Cell.SIGN + '.1');
 
