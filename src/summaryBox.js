@@ -1,8 +1,9 @@
 import StyleController from './config/styleController';
 import Cell from './main/CellNames';
 import './main/FeEditor';
+import { FeMode } from './main/FeMode';
 import './summaryBox.scss';
-import { createNode, getAttr, getNode, getNodeArray, getText, toggleFlag } from './utils/hoxUtils';
+import { createNode, existsFlag, getAttr, getNode, getNodeArray, getText, toggleFlag } from './utils/hoxUtils';
 import { getObjectID, isNotNullID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
@@ -11,11 +12,12 @@ popupSizeRestorer('approvalBox.window.size', 800, 920);
 const styleController = new StyleController();
 styleController.start();
 
-// let hox = opener.feMain.hox.cloneNode(true);
-const hox = opener.feMain.hox;
-let nodeObjectIDOfSummary = null;
-let apprID = getText(hox, 'docInfo apprID');
+const feMain = opener.feMain;
+const hox = feMain.hox;
+const apprID = getText(hox, 'docInfo apprID');
 const feEditor = document.querySelector('fe-editor');
+
+let nodeObjectIDOfSummary = null; // 요약의 objectID 노드
 
 (async () => {
   // 에디터 로딩
@@ -24,19 +26,58 @@ const feEditor = document.querySelector('fe-editor');
   feEditor.setViewZoom(doccfg.docViewRatio);
   // 리본메뉴 보이기
   feEditor.foldRibbon(true);
-
-  // 문서 열기
-  // 저장된 요약이 있으면, feMain으로부터 open url 구하기
-  if (opener.feMain.summary.filePath !== null) {
-    await feEditor.openOnly(location.origin + opener.feMain.summary.filePath);
-  } else {
-    // 서버에서 template 받아서 열기
-    const summaryTemplateURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveServerFile.act?UID=${rInfo.user.ID}&res=Summary.hwp`;
-    await feEditor.openOnly(summaryTemplateURL);
-  }
-
   // 양식모드 설정
   feEditor.setEditMode(2);
+
+  let summaryURL = null;
+  switch (feMain.feMode) {
+    case FeMode.DRAFT: {
+      // 작성하던 요약이 있으면, feMain으로부터 open url 구하기
+      if (feMain.summary.filePath !== null) {
+        summaryURL = location.origin + feMain.summary.filePath;
+      } else {
+        // 서버에서 template 받아서 열기
+        summaryURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveServerFile.act?UID=${rInfo.user.ID}&res=Summary.hwp`;
+      }
+      feEditor.setReadMode(false);
+      break;
+    }
+    case FeMode.KYUL: {
+      // 작성된 요약전이 있으면
+      if (existsFlag(hox, 'docInfo approvalFlag', 'apprflag_summary')) {
+        const summaryId = getObjectID(apprID, 3);
+        // TRID 구하기
+        const { ok, size, TRID } = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveDocFileClone.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&FID=${summaryId}`).then((res) => res.json());
+        if (!ok) {
+          throw new Error('요약전 TRID 구하기 실패');
+        }
+        summaryURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveTRIDFile.act?TRID=${TRID}&ConvertHTM=false&K=${opener.szKEY}`;
+      } else {
+        // 신규작성
+        summaryURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveServerFile.act?UID=${rInfo.user.ID}&res=Summary.hwp`;
+      }
+      feEditor.setReadMode(false);
+      break;
+    }
+    case FeMode.VIEW: {
+      feEditor.setReadMode(true);
+      break;
+    }
+    case FeMode.ACCEPT: {
+      break;
+    }
+    case FeMode.REQUEST: {
+      break;
+    }
+    case FeMode.CONTROL: {
+      break;
+    }
+    default:
+      throw new Error('undefiend FeMode: ' + this.feMode);
+  }
+
+  // 문서 열기
+  await feEditor.openOnly(summaryURL);
 
   // 본문으로 커서 이동
   feEditor.focusToField(Cell.CBODY);
@@ -86,8 +127,8 @@ document.querySelector('#btnSave').addEventListener('click', async () => {
     getNode(hox, 'docInfo objectIDList').appendChild(nodeObjectID);
   }
 
-  opener.feMain.summary.filePath = `${PROJECT_CODE}/${location}`;
-  opener.feMain.summary.TRID = TRID;
+  feMain.summary.filePath = `${PROJECT_CODE}/${location}`;
+  feMain.summary.TRID = TRID;
   alert(GWWEBMessage.cmsg_1699); // 저장하였습니다.
 
   closeBox();
@@ -104,8 +145,8 @@ document.querySelector('#btnDelete').addEventListener('click', (e) => {
   toggleFlag(hox, 'docInfo approvalFlag', 'apprflag_summary', false);
   nodeObjectIDOfSummary.remove();
 
-  opener.feMain.summary.filePath = null;
-  opener.feMain.summary.TRID = null;
+  feMain.summary.filePath = null;
+  feMain.summary.TRID = null;
 
   closeBox();
 });
@@ -166,10 +207,10 @@ document.querySelector('#pcOpenFile').addEventListener('change', async (e) => {
   }
 });
 
-window.onbeforeunload = (e) => {
-  e.preventDefault();
-  return (e.returnValue = '');
-};
+// window.onbeforeunload = (e) => {
+//   e.preventDefault();
+//   return (e.returnValue = '');
+// };
 
 function closeBox() {
   window.onbeforeunload = null;

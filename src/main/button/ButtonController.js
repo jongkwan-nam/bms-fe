@@ -2,7 +2,11 @@ import { FeMode, getFeMode } from '../FeMode';
 import ApprovalBoxButton from './ApprovalBoxButton';
 import CommentButton from './CommentButton';
 import DraftButton from './DraftButton';
+import HoldButton from './HoldButton';
+import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
+import RejectButton from './RejectButton';
+import StopButton from './StopButton';
 import SummaryButton from './SummaryButton';
 
 /**
@@ -35,9 +39,13 @@ export default class ButtonController {
       }
       case FeMode.KYUL: {
         // 결재
+        this.#append(new KyulButton());
         // 반려
+        this.#append(new RejectButton());
         // 중단
+        this.#append(new StopButton());
         // 보류
+        this.#append(new HoldButton());
         // 결재정보
         this.#append(new ApprovalBoxButton());
         // 요약

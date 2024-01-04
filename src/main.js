@@ -14,10 +14,11 @@ import { FeMode, getFeMode } from './main/FeMode';
 import ButtonController from './main/button/ButtonController';
 import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import initiateBodyByHox from './main/logic/initiateBodyByHox';
+import initiateHoxForKyul from './main/logic/initiateHoxForKyul';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
-import { getNodes, getText, loadHox } from './utils/hoxUtils';
+import { getAttr, getNodeArray, loadHox } from './utils/hoxUtils';
 import { getObjectID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
@@ -31,6 +32,7 @@ class FeMain {
   feAttachBox = null;
   buttonController = null;
   summary = { filePath: null, TRID: null };
+  feMode = null;
 
   constructor() {
     //
@@ -47,8 +49,8 @@ class FeMain {
     this.feEditor1 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor1'));
 
     let docURL = null;
-    let feMode = getFeMode();
-    switch (feMode) {
+    this.feMode = getFeMode();
+    switch (this.feMode) {
       case FeMode.DRAFT: {
         document.title = 'FE 기안기';
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
@@ -72,7 +74,7 @@ class FeMain {
         break;
       }
       default:
-        throw new Error('undefiend FeMode: ' + feMode);
+        throw new Error('undefiend FeMode: ' + this.feMode);
     }
 
     // 에디터 로딩
@@ -83,7 +85,7 @@ class FeMain {
     await this.feEditor1.open(docURL);
 
     // 기안시 할 것들
-    if (feMode === FeMode.DRAFT) {
+    if (this.feMode === FeMode.DRAFT) {
       // 리본메뉴 보이기
       this.feEditor1.foldRibbon(false);
       this.feEditor1.setReadMode(false);
@@ -91,9 +93,13 @@ class FeMain {
       checkMissingNodeAndFillNode(this.hox);
       // hox 정보를 기반으로 초기 서식의 내용 채우기
       initiateBodyByHox(this.hox, this.feEditor1);
-    } else if (feMode === FeMode.VIEW) {
+    } else if (this.feMode === FeMode.VIEW) {
       this.feEditor1.setReadMode(true);
-    } else if (feMode === FeMode.KYUL) {
+    } else if (this.feMode === FeMode.KYUL) {
+      // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
+      checkMissingNodeAndFillNode(this.hox);
+      // current participant 설정
+      initiateHoxForKyul(this.hox);
       // TODO 현재 participant의 수정권한 여부로 readmode 설정
     }
 
@@ -151,29 +157,13 @@ class FeMain {
     return reflectResult;
   }
 
+  /**
+   * 현재 참여자
+   * @returns {participant}
+   */
   getCurrentParticipant() {
     //
-    for (const participant of getNodes(this.hox, 'approvalFlow participant')) {
-      const id = getText(participant, 'ID');
-      const type = getText(participant, 'type');
-      const approvalType = getText(participant, 'approvalType');
-      const approvalStatus = getText(participant, 'approvalStatus');
-      const validStatus = getText(participant, 'validStatus');
-      const chargerID = getText(participant, 'charger ID');
-      console.log(`participant: id=${id}, type=${type}, approvalType=${approvalType}, approvalStatus=${approvalStatus}, validStatus=${validStatus}, chargerID=${chargerID}`);
-      if (validStatus !== 'valid') {
-        continue;
-      }
-      if (type !== 'user') {
-        continue;
-      }
-      if (!['partapprstatus_draft', 'partapprstatus_now', 'partapprstatus_will'].includes(approvalStatus)) {
-        continue;
-      }
-      if (id === rInfo.user.ID || chargerID === rInfo.user.ID) {
-        return participant;
-      }
-    }
+    return getNodeArray(this.hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true')[0];
   }
 }
 

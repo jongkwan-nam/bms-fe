@@ -526,7 +526,7 @@ export default class FeAttachBox extends HTMLElement {
     getNodes(feMain.hox, 'docInfo objectIDList objectID').forEach((objectID) => {
       console.log('objectID', objectID);
       //
-      if (getAttr(objectID, null, 'type') === 'objectidtype_attach') {
+      if (getAttr(objectID, null, 'type') !== 'objectidtype_attach') {
         return;
       }
       //
