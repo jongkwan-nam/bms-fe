@@ -202,19 +202,6 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
-   * 편집 모드를 변경한다.
-   *
-   * @param {number} mode 편집모드
-   * - 0: 읽기 전용
-   * - 1: 일반 편집 모드
-   * - 2: 양식 모드. Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진것만 편집 가능
-   * - 16: 배포용 문서(SetEditMode로 지정 불가능)
-   */
-  setEditMode(mode) {
-    this.hwpCtrl.EditMode = mode;
-  }
-
-  /**
    * 필드의 내용을 채운다
    *
    * - 입력되어 있는 내용은 지워진다.
@@ -294,6 +281,19 @@ export default class FeEditor extends FeHwpCtrl {
     this.hwpCtrl.ShowRibbon(!force); // 보기 > 도구상자 > 기본
     this.hwpCtrl.ReadOnlyMode = force; // 문서를 읽기 전용 모드로
     this.hwpCtrl.ShowCaret(!force); // 캐럿 숨기기
+  }
+
+  /**
+   * 편집 모드를 변경한다.
+   *
+   * @param {number} mode 편집모드
+   * - 0: 읽기 전용
+   * - 1: 일반 편집 모드
+   * - 2: 양식 모드. Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진것만 편집 가능
+   * - 16: 배포용 문서(SetEditMode로 지정 불가능)
+   */
+  setEditMode(mode) {
+    this.hwpCtrl.EditMode = mode;
   }
 
   /**
