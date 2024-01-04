@@ -284,6 +284,19 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
+   * 읽기 전용 모드
+   * @param {boolean} force
+   */
+  setReadMode(force) {
+    const option = force ? 1 : 0;
+    this.hwpCtrl.SetToolBar(option, 'TOOLBAR_MENU'); // 메뉴
+    this.hwpCtrl.SetToolBar(option, 'TOOLBAR_STANDARD'); // 보기 > 도구상자 > 서식
+    this.hwpCtrl.ShowRibbon(!force); // 보기 > 도구상자 > 기본
+    this.hwpCtrl.ReadOnlyMode = force; // 문서를 읽기 전용 모드로
+    this.hwpCtrl.ShowCaret(!force); // 캐럿 숨기기
+  }
+
+  /**
    * 안 추가
    *
    * hox는 FeContent에서 추가되어 있다

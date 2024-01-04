@@ -79,17 +79,20 @@ class FeMain {
     await this.feEditor1.init();
     // 보기 모드 설정
     this.feEditor1.setViewZoom(doccfg.docViewRatio);
-    // 리본메뉴 보이기
-    this.feEditor1.foldRibbon(false);
     // 문서 열기
     await this.feEditor1.open(docURL);
 
     // 기안시 할 것들
     if (feMode === FeMode.DRAFT) {
+      // 리본메뉴 보이기
+      this.feEditor1.foldRibbon(false);
+      this.feEditor1.setReadMode(false);
       // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
       checkMissingNodeAndFillNode(this.hox);
       // hox 정보를 기반으로 초기 서식의 내용 채우기
       initiateBodyByHox(this.hox, this.feEditor1);
+    } else if (feMode === FeMode.VIEW) {
+      this.feEditor1.setReadMode(true);
     }
 
     // 양식모드 설정
@@ -139,7 +142,7 @@ class FeMain {
     const reflectResult = reflectHoxInBody(receivedHox, this.feEditor1);
     console.log('reflectResult', reflectResult);
     if (reflectResult.ok) {
-      // TODO this.hox가 재할당되므로, 이전에 this.hox를 받은 class들은 hox 갱신이 되지 않는다!!!
+      // NOTICE! this.hox가 재할당되므로, 이전에 this.hox를 받은 class들은 hox 갱신이 되지 않는다!!!
       window.feMain.hox = receivedHox;
     }
 
