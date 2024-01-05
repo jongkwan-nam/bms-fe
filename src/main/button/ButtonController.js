@@ -6,6 +6,7 @@ import HoldButton from './HoldButton';
 import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
 import RejectButton from './RejectButton';
+import SendRequestButton from './SendRequestButton';
 import StopButton from './StopButton';
 import SummaryButton from './SummaryButton';
 
@@ -86,6 +87,7 @@ export default class ButtonController {
       }
       case FeMode.REQUEST: {
         // 발송의뢰 <-> none
+        this.#append(new SendRequestButton());
         // 기안문   <-> 시행문
         // 결재정보
         this.#append(new ApprovalBoxButton());
