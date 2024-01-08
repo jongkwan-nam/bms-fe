@@ -1,7 +1,7 @@
 const madge = require('madge');
 const fs = require('fs');
 
-const entries = ['main', 'approvalBox'];
+const entries = ['main', 'approvalBox', 'summaryBox'];
 
 const madgeConfig = {
   fontSize: '12px',
@@ -10,6 +10,7 @@ const madgeConfig = {
   nodeColor: '#c6c5fe',
   noDependencyColor: '#cfffac',
   edgeColor: '#757575',
+  excludeRegExp: ['.scss'],
 };
 
 let svgList = [];
