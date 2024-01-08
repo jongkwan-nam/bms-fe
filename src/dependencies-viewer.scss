@@ -1,6 +1,12 @@
 @import "./css/root.scss";
 @import "./css/initiate.scss";
 
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
 g {
   .node {
     cursor: pointer;
