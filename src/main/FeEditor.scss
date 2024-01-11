@@ -1,8 +1,12 @@
 fe-editor {
   position: relative;
-  display: block;
+  display: none;
   width: 100%;
   height: 100%;
+
+  &.show {
+    display: block;
+  }
 }
 
 iframe.fe-editor {

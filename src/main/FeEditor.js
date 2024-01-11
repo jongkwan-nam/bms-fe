@@ -81,6 +81,14 @@ export default class FeEditor extends FeHwpCtrl {
     this.active = true;
   }
 
+  show() {
+    this.classList.add('show');
+  }
+
+  hide() {
+    this.classList.remove('show');
+  }
+
   /**
    * - hox 이벤트 리스너 추가
    * - 제목 변경 감지 -> hoxEvent 발행
@@ -294,6 +302,30 @@ export default class FeEditor extends FeHwpCtrl {
    */
   setEditMode(mode) {
     this.hwpCtrl.EditMode = mode;
+  }
+
+  /**
+   * 안의 내용 복사
+   * @param {number} contentNumber
+   * @param {string} format
+   * @returns
+   */
+  async copyContent(contentNumber, format) {
+    this.setEditMode(1);
+    super.toggleViewOptionCtrkMark(true);
+    const rect = super.getBoundingContentRect(contentNumber);
+    this.hwpCtrl.SelectText(rect.sPara, rect.sPos, rect.ePara, rect.ePos);
+    const text = await super.getTextFile(format, 'saveblock');
+    super.toggleViewOptionCtrkMark(false);
+    this.setEditMode(2);
+    return text;
+  }
+
+  async insertContent(jsonData) {
+    this.hwpCtrl.Clear(1);
+    let res = await super.insert(jsonData, 'JSON');
+    console.log('insertContent', res);
+    return res;
   }
 
   /**

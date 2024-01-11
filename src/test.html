@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <title>FE Test</title>
+    <style>
+      * {
+        font-family: D2Coding;
+      }
+      .container {
+        padding-top: 2rem;
+      }
+      article {
+        margin-top: 2rem;
+      }
+      article header {
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+    </style>
+    <script>
+      (() => {
+        'use strict';
+
+        const getStoredTheme = () => localStorage.getItem('theme');
+        const setStoredTheme = (theme) => localStorage.setItem('theme', theme);
+
+        const getPreferredTheme = () => {
+          const storedTheme = getStoredTheme();
+          if (storedTheme) {
+            return storedTheme;
+          }
+
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+
+        const setTheme = (theme) => {
+          if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-bs-theme', 'dark');
+          } else {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+          }
+        };
+
+        setTheme(getPreferredTheme());
+
+        const showActiveTheme = (theme, focus = false) => {
+          const themeSwitcher = document.querySelector('#bd-theme');
+
+          if (!themeSwitcher) {
+            return;
+          }
+
+          const themeSwitcherText = document.querySelector('#bd-theme-text');
+          const activeThemeIcon = document.querySelector('.theme-icon-active use');
+          const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
+          const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href');
+
+          document.querySelectorAll('[data-bs-theme-value]').forEach((element) => {
+            element.classList.remove('active');
+            element.setAttribute('aria-pressed', 'false');
+          });
+
+          btnToActive.classList.add('active');
+          btnToActive.setAttribute('aria-pressed', 'true');
+          activeThemeIcon.setAttribute('href', svgOfActiveBtn);
+          const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
+          themeSwitcher.setAttribute('aria-label', themeSwitcherLabel);
+
+          if (focus) {
+            themeSwitcher.focus();
+          }
+        };
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          const storedTheme = getStoredTheme();
+          if (storedTheme !== 'light' && storedTheme !== 'dark') {
+            setTheme(getPreferredTheme());
+          }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+          showActiveTheme(getPreferredTheme());
+
+          document.querySelectorAll('[data-bs-theme-value]').forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+              const theme = toggle.getAttribute('data-bs-theme-value');
+              setStoredTheme(theme);
+              setTheme(theme);
+              showActiveTheme(theme, true);
+            });
+          });
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="input-group">
+        <div class="form-floating">
+          <select class="form-select">
+            <option value="JHOMS233520000102000">JHOMS233520000102000</option>
+            <option value="JHOMS232880000001000">JHOMS232880000001000</option>
+          </select>
+          <label>Form ID</label>
+        </div>
+        <div class="form-floating"><input type="text" placeholder="Appr ID" class="form-control" value="" /><label>Appr ID</label></div>
+      </div>
+    </div>
+
+    <div aria-labelledby="bd-theme-text">
+      <button type="button" class="" data-bs-theme-value="light" aria-pressed="false">Light</button>
+      <button type="button" class="" data-bs-theme-value="dark" aria-pressed="false">Dark</button>
+      <button type="button" class="active" data-bs-theme-value="auto" aria-pressed="true">Auto</button>
+      1
+    </div>
+
+    <script>
+      const container = document.querySelector('.container');
+      [
+        { type: 'gian', text: '기안', form: 'select', url: '/bms/fe/retrieveDoccrdWritng.act?FORMID=' },
+        { type: 'kyul', text: '결재', form: 'input', url: '/bms/fe/retrieveDoccrdSanctn.act?WORDTYPE=5&CLTAPP=3&APPLID=2010&APPRIDLIST=' },
+        { type: 'request', text: '발송대기', form: 'input', url: '/bms/fe/retrieveDoccrdSndngRequest.act?WORDTYPE=5&CLTAPP=5&APPLID=4030&APPRIDLIST=' },
+        { type: 'control', text: '발송처리', form: 'input', url: '/bms/fe/retrieveDoccrdSndng.act' },
+        { type: 'accept', text: '접수대기', form: 'input', url: '/bms/fe/retrieveDoccrdRecptn.act' },
+        { type: 'view', text: '보기', form: 'input', url: '/bms/fe/retrieveDoccrdInqire.act' },
+      ].forEach((item) => {
+        const article = container.appendChild(document.createElement('article'));
+        article.dataset.type = item.type;
+        article.dataset.url = item.url;
+        article.innerHTML = `
+          <header>${item.text}</header>
+          <a href="#">${item.url}</a>
+          <a href="#" target="_blank">🪟</a>
+        `;
+        //
+      });
+
+      document.querySelectorAll('select, input').forEach((form) => {
+        form.addEventListener('change', () => {
+          //
+          let formId = document.querySelector('select').value;
+          let apprId = document.querySelector('input').value;
+          //
+          document.querySelectorAll('article').forEach((article) => {
+            //
+            const type = article.dataset.type;
+            const url = article.dataset.url + (article.dataset.type === 'gian' ? formId : apprId);
+            article.querySelector('a').setAttribute('onclick', `window.open('${url}', 'fe${type}', 'width=1270px,height=900px')`);
+            article.querySelector('a').innerHTML = url;
+            article.querySelector('a + a').setAttribute('href', `${url}`);
+          });
+        });
+      });
+      document.querySelector('select').dispatchEvent(new Event('change'));
+    </script>
+  </body>
+</html>

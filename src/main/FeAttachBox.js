@@ -396,9 +396,10 @@ export default class FeAttachBox extends HTMLElement {
   }
 
   selectContent(contentNumber) {
-    //
-    this.contentSelector.querySelectorAll('option')[contentNumber].selected = true;
-    this.contentSelector.dispatchEvent(new Event('change'));
+    if (this.contentLength > 1) {
+      this.contentSelector.querySelectorAll('option')[contentNumber].selected = true;
+      this.contentSelector.dispatchEvent(new Event('change'));
+    }
   }
 
   /**

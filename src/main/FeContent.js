@@ -1,8 +1,14 @@
+import { moveableElement, resizableElement } from '../utils/dragUtils';
 import { HoxEventType, createNode, dispatchHoxEvent, getNode, getText } from '../utils/hoxUtils';
 import './FeContent.scss';
 
 /**
  * 안 관리
+ * - 안 추가
+ * - 안 삭제
+ * - 안 위로 이동
+ * - 안 아래로 이동
+ * - 안 선택
  */
 export default class FeContent extends HTMLElement {
   currentContentNumber = 1;
@@ -111,7 +117,8 @@ export default class FeContent extends HTMLElement {
     moveableElement(this, this.shadowRoot.querySelector('div.header > label'));
     resizableElement(this, this.shadowRoot.querySelector('.resizable'));
 
-    this.#appendLastContentItem();
+    this.#renderContentList();
+    // this.#appendLastContentItem();
 
     feMain.hox.addEventListener(HoxEventType.TITLE, (e) => {
       if (e.detail.type === 'change') {
@@ -195,6 +202,24 @@ export default class FeContent extends HTMLElement {
     this.shadowRoot.querySelector('.body ol li:last-child').click();
   }
 
+  #renderContentList() {
+    const ol = this.shadowRoot.querySelector('.body ol');
+    ol.textContent = null;
+    feMain.hox.querySelectorAll('docInfo content').forEach((content, i) => {
+      const enforceType = getText(content, 'enforceType');
+      const title = getText(content, 'title');
+      const contentNumber = i + 1;
+
+      const li = ol.appendChild(document.createElement('li'));
+      li.innerHTML = `
+        <input type="checkbox" name="contentChecker" value="${contentNumber}" ${contentNumber === 1 ? 'disabled' : ''}>
+        <label class="content-number">${contentNumber} ${GWWEBMessage.cmsg_765}</label>
+        <label class="content-enforcetype">[${GWWEBMessage[enforceType]}]</label>
+        <label class="content-title">${title}</label>
+      `;
+    });
+  }
+
   /**
    * hox content 내용으로 안바로가기에 li 추가
    */
@@ -256,80 +281,3 @@ export default class FeContent extends HTMLElement {
 }
 
 customElements.define('fe-content', FeContent);
-
-function moveableElement(elmnt, header) {
-  var pos1 = 0,
-    pos2 = 0,
-    pos3 = 0,
-    pos4 = 0;
-
-  header.onmousedown = dragMouseDown;
-
-  function dragMouseDown(e) {
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-
-    // console.log('dragMouseDown', pos1, pos2, pos3, pos4);
-    elmnt.classList.add('moveable');
-
-    document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-  }
-
-  function elementDrag(e) {
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-
-    // console.log('elementDrag', elmnt.offsetTop, pos2, elmnt.offsetLeft, pos1);
-
-    // set the element's new position:
-    elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
-    elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
-  }
-
-  function closeDragElement() {
-    // console.log('closeDragElement');
-    // stop moving when mouse button is released:
-    document.onmouseup = null;
-    document.onmousemove = null;
-    elmnt.classList.remove('moveable');
-  }
-}
-
-function resizableElement(elmnt, resizer) {
-  resizer.onmousedown = dragMouseDown;
-
-  function dragMouseDown(e) {
-    e.preventDefault();
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-    elmnt.classList.add('moveable');
-  }
-
-  function elementDrag(e) {
-    e.preventDefault();
-
-    // console.log(`
-    //   elmnt.offsetLeft: ${elmnt.offsetLeft}
-    //          e.clientX: ${e.clientX}                 => ${e.clientX - elmnt.offsetLeft}
-    //    elmnt.offsetTop: ${elmnt.offsetTop}
-    //          e.clientY: ${e.clientY}                 => ${e.clientY - elmnt.offsetTop}
-    // `);
-
-    elmnt.style.width = e.clientX - elmnt.offsetLeft + resizer.offsetWidth / 2 + 'px';
-    elmnt.style.height = e.clientY - elmnt.offsetTop + resizer.offsetWidth / 2 + 'px';
-  }
-
-  function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-    elmnt.classList.remove('moveable');
-  }
-}

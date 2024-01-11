@@ -9,6 +9,7 @@ import FeConfig from './config/FeConfig';
 import './main.scss';
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
+import FeContentSplitter from './main/FeContentSplitter';
 import FeEditor from './main/FeEditor';
 import { FeMode, getFeMode } from './main/FeMode';
 import ButtonController from './main/button/ButtonController';
@@ -18,7 +19,7 @@ import initiateHoxForKyul from './main/logic/initiateHoxForKyul';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
-import { getAttr, getNodeArray, loadHox } from './utils/hoxUtils';
+import { getAttr, getNodeArray, getNodes, getText, loadHox } from './utils/hoxUtils';
 import { getObjectID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
@@ -45,6 +46,7 @@ class FeMain {
     const hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
     // hox 로딩
     this.hox = await loadHox(hoxURL);
+    const wordType = getText(this.hox, 'docInfo formInfo formID');
 
     this.feEditor1 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor1'));
 
@@ -53,12 +55,12 @@ class FeMain {
     switch (this.feMode) {
       case FeMode.DRAFT: {
         document.title = 'FE 기안기';
-        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.KYUL: {
         document.title = 'FE 결재기';
-        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${rInfo.objForm1.wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
         break;
       }
       case FeMode.VIEW: {
@@ -68,6 +70,8 @@ class FeMain {
         break;
       }
       case FeMode.REQUEST: {
+        document.title = 'FE 발송의뢰';
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
         break;
       }
       case FeMode.CONTROL: {
@@ -77,12 +81,11 @@ class FeMain {
         throw new Error('undefiend FeMode: ' + this.feMode);
     }
 
-    // 에디터 로딩
-    await this.feEditor1.init();
-    // 보기 모드 설정
-    this.feEditor1.setViewZoom(doccfg.docViewRatio);
-    // 문서 열기
-    await this.feEditor1.open(docURL);
+    await this.feEditor1.init(); // 에디터 로딩
+    this.feEditor1.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
+    this.feEditor1.show();
+
+    await this.feEditor1.open(docURL); // 문서 열기
 
     // 기안시 할 것들
     if (this.feMode === FeMode.DRAFT) {
@@ -118,6 +121,24 @@ class FeMain {
     this.buttonController.start();
 
     this.feContent = document.querySelector('main').appendChild(new FeContent());
+    if ([FeMode.KYUL, FeMode.VIEW].includes(this.feMode)) {
+      if (getNodes(this.hox, 'docInfo content').length > 1) {
+        this.feContent.classList.add('show');
+      }
+    }
+
+    if (this.feMode === FeMode.REQUEST) {
+      // 발송대기: 안 분리기 표시
+      this.feContentSplitter = document.querySelector('main').appendChild(new FeContentSplitter());
+      this.feContentSplitter.classList.add('show');
+
+      // 1st 에디터
+      this.feEditor1.setReadMode(true);
+      // 2nd 에티터
+      this.feEditor2 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor2'));
+      await this.feEditor2.init(); // 에디터 로딩
+      this.feEditor2.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
+    }
 
     document.querySelector('main').appendChild(new FeConfig());
 
