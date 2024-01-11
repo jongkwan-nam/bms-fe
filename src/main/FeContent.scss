@@ -124,18 +124,4 @@ fe-content {
       }
     }
   }
-
-  .resizable {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-
-    cursor: nwse-resize;
-    margin: 0;
-    padding: 0;
-    width: 2rem;
-    height: 2rem;
-    background: var(--color-gray);
-    transform: rotate(45deg) translateX(1.5rem);
-  }
 }

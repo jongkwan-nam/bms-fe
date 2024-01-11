@@ -28,7 +28,7 @@ export default class FeContentSplitter extends HTMLElement {
       </div>
       <div class="body">
         <div>
-          <button type="button" id="draftDocViewBtn">${GWWEBMessage.hsappr_0470}</button>
+          <button type="button" id="draftDocViewBtn" class="active">${GWWEBMessage.hsappr_0470}</button>
           <button type="button" id="examDocViewBtn" disabled>${GWWEBMessage.cmsg_636}</button>
           <button type="button" id="splitDocBtn">${GWWEBMessage.content_split}</button>
         </div>
@@ -63,7 +63,8 @@ export default class FeContentSplitter extends HTMLElement {
               feMain.feEditor1.setReadMode(true);
             } else {
               this.examDocSelectedIndex = i;
-              // TODO feEditor2 에 본문 붙여넣기
+              dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
+              // feEditor2 에 본문 붙여넣기
               const examDoc = this.splitedExamDocMap.get('content' + (i + 1));
               feMain.feEditor2.insertContent(examDoc.hwp);
               feMain.feEditor2.setReadMode(true);
@@ -75,31 +76,46 @@ export default class FeContentSplitter extends HTMLElement {
       });
     });
 
-    // 기안문 보기 이벤트
-    this.shadowRoot.querySelector('#draftDocViewBtn').addEventListener('click', (e) => {
-      if (this.viewMode !== 'draft') {
-        feMain.feEditor1.show();
-        feMain.feEditor2.hide();
+    const btnDraftDocView = this.shadowRoot.querySelector('#draftDocViewBtn');
+    const btnExamDocView = this.shadowRoot.querySelector('#examDocViewBtn');
+
+    // 기안문 보기 버튼 이벤트
+    btnDraftDocView.addEventListener('click', (e) => {
+      if (this.viewMode === 'draft') {
+        return;
       }
+
+      btnDraftDocView.classList.add('active');
+      btnExamDocView.classList.remove('active');
+
+      feMain.feEditor1.show();
+      feMain.feEditor2.hide();
+
       this.viewMode = 'draft';
       //
       const li = this.shadowRoot.querySelectorAll('.body ol li')[this.draftDocSelectedIndex];
       li.click();
     });
 
-    // 시행문 보기 이벤트
-    this.shadowRoot.querySelector('#examDocViewBtn').addEventListener('click', () => {
-      if (this.viewMode === 'draft') {
-        feMain.feEditor1.hide();
-        feMain.feEditor2.show();
+    // 시행문 보기 버튼 이벤트
+    btnExamDocView.addEventListener('click', () => {
+      if (this.viewMode === 'exam') {
+        return;
       }
+
+      btnDraftDocView.classList.remove('active');
+      btnExamDocView.classList.add('active');
+
+      feMain.feEditor1.hide();
+      feMain.feEditor2.show();
+
       this.viewMode = 'exam';
       //
       const li = this.shadowRoot.querySelectorAll('.body ol li')[this.examDocSelectedIndex];
       li.click();
     });
 
-    // 시행문으로 분리 이벤트
+    // 시행문으로 분리 버튼 이벤트
     this.shadowRoot.querySelector('#splitDocBtn').addEventListener('click', async (e) => {
       //
       // 체크된 contentNumber 모음
@@ -109,8 +125,8 @@ export default class FeContentSplitter extends HTMLElement {
       this.splitedExamDocMap = await splitDocToExam(contentNumbers);
       console.table(this.splitedExamDocMap);
 
-      this.shadowRoot.querySelector('#examDocViewBtn').removeAttribute('disabled');
-      this.shadowRoot.querySelector('#examDocViewBtn').click();
+      btnExamDocView.removeAttribute('disabled');
+      btnExamDocView.click();
 
       document.querySelector('.modal-container').classList.remove('open');
       e.target.style.display = 'none';

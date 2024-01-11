@@ -61,6 +61,7 @@ fe-contentsplitter {
       overflow: hidden;
 
       & > div {
+        // 버튼 영역
         display: flex;
         border-bottom: 1px solid #c5c5c5;
 
@@ -76,8 +77,10 @@ fe-contentsplitter {
             color: #0f6a9b;
           }
         }
-        #splitBtn {
-          font-size: 0.875rem;
+        #splitDocBtn {
+          color: #0f6a9b;
+          font-weight: 700;
+          margin-left: auto;
         }
       }
 
@@ -116,19 +119,5 @@ fe-contentsplitter {
         }
       }
     }
-  }
-
-  .resizable {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-
-    cursor: nwse-resize;
-    margin: 0;
-    padding: 0;
-    width: 2rem;
-    height: 2rem;
-    background: var(--color-gray);
-    transform: rotate(45deg) translateX(1.5rem);
   }
 }

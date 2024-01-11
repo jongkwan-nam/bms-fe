@@ -396,7 +396,8 @@ export default class FeAttachBox extends HTMLElement {
   }
 
   selectContent(contentNumber) {
-    if (this.contentLength > 1) {
+    const contentLength = getNodes(feMain.hox, 'docInfo content').length;
+    if (contentLength > 1) {
       this.contentSelector.querySelectorAll('option')[contentNumber].selected = true;
       this.contentSelector.dispatchEvent(new Event('change'));
     }
