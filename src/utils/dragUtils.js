@@ -1,3 +1,5 @@
+import './dragUtils.scss';
+
 export function moveableElement(elmnt, header) {
   var pos1 = 0,
     pos2 = 0,

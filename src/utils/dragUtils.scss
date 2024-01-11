@@ -1,0 +1,13 @@
+.resizable {
+  position: absolute !important;
+  right: 0;
+  bottom: 0;
+
+  background: var(--color-gray);
+  cursor: nwse-resize;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 2rem;
+  height: 2rem;
+  transform: rotate(45deg) translateX(1.5rem);
+}
