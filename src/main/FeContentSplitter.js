@@ -65,7 +65,7 @@ export default class FeContentSplitter extends HTMLElement {
               this.examDocSelectedIndex = i;
               dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
               // feEditor2 에 본문 붙여넣기
-              const examDoc = this.splitedExamDocMap.get('content' + (i + 1));
+              const examDoc = feMain.splitedExamDocMap.get('content' + (i + 1));
               feMain.feEditor2.insertContent(examDoc.hwp);
               feMain.feEditor2.setReadMode(true);
             }
@@ -122,8 +122,8 @@ export default class FeContentSplitter extends HTMLElement {
       const contentNumbers = Array.from(this.shadowRoot.querySelectorAll('.body ol input:checked')).map((input) => input.value);
       this.examDocSelectedIndex = contentNumbers[0] - 1; // 안분리후 처음 보여줄 안 index 설정
 
-      this.splitedExamDocMap = await splitDocToExam(contentNumbers);
-      console.table(this.splitedExamDocMap);
+      feMain.splitedExamDocMap = await splitDocToExam(contentNumbers);
+      console.table(feMain.splitedExamDocMap);
 
       btnExamDocView.removeAttribute('disabled');
       btnExamDocView.click();

@@ -34,6 +34,7 @@ class FeMain {
   buttonController = null;
   summary = { filePath: null, TRID: null };
   feMode = null;
+  splitedExamDocMap = null;
 
   constructor() {
     //
