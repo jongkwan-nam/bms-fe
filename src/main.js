@@ -19,7 +19,7 @@ import initiateHoxForKyul from './main/logic/initiateHoxForKyul';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
-import { getAttr, getNodeArray, getNodes, getText, loadHox } from './utils/hoxUtils';
+import { getAttr, getNodeArray, getNodes, loadHox } from './utils/hoxUtils';
 import { getObjectID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
@@ -44,23 +44,23 @@ class FeMain {
     console.time('main');
 
     const hoxTRID = rInfo.hoxFileTRID;
-    const hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
-    // hox 로딩
-    this.hox = await loadHox(hoxURL);
-    const wordType = getText(this.hox, 'docInfo formInfo formID');
-
-    this.feEditor1 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor1'));
-
+    let wordType = rInfo.WORDTYPE;
+    let hoxURL;
     let docURL = null;
+
     this.feMode = getFeMode();
     switch (this.feMode) {
       case FeMode.DRAFT: {
         document.title = 'FE 기안기';
+
+        hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.KYUL: {
         document.title = 'FE 결재기';
+
+        hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
         break;
       }
@@ -72,6 +72,8 @@ class FeMain {
       }
       case FeMode.REQUEST: {
         document.title = 'FE 발송의뢰';
+
+        hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
         break;
       }
@@ -82,10 +84,13 @@ class FeMain {
         throw new Error('undefiend FeMode: ' + this.feMode);
     }
 
+    // hox 로딩
+    this.hox = await loadHox(hoxURL);
+
+    this.feEditor1 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor1'));
+    this.feEditor1.show();
     await this.feEditor1.init(); // 에디터 로딩
     this.feEditor1.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
-    this.feEditor1.show();
-
     await this.feEditor1.open(docURL); // 문서 열기
 
     // 기안시 할 것들
