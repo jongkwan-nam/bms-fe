@@ -6,6 +6,7 @@ import HoldButton from './HoldButton';
 import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
 import RejectButton from './RejectButton';
+import SendControlButton from './SendControlButton';
 import SendRequestButton from './SendRequestButton';
 import StopButton from './StopButton';
 import SummaryButton from './SummaryButton';
@@ -86,9 +87,8 @@ export default class ButtonController {
         break;
       }
       case FeMode.REQUEST: {
-        // 발송의뢰 <-> none
+        // 발송의뢰
         this.#append(new SendRequestButton());
-        // 기안문   <-> 시행문
         // 결재정보
         this.#append(new ApprovalBoxButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
@@ -98,6 +98,7 @@ export default class ButtonController {
       case FeMode.CONTROL: {
         // 관인
         // 발송처리
+        this.#append(new SendControlButton());
         // 반송
         // 결재정보
         this.#append(new ApprovalBoxButton());

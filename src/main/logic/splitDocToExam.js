@@ -45,7 +45,7 @@ function createHoxBySplitedContent(clonedHox, splitedContentNode) {
   const newDocInfo = getNode(newHox, 'docInfo');
 
   setAttr(newHox, 'hox', 'type', 'enforce'); // hox의 속성 type => enforce
-
+  setText(newHox, 'docInfo apprID', '00000000000000000000');
   newDocInfo.prepend(newHox.createElement('draftApprID')); // draftApprID 추가
   getText(newHox, 'docInfo draftApprID', apprID);
 
@@ -68,6 +68,9 @@ function createHoxBySplitedContent(clonedHox, splitedContentNode) {
     node.remove();
   }
   newDocInfo.append(splitedContentNode);
+
+  setText(newHox, 'docInfo content receiptInfo senderID', rInfo.user.ID);
+  setText(newHox, 'docInfo content receiptInfo senderDeptID', rInfo.apprDeptID);
 
   // docInfo enforceDate 발송의뢰시 설정
 

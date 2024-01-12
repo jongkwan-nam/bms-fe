@@ -1,5 +1,5 @@
 import * as DateUtils from '../../utils/dateUtils';
-import { addNode, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
+import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
 import { getObjectID, isNullID } from '../../utils/idUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import Cell from '../CellNames';
@@ -164,7 +164,7 @@ export const process = async (hox) => {
         contentNumber = 1;
       }
       const contentNode = getNode(hox, 'content', contentNumber - 1);
-      addNode(contentNode, 'attachInfo attach', 'ID')[0].textContent = newObjectId;
+      addNodes(contentNode, 'attachInfo attach', 'ID')[0].textContent = newObjectId;
     });
 
   // 요약전

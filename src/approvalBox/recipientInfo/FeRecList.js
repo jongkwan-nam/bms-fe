@@ -1,5 +1,5 @@
 import syncFetch from 'sync-fetch';
-import { addNode, createNode, existsNode, getAttr, getNode, getNodes, getText } from '../../utils/hoxUtils';
+import { addNodes, createNode, existsNode, getAttr, getNode, getNodes, getText } from '../../utils/hoxUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import FeRec from './FeRec';
 import './FeRecList.scss';
@@ -296,7 +296,7 @@ export default class FeRecList extends FeApprovalBox {
 
   #renderRecList() {
     if (!existsNode(this.contentNode, 'receiptInfo recipient')) {
-      addNode(this.contentNode, 'receiptInfo', 'recipient');
+      addNodes(this.contentNode, 'receiptInfo', 'recipient');
     }
 
     this.LIST.textContent = null;

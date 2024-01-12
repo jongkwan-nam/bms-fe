@@ -44,19 +44,38 @@ export const createNode = (xmlText) => {
 };
 
 /**
- * 노드 추가
+ * 1개의 노드 추가 및 값 설정
+ * @param {Element} element
+ * @param {string} nodeName
+ * @param {string} nodeValue
+ * @returns
+ */
+export const addNode = (element, nodeName, nodeValue = null) => {
+  const newNode = element.appendChild(element.getRootNode().createElement(nodeName));
+  if (nodeValue !== null) newNode.textContent = nodeValue;
+  return newNode;
+};
+
+/**
+ * 여러개의 노드 추가
  * @param {Element} element
  * @param {string} selectors
  * @param {string} newNodeNames
  * @returns 추가된 node array
  */
-export const addNode = (element, selectors, ...newNodeNames) => {
+export const addNodes = (element, selectors, ...newNodeNames) => {
   const addedNodes = [];
-  element.querySelectorAll(selectors).forEach((element) => {
+  if (selectors !== null) {
+    element.querySelectorAll(selectors).forEach((element) => {
+      newNodeNames.forEach((newNodeName) => {
+        addedNodes.push(element.appendChild(element.getRootNode().createElement(newNodeName)));
+      });
+    });
+  } else {
     newNodeNames.forEach((newNodeName) => {
       addedNodes.push(element.appendChild(element.getRootNode().createElement(newNodeName)));
     });
-  });
+  }
   return addedNodes;
 };
 

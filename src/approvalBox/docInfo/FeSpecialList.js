@@ -1,4 +1,4 @@
-import { addNode, existsNode, getNodes } from '../../utils/hoxUtils';
+import { addNode as addNodes, existsNode, getNodes } from '../../utils/hoxUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeSpecialList.scss';
 
@@ -35,10 +35,10 @@ export default class FeSpecialList extends FeApprovalBox {
 
     // element 존재여부 체크
     if (!existsNode(this.hox, 'docInfo specialList')) {
-      addNode(this.hox, 'docInfo', 'specialList');
-      addNode(this.hox, 'docInfo specialList', 'specialItem');
-      addNode(this.hox, 'docInfo specialList', 'specialItem');
-      addNode(this.hox, 'docInfo specialList', 'specialItem');
+      addNodes(this.hox, 'docInfo', 'specialList');
+      addNodes(this.hox, 'docInfo specialList', 'specialItem');
+      addNodes(this.hox, 'docInfo specialList', 'specialItem');
+      addNodes(this.hox, 'docInfo specialList', 'specialItem');
     }
 
     getNodes(this.hox, 'docInfo specialList specialItem').forEach((item, i) => {
