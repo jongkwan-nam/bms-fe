@@ -38,6 +38,11 @@ export default class DraftButton extends HTMLButtonElement {
     }
 
     // 기안 처리
+
+    // 기안일때의 처리
+
+    // 최종결재일때의 처리
+
     console.time('actionDraft.process');
     const processResult = await actionDraft.process(feMain.hox);
     console.timeEnd('actionDraft.process');
