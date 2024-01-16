@@ -1,9 +1,14 @@
+import { getText } from '../../utils/hoxUtils';
+
 export default class MultiContentButton extends HTMLButtonElement {
   constructor() {
     super();
   }
 
   connectedCallback() {
+    if (getText(feMain.hox, 'docInfo formInfo formType') !== 'formtype_uniform') {
+      this.remove();
+    }
     //
     this.innerText = GWWEBMessage.cmsg_768;
     this.classList.add('btn');

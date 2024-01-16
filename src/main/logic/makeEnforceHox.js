@@ -11,22 +11,22 @@ import { takeDocNumber } from './docNumber';
  * @returns {XMLDocument} 시행문 hox
  */
 export const makeEnforceHox4MultiDoc = (multiDraftHox, contentNumber) => {
+  console.log('makeEnforceHox4MultiDoc', contentNumber);
+  //
   const contentIndex = parseInt(contentNumber) - 1;
   const orgApprID = getText(multiDraftHox, 'docInfo apprID');
   //
   const enforceHox = multiDraftHox.cloneNode(true);
 
   // 다른 content 노드 제거
-  const contentLength = getNodes(enforceHox, 'docInfo content').length;
-  for (let i = 0; i < contentLength; i++) {
-    const nodeOfContent = getNode(enforceHox, 'docInfo content', i);
+  getNodeArray(enforceHox, 'docInfo content').forEach((nodeOfContent, i) => {
     if (i !== contentIndex) {
       nodeOfContent.remove();
     } else {
       // 맞는 안일때, enforce 노드가 있다면 제거
       getNode(nodeOfContent, 'enforce')?.remove();
     }
-  }
+  });
 
   // 다른 안의 첨부 objectID 제거
   const nodesOfObjectID = getNodeArray(enforceHox, 'docInfo objectIDList objectID');

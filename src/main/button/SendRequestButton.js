@@ -57,6 +57,8 @@ export default class SendRequestButton extends HTMLButtonElement {
 
     const enforceHoxList = [];
 
+    console.log('SendRequestButton', isMultiDraft, isDraftForm, todayNow);
+
     // 원문서 hox 처리
     setAttr(feMain.hox, 'docInfo', 'modification', 'no');
 
@@ -69,6 +71,9 @@ export default class SendRequestButton extends HTMLButtonElement {
     getNodeArray(feMain.hox, 'docInfo content').forEach((content, i) => {
       const enforceType = getText(content, 'enforceType');
       const sendStatus = getText(content, 'enforce sendStatus');
+      const contentNumber = i + 1;
+
+      console.log(contentNumber, enforceType, sendStatus, 'doccfg.autoInternalSend' + doccfg.autoInternalSend);
 
       if ('enforcetype_not' === enforceType) {
         return;
@@ -83,8 +88,8 @@ export default class SendRequestButton extends HTMLButtonElement {
         enforceNode.append(nodeFormInfo.cloneNode(true));
       }
 
-      if (isMultiDraft && doccfg.autoInternalSend && enforceType === 'enforcetype_internal') {
-        const enforceHox = makeEnforceHox4MultiDoc(feMain.hox, i + 1);
+      if (isMultiDraft || (doccfg.autoInternalSend && enforceType === 'enforcetype_internal')) {
+        const enforceHox = makeEnforceHox4MultiDoc(feMain.hox, contentNumber);
         const enforceApprID = getText(enforceHox, 'docInfo apprID');
 
         // 시행문 apprID를 content enforce docID에 설정

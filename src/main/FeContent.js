@@ -1,5 +1,5 @@
 import { moveableElement, resizableElement } from '../utils/dragUtils';
-import { HoxEventType, createNode, dispatchHoxEvent, getNode, getText } from '../utils/hoxUtils';
+import { HoxEventType, createNode, dispatchHoxEvent, getNode, getNodes, getText, setAttr } from '../utils/hoxUtils';
 import './FeContent.scss';
 
 /**
@@ -12,6 +12,7 @@ import './FeContent.scss';
  */
 export default class FeContent extends HTMLElement {
   currentContentNumber = 1;
+  contentLength = 1;
 
   constructor() {
     super();
@@ -196,6 +197,10 @@ export default class FeContent extends HTMLElement {
     docInfoNode.insertBefore(contentNode, lastContentNode.nextSibling);
     //
     this.#appendLastContentItem();
+
+    this.contentLength = getNodes(feMain.hox, 'docInfo content').length;
+    setAttr(feMain.hox, 'hox', 'type', this.contentLength > 1 ? 'multiDraft' : 'draft');
+
     // hox 이벤트 전파
     dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'add', contentNode);
     // 추가된 안(마지막 안) 선택
@@ -265,6 +270,10 @@ export default class FeContent extends HTMLElement {
       li.querySelector('.content-number').innerHTML = `${i + 1} ${GWWEBMessage.cmsg_765}`;
       li.querySelector('input').value = i + 1;
     });
+
+    //
+    this.contentLength = getNodes(feMain.hox, 'docInfo content').length;
+    setAttr(feMain.hox, 'hox', 'type', this.contentLength > 1 ? 'multiDraft' : 'draft');
 
     // hox 이벤트 전파
     dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'delete', checkedContentNumberArray);

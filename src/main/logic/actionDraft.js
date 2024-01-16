@@ -1,6 +1,6 @@
 import * as DateUtils from '../../utils/dateUtils';
-import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
-import { getObjectID, isNullID } from '../../utils/idUtils';
+import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setAttr, setText } from '../../utils/hoxUtils';
+import { getObjectID, getParticipantIDs, getSancMsgID, isNullID } from '../../utils/idUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import Cell from '../CellNames';
 import FeSignDialog from '../FeSignDialog';
@@ -122,6 +122,8 @@ export const process = async (hox) => {
   const feEditor1 = feMain.feEditor1;
   const feAttachBox = feMain.feAttachBox;
 
+  const todayNow = DateUtils.format(rInfo.currentDate, 'YYYY-MM-DDTHH24:MI:SS');
+
   // appr id 채번
   /**
    * /bms/com/hs/gwweb/appr/retrieveNewDocId.act K: 00G392eYq, UID: 001000001
@@ -134,15 +136,9 @@ export const process = async (hox) => {
 
   // participant id 채번
   // 필요한 갯수 구하기
-  const count = Array.from(getNodes(hox, 'approvalFlow participant participantID')).filter((pID) => isNullID(pID.textContent)).length;
-  /**
-   * /bms/com/hs/gwweb/appr/retrievePrtcpntIdList.act K: 00G392eYq, count: 2
-   * > {"ids":["JHOMS233520000212000","JHOMS233520000213000"],"ok":true}
-   */
-  const newParticipantIDListInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrievePrtcpntIdList.act?count=${count}`).then((res) => res.json());
-  const newParticipantIDs = newParticipantIDListInfo.ids;
-  console.log('newParticipantIDs', newParticipantIDs);
-  Array.from(getNodes(hox, 'approvalFlow participant participantID'))
+  const count = getNodeArray(hox, 'approvalFlow participant participantID').filter((pID) => isNullID(pID.textContent)).length;
+  const newParticipantIDs = getParticipantIDs(count);
+  getNodeArray(hox, 'approvalFlow participant participantID')
     .filter((pID) => isNullID(pID.textContent))
     .forEach((pID, i) => {
       pID.textContent = newParticipantIDs[i];
@@ -175,6 +171,61 @@ export const process = async (hox) => {
       setText(objectID, 'ID', newObjectId);
       setText(objectID, 'participantID', drafterParticipantID);
     });
+
+  // enforceType
+  const enforceTypes = getNodeArray(hox, 'docInfo content').map((content) => getText(content, 'enforceType'));
+  console.log('enforceTypes', enforceTypes);
+  let enforceType = 'enforcetype_not';
+  if (enforceTypes.includes('enforcetype_external')) {
+    enforceType = 'enforcetype_external';
+  } else if (enforceTypes.includes('enforcetype_internal')) {
+    enforceType = 'enforcetype_internal';
+  }
+  setText(hox, 'docInfo enforceType', enforceType);
+
+  if (enforceType === 'enforcetype_not') {
+    // 내부결재면, examRequest 내용 지우기
+    getNode(hox, 'examRequest').textContent = null;
+  }
+
+  // 완료여부 체크.
+  // 기안자 완료처리
+  const currentParticipant = feMain.getCurrentParticipant();
+  setText(currentParticipant, 'approvalStatus', 'partapprstatus_done');
+  setText(currentParticipant, 'date', todayNow);
+  setAttr(currentParticipant, null, 'IPAddress', window.myIpAddr);
+
+  // 앞으로 결재할 사용자들
+  const leftParticiants = getNodeArray(hox, 'approvalFlow participant')
+    .filter((participant) => 'valid' === getText(participant, 'validStatus'))
+    .filter((participant) => {
+      // 진행, 대기, 보류, 기안 상태
+      const approvalStatus = getText(participant, 'approvalStatus');
+      return ['partapprstatus_draft', 'partapprstatus_now', 'partapprstatus_will', 'partapprstatus_postpone'].includes(approvalStatus);
+    })
+    .filter((participant) => {
+      // 결재하는 타입
+      const approvalType = getText(participant, 'approvalType');
+      const approvalSubType = getText(participant, 'approvalSubTye');
+      if (['user_nosign', 'user_refer', 'user_noapproval'].includes(approvalType)) {
+        return false;
+      }
+      return true;
+    });
+  console.log('leftParticiants', leftParticiants);
+  if (leftParticiants.length === 0) {
+    // 남은 결재자가 없으므로, 완료처리한다
+    setText(hox, 'docInfo approvalStatus', 'apprstatus_finish');
+    setText(hox, 'docInfo approvalDate', todayNow);
+
+    if (enforceType !== 'enforcetype_not') {
+      // 대내, 대외이면, examRequest 내용 채우기
+      setText(hox, 'examRequest conversionDate', todayNow);
+      setText(hox, 'examRequest requestDate', todayNow);
+      setText(hox, 'examRequest exam examID', getSancMsgID());
+      setText(hox, 'examRequest exam examiner participantID', getParticipantIDs(1)[0]);
+    }
+  }
 
   // 웹한글 본문 저장
   const downloadURL = await feEditor1.saveServer(newDocId);

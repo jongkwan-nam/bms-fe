@@ -4,8 +4,9 @@ import './approvalBox/FeFlow';
 import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
 import StyleController from './config/styleController';
+import { FeMode, getFeMode } from './main/FeMode';
 import * as TabUI from './utils/TabUI';
-import { HoxEventType, dispatchHoxEvent, getNodes } from './utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getNodeArray, getNodes, getText, setAttr } from './utils/hoxUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
 popupSizeRestorer('approvalBox.window.size', 1020, 720);
@@ -99,6 +100,23 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
   console.log('approvalBox verify');
   // hox 검증
 
+  // 현재 결재자/기안자 participant current = true 처리
+  getNodes(hox, 'approvalFlow participant').forEach((participant) => setAttr(participant, null, 'current', 'false'));
+  const feMode = getFeMode();
+  if (feMode === FeMode.DRAFT) {
+    // 첫 participant
+    const draftParticipant = getNodeArray(hox, 'approvalFlow participant').filter((participant) => 'valid' === getText(participant, 'validStatus'))[0];
+    setAttr(draftParticipant, null, 'current', 'true');
+  } else if (feMode === FeMode.KYUL) {
+    // approvalStatus = partapprstatus_now
+    const nowParticipant = getNodeArray(hox, 'approvalFlow participant')
+      .filter((participant) => 'valid' !== getText(participant, 'validStatus'))
+      .filter((participant) => 'partapprstatus_now' === getText(participant, 'approvalStatus'))
+      .filter((participant) => rInfo.user.ID === getText(participant, 'ID') || rInfo.user.ID === getText(participant, 'charger ID'))[0];
+
+    setAttr(nowParticipant, null, 'current', 'true');
+  }
+
   // 발송종류가 내부라면, hox 내용 지우기
 
   // opener에 hox 전달
@@ -113,7 +131,6 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
 
 document.getElementById('btnCancel').addEventListener('click', (e) => {
   console.log('approvalBox cancel');
-
   // 닫기
   close();
 });

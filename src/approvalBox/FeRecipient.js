@@ -417,8 +417,11 @@ export default class FeRecipient extends FeApprovalBox {
       throw new Error(`notfound senderNames by enforceType=${enforcetype} draftDeptId=${draftDeptId} lastSignDeptId=${lastSignDeptId}`);
     }
     this.senderName.textContent = null;
-    ArrayUtils.split(ret.senderNames, ';').forEach((name) => {
+    ArrayUtils.split(ret.senderNames, ';').forEach((name, i) => {
       this.senderName.innerHTML += `<option value="${name}">${name}</option>`;
+      if (i === 0) {
+        setText(this.contentNode, 'senderName', name);
+      }
     });
   }
 

@@ -102,8 +102,9 @@
       <div class="input-group">
         <div class="form-floating">
           <select class="form-select">
-            <option value="JHOMS233520000102000">JHOMS233520000102000</option>
-            <option value="JHOMS232880000001000">JHOMS232880000001000</option>
+            <option value="JHOMS233520000102000">JHOMS233520000102000 [웹한글] 통합. 서명4, 협조3</option>
+            <option value="JHOMS232880000001000">JHOMS232880000001000 [통합] 웹기본서식</option>
+            <option value="JHOMS240160000148000">JHOMS240160000148000 [웹한글] 기안서식</option>
           </select>
           <label>Form ID</label>
         </div>
@@ -121,7 +122,7 @@
     <script>
       const container = document.querySelector('.container');
       [
-        { type: 'gian', text: '기안', form: 'select', url: '/bms/fe/retrieveDoccrdWritng.act?FORMID=' },
+        { type: 'gian', text: '기안', form: 'select', url: '/bms/fe/retrieveDoccrdWritng.act?WORDTYPE=5&FORMID=' },
         { type: 'kyul', text: '결재', form: 'input', url: '/bms/fe/retrieveDoccrdSanctn.act?WORDTYPE=5&CLTAPP=3&APPLID=2010&APPRIDLIST=' },
         { type: 'request', text: '발송대기', form: 'input', url: '/bms/fe/retrieveDoccrdSndngRequest.act?WORDTYPE=5&CLTAPP=5&APPLID=4030&APPRIDLIST=' },
         { type: 'control', text: '발송처리', form: 'input', url: '/bms/fe/retrieveDoccrdSndng.act' },
