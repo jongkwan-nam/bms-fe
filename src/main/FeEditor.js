@@ -53,16 +53,17 @@ export default class FeEditor extends FeHwpCtrl {
    * 로딩 완료까지 대기
    */
   async init() {
-    console.time(TIME_LABEL_INIT);
-
     this.id = this.getAttribute('id');
+
+    console.time(TIME_LABEL_INIT + this.id);
 
     return new Promise((resolve, reject) => {
       this.shadowRoot.querySelector('iframe').src = './hwpctrlframe.html?id=' + this.id;
 
       const timer = setInterval(() => {
         if (this.hwpCtrl !== null) {
-          console.timeEnd(TIME_LABEL_INIT);
+          console.timeEnd(TIME_LABEL_INIT + this.id);
+
           clearInterval(timer);
           resolve();
         }
@@ -305,6 +306,20 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   /**
+   * 전체 문서를 복사한다
+   * @param {string} format
+   * @returns
+   */
+  async copyDocument(format) {
+    // this.setEditMode(1);
+    super.toggleViewOptionCtrkMark(true);
+    const text = await super.getTextFile(format);
+    super.toggleViewOptionCtrkMark(false);
+    // this.setEditMode(2);
+    return text;
+  }
+
+  /**
    * 안의 내용 복사
    * @param {number} contentNumber
    * @param {string} format
@@ -325,7 +340,9 @@ export default class FeEditor extends FeHwpCtrl {
     this.hwpCtrl.Clear(1);
     let res = await super.insert(jsonData, 'JSON');
     console.log('insertContent', res);
-    return res;
+    if (!res.result) {
+      throw new Error('insertContent Error');
+    }
   }
 
   /**

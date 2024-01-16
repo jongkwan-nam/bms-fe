@@ -1,6 +1,7 @@
 import * as DateUtils from '../../utils/dateUtils';
 import { addNode, existsNode, getAttr, getNode, getNodeArray, getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
 import * as IdUtils from '../../utils/idUtils';
+import { makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';
 
 const FD_APPLID_SENDING = 4020;
 const HCLTAPP_RESIMSA = 7;
@@ -46,109 +47,113 @@ export default class SendRequestButton extends HTMLButtonElement {
     // SendDoc.updateContentPromise
     // -> 현재 안의 데이터 저장
     // ==> FeContentSplitter에서 각 안의 문서 데이터 저장했음. 여기선 필요 없음
-    const isMultiDraft = getAttr(feMain.hox, 'hox', 'type') === 'multiDraft';
-    if (isMultiDraft) {
-      const nodeFormInfo = getNode(feMain.hox, 'docInfo formInfo');
-      const enforceType = getText(feMain.hox, 'docInfo enforceType');
+    const isMultiDraft = 'multiDraft' === getAttr(feMain.hox, 'hox', 'type');
+    const isDraftForm = 'formtype_draft' === getText(feMain.hox, 'formInfo formType');
 
-      // Doc.setExamDraftDocCommon
-      getNodeArray(feMain.hox, 'docInfo content')
-        .filter((content) => getText(content, 'enforceType') !== 'enforcetype_not')
-        .forEach((content) => {
-          //
-          setText(content, 'enforceMethod', 'enforcemethod_direct');
-          // enforce 노드가 없다면 초기값으로 추가
-          if (!existsNode(content, 'enforce')) {
-            const enforceNode = addNode(content, 'enforce');
-            addNode(enforceNode, 'docID', '00000000000000000000');
-            addNode(enforceNode, 'sendStatus', 'apprstatus_ing');
-            enforceNode.append(nodeFormInfo.cloneNode(true));
-          }
-        });
+    const todayNow = DateUtils.format(rInfo.currentDate, 'YYYY-MM-DDTHH24:MI:SS');
 
-      // SendDoc.setExamEnforceDoc();
-      const formType = getText(nodeFormInfo, 'formType');
-      if (formType === 'formtype_draft') {
-        // TODO 기안서식일때. apprSendCommon_hwp.js 48line
-      } else if (formType === 'formtype_uniform') {
-        // hox
-        setAttr(feMain.hox, 'docInfo', 'modification', 'no');
-        setText(feMain.hox, 'docInfo enforceDate', DateUtils.format(rInfo.currentDate, 'YYYY-MM-DDTHH24:MI:SS'));
-        // participant
-        getNodes(feMain.hox, 'approvalFlow participant').forEach((participant) => setAttr(participant, null, 'current', 'false'));
-        // examRequest
-        let examID = getText(feMain.hox, 'examRequest exam examID');
-        if (IdUtils.isNullID(examID)) {
-          // TODO msg ID 채번
-          examID = IdUtils.getSancMsgID();
-          setText(feMain.hox, 'examRequest exam examID', examID);
-        }
-        setText(feMain.hox, 'examRequest exam examDate', DateUtils.format(rInfo.currentDate, 'YYYY-MM-DDTHH24:MI:SS'));
-        if (enforceType == 'enforcetype_not' || (doccfg.autoInternalSend && enforceType === 'enforcetype_internal')) {
-          setText(feMain.hox, 'examRequest exam examStatus', 'apprstatus_finish');
-        } else {
-          if (rInfo.applID === FD_APPLID_SENDING && rInfo.cltApp === HCLTAPP_RESIMSA) {
-            setText(feMain.hox, 'examRequest exam examStatus', 'apprstatus_rerequest');
-          } else {
-            setText(feMain.hox, 'examRequest exam examStatus', 'apprstatus_request');
-          }
-          // TODO participant ID 채번
-          let participantID = IdUtils.getParticipantIDs(1)[0];
-          setText(feMain.hox, 'examRequest exam examiner participantID', participantID);
-          setText(feMain.hox, 'examRequest exam examiner position', rInfo.user.positionName);
-          setText(feMain.hox, 'examRequest exam examiner dutyName', rInfo.user.dutyName);
-          setText(feMain.hox, 'examRequest exam examiner ID', rInfo.user.ID);
-          setText(feMain.hox, 'examRequest exam examiner name', rInfo.user.name);
-          setText(feMain.hox, 'examRequest exam examiner type', 'user');
-          setText(feMain.hox, 'examRequest exam examiner department ID', rInfo.dept.ID);
-          setText(feMain.hox, 'examRequest exam examiner department name', rInfo.dept.name);
-          setText(feMain.hox, 'examRequest exam examiner date', '1970-01-01T09:00:00');
-          setText(feMain.hox, 'examRequest exam examiner status', 'partapprstatus_now');
-          setText(feMain.hox, 'examRequest exam examiner examType', 'examinertype_send');
-          setAttr(feMain.hox, 'examRequest exam examiner reportEtcType', 'typeID', '0');
-          setAttr(feMain.hox, 'examRequest exam examiner examNum', 'sequence', '0');
+    const nodeFormInfo = getNode(feMain.hox, 'docInfo formInfo');
+    const enforceType = getText(feMain.hox, 'docInfo enforceType');
 
-          //
-        }
+    const enforceHoxList = [];
 
-        // editor
-        // 심사정보
-        // IMPL_PutFieldText('editor2', CELL_EXAM_DATE, util_mkdisplaydate(rInfo.currentDate));
-        // IMPL_PutFieldText('editor2', CELL_EXAM_SIGNER, rInfo.user.name);
+    // 원문서 hox 처리
+    setAttr(feMain.hox, 'docInfo', 'modification', 'no');
+
+    // objectID dirty=''
+    getNodes(feMain.hox, 'objectIDList objectID').forEach((objectID) => {
+      setAttr(objectID, null, 'dirty', '');
+    });
+
+    // Doc.setExamDraftDocCommon
+    getNodeArray(feMain.hox, 'docInfo content').forEach((content, i) => {
+      const enforceType = getText(content, 'enforceType');
+      const sendStatus = getText(content, 'enforce sendStatus');
+
+      if ('enforcetype_not' === enforceType) {
+        return;
       }
 
-      // SendDoc.setPostExamEnforceDocPromise
-      feMain.splitedExamDocMap.forEach((examDoc, contentName) => {
-        console.log(contentName, examDoc);
+      setText(content, 'enforceMethod', 'enforcemethod_direct');
+      // enforce 노드가 없다면 초기값으로 추가
+      if (!existsNode(content, 'enforce')) {
+        const enforceNode = addNode(content, 'enforce');
+        addNode(enforceNode, 'docID', IdUtils.NULL_APPRID);
+        addNode(enforceNode, 'sendStatus', 'apprstatus_ing');
+        enforceNode.append(nodeFormInfo.cloneNode(true));
+      }
 
-        // SendDoc.setPreEnforceHoxPromise
-        const enforceType = getText(examDoc.hox, 'docInfo enforceType');
-        // 대내 자동발송이면 ID 채번
-        if (doccfg.autoInternalSend && enforceType === 'enforcetype_internal') {
-          // 시행문의 ID 채번
-          getText(examDoc.hox, 'docInfo apprID', IdUtils.getSancMsgID());
-          // TODO 문서번호 설정
+      if (isMultiDraft && doccfg.autoInternalSend && enforceType === 'enforcetype_internal') {
+        const enforceHox = makeEnforceHox4MultiDoc(feMain.hox, i + 1);
+        const enforceApprID = getText(enforceHox, 'docInfo apprID');
 
-          // 원문서에 완료 표시
-          getNode(feMain.hox, 'docInfo content enforce sendStatus', examDoc.contentNumber).textContent = 'apprstatus_finish';
+        // 시행문 apprID를 content enforce docID에 설정
+        setText(content, 'enforce docID', enforceApprID);
+        setText(content, 'enforce sendStatus', 'apprstatus_finish');
+        // 시행문의 docNumber를 enforce노드에 추가
+        const nodeOfDocNumber = getNode(enforceHox, 'docNumber');
+        getNode(content, 'enforce').append(nodeOfDocNumber.cloneNode(true));
 
-          // 본문 저장 -> TRID
-        }
-        // participantID 새로 채번
-        const l = getNodes(examDoc.hox, 'approvalFlow participant').length;
-        IdUtils.getParticipantIDs(l).forEach((id, i) => {
-          getNode(examDoc.hox, 'approvalFlow participant participantID', i).textContent = id;
-        });
+        enforceHoxList.push(enforceHox);
+      }
+    });
 
-        // SendDoc.loadEnforceDocToEditorPromise
-        feMain.feEditor2.insertContent(examDoc.hwp);
-
-        // SendDoc.setEnforceDocFormUploadPromise
-      });
-    } else {
-      // Doc.setExamDraftDoc();
-      // SendDoc.setPostExamEnforceDocPromise
+    if (isDraftForm) {
+      setText(feMain.hox, 'examRequest conversionDate', todayNow);
     }
+
+    // hox
+    setText(feMain.hox, 'docInfo enforceDate', todayNow);
+
+    // participant: current = false
+    getNodes(feMain.hox, 'approvalFlow participant').forEach((participant) => setAttr(participant, null, 'current', 'false'));
+
+    // examRequest
+    if (isMultiDraft) {
+      // 일괄기안이면, examID 채번. 기안서식은 결재시 채번
+      setText(feMain.hox, 'examRequest exam examID', IdUtils.getSancMsgID());
+    }
+    setText(feMain.hox, 'examRequest exam examDate', todayNow);
+
+    // examRequest exam examStatus
+    if (enforceType == 'enforcetype_not' || (doccfg.autoInternalSend && enforceType === 'enforcetype_internal')) {
+      setText(feMain.hox, 'examRequest exam examStatus', 'apprstatus_finish');
+    } else {
+      if (rInfo.applID === FD_APPLID_SENDING && rInfo.cltApp === HCLTAPP_RESIMSA) {
+        setText(feMain.hox, 'examRequest exam examStatus', 'apprstatus_rerequest');
+      } else {
+        setText(feMain.hox, 'examRequest exam examStatus', 'apprstatus_request');
+      }
+    }
+
+    // examiner participant ID 채번
+    let participantID = IdUtils.getParticipantIDs(1)[0];
+    setText(feMain.hox, 'examRequest exam examiner participantID', participantID);
+    setText(feMain.hox, 'examRequest exam examiner position', rInfo.user.positionName);
+    setText(feMain.hox, 'examRequest exam examiner dutyName', rInfo.user.dutyName);
+    setText(feMain.hox, 'examRequest exam examiner ID', rInfo.user.ID);
+    setText(feMain.hox, 'examRequest exam examiner name', rInfo.user.name);
+    setText(feMain.hox, 'examRequest exam examiner type', 'user');
+    setText(feMain.hox, 'examRequest exam examiner department ID', rInfo.dept.ID);
+    setText(feMain.hox, 'examRequest exam examiner department name', rInfo.dept.name);
+    setText(feMain.hox, 'examRequest exam examiner date', '1970-01-01T09:00:00');
+    setText(feMain.hox, 'examRequest exam examiner status', 'partapprstatus_now');
+    setText(feMain.hox, 'examRequest exam examiner examType', 'examinertype_send');
+    setAttr(feMain.hox, 'examRequest exam examiner reportEtcType', 'typeID', '0');
+    setAttr(feMain.hox, 'examRequest exam examiner examNum', 'sequence', '0');
+
+    console.log(feMain.hox);
+    enforceHoxList.forEach((enforceHox) => console.log(enforceHox));
+
+    // editor
+    // 심사정보
+    // IMPL_PutFieldText('editor2', CELL_EXAM_DATE, util_mkdisplaydate(rInfo.currentDate));
+    // IMPL_PutFieldText('editor2', CELL_EXAM_SIGNER, rInfo.user.name);
+
+    // feMain.splitedExamDocMap.forEach((examDoc, contentName) => {
+    //   console.log(contentName, examDoc);
+    //   feMain.feEditor2.insertContent(examDoc.hwp);
+    // });
   }
 }
 

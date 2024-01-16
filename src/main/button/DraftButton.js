@@ -1,5 +1,8 @@
 import * as actionDraft from '../logic/actionDraft';
 
+/**
+ * 기안 버튼
+ */
 export default class DraftButton extends HTMLButtonElement {
   constructor() {
     super();

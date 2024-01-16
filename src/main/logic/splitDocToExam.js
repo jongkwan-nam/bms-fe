@@ -4,26 +4,29 @@ import { getAttr, getNode, getNodes, getText, setAttr, setText } from '../../uti
  * @param {number[]} contentNumbers
  */
 export default async (contentNumbers) => {
+  const splitedExamDocMap = new Map();
   //
-  console.log('splitDocToExam');
+  console.log('splitDocToExam', contentNumbers);
 
   const feEditor1 = feMain.feEditor1;
-  const hox = feMain.hox;
-  const clonedHox = hox.cloneNode(true);
-
-  const splitedExamDocMap = new Map();
+  const feEditor2 = feMain.feEditor2;
 
   for (let n of contentNumbers) {
-    const nodeContent = getNode(hox, 'content', n - 1);
-    const splitedContentNode = nodeContent.cloneNode(true);
+    // feEditor1 에서 n번째 안 복사
+    let hwpJsonData = await feEditor1.copyContent(n, 'JSON');
+    console.log(n, 'copy', hwpJsonData);
 
-    // feEditor1 에 n번째 안 복사
-    const hwpJsonData = await feEditor1.copyContent(n, 'JSON');
-    const newHox = createHoxBySplitedContent(clonedHox, splitedContentNode);
+    // feEditor2 로 붙여넣기
+    await feEditor2.insertContent(hwpJsonData);
+
+    // content관련 셀명을 단일안 이름으로 복구
+    feEditor2.renameContentCellName(n, 1);
+
+    // feEditor2 전체 복사
+    hwpJsonData = await feEditor2.copyDocument('JSON');
 
     splitedExamDocMap.set('content' + n, {
       hwp: hwpJsonData,
-      hox: newHox,
     });
   }
 

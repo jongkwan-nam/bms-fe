@@ -119,7 +119,7 @@ export default class FeContentSplitter extends HTMLElement {
     this.shadowRoot.querySelector('#splitDocBtn').addEventListener('click', async (e) => {
       //
       // 체크된 contentNumber 모음
-      const contentNumbers = Array.from(this.shadowRoot.querySelectorAll('.body ol input:checked')).map((input) => input.value);
+      const contentNumbers = Array.from(this.shadowRoot.querySelectorAll('.body ol input:checked')).map((input) => parseInt(input.value));
       this.examDocSelectedIndex = contentNumbers[0] - 1; // 안분리후 처음 보여줄 안 index 설정
 
       feMain.splitedExamDocMap = await splitDocToExam(contentNumbers);
