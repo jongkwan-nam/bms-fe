@@ -17,6 +17,12 @@ const FeStorage = {
       let value = FeStorage.local.get(name, defaultValue);
       return value === true || value === 'true' || value === 'on' || value === 'yes' || value === 'Y';
     },
+    /**
+     *
+     * @param {string} name
+     * @param {string} defaultValue ,로 구분된 기본값
+     * @returns {string[]}
+     */
     getArray: (name, defaultValue) => {
       return FeStorage.local.get(name, defaultValue).split(',');
     },

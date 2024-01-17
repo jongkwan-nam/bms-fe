@@ -29,6 +29,8 @@ let nodeObjectIDOfSummary = null; // 요약의 objectID 노드
   // 양식모드 설정
   feEditor.setEditMode(2);
 
+  feEditor.show();
+
   let summaryURL = null;
   switch (feMain.feMode) {
     case FeMode.DRAFT: {

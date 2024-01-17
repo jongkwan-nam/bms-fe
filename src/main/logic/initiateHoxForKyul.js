@@ -1,7 +1,8 @@
-import { getNodes, getText, setAttr } from '../../utils/hoxUtils';
+import { getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
+import { isBlank } from '../../utils/stringUtils';
 
 export default (hox) => {
-  //
+  // 현재 결재자 결정
   for (const participant of getNodes(hox, 'approvalFlow participant')) {
     const participantID = getText(participant, 'participantID');
     const id = getText(participant, 'ID');
@@ -23,6 +24,15 @@ export default (hox) => {
       setAttr(participant, null, 'current', 'true');
     } else {
       setAttr(participant, null, 'current', 'false');
+    }
+  }
+
+  // 단일안 일때 content/pageCnt가 이전 기안기에서 설정 안됬을수도 있어 검사
+  const contentLength = getNodes(hox, 'docInfo content').length;
+  if (contentLength === 1) {
+    const pageCnt = getText(hox, 'docInfo content pageCnt');
+    if (isBlank(pageCnt) || pageCnt === '0') {
+      setText(hox, 'docInfo content pageCnt', getText(hox, 'docInfo pageCnt'));
     }
   }
 };

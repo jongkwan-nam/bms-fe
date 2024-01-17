@@ -5,6 +5,7 @@ import feStorage from '../../utils/FeStorage';
 import * as DateUtils from '../../utils/dateUtils';
 import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
 import { isNotNullID } from '../../utils/idUtils';
+import * as StringUtils from '../../utils/stringUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFolder.scss';
 
@@ -52,35 +53,48 @@ export default class FeFolder extends FeApprovalBox {
   set(hox) {
     super.setHox(hox);
 
-    this.fldrId = '';
-    this.fldrName = '';
+    this.fldrId = getText(this.hox, 'docInfo folderInfo ID');
+    this.fldrName = getText(this.hox, 'docInfo folderInfo name');
+
+    let draftDate = getText(this.hox, 'docInfo draftDate');
+    if (StringUtils.isBlank(draftDate)) {
+      draftDate = DateUtils.format(rInfo.currentDate, 'YYYY-MM-DDTHH24:MI:SS');
+      setText(hox, 'docInfo draftDate', draftDate);
+    }
 
     const STORAGE_FOLDER_HISTORY_KEY = `folder_history_${rInfo.objForm1.formID}`;
 
     const fldrMap = new Map();
 
     /* local storage의 해당 서식의 폴더 히스토리를 select > option 에 추가 */
-    let folderIdList = feStorage.local.getArray(STORAGE_FOLDER_HISTORY_KEY);
+    const folderIdList = feStorage.local.getArray(STORAGE_FOLDER_HISTORY_KEY);
+
+    if (isNotNullID(this.fldrId)) {
+      if (!folderIdList.includes(this.fldrId)) {
+        folderIdList.push(this.fldrId);
+      }
+    }
+
     for (let folderId of folderIdList) {
       if (folderId.trim().length === 0) {
         continue;
       }
       // folderId 검증 후 option 추가
-      const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${DateUtils.format(Date.now(), 'YYYY-MM-DD')}`).json();
+      const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${draftDate.substring(0, 10)}`).json();
       if (data.ok) {
         //
         const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveFldrInfo.act?fldrID=${folderId}&applID=${7010}`).json();
         fldrMap.set(data.fldrId, data);
-        let option = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
+
+        const option = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
         option.value = data.fldrId;
         option.innerHTML = `${data.fldrName} (${GWWEBMessage['keepPeriodRange_' + data.fldrKeepingPeriod]})`;
       }
     }
 
     // 값 설정
-    const folderID = getText(this.hox, 'docInfo folderInfo ID');
-    if (isNotNullID(folderID)) {
-      this.shadowRoot.querySelector('select').value = folderID;
+    if (isNotNullID(this.fldrId)) {
+      this.shadowRoot.querySelector('select').value = this.fldrId;
     }
 
     // 기록물철 select 선택

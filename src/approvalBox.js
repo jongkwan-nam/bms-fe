@@ -110,7 +110,7 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
   } else if (feMode === FeMode.KYUL) {
     // approvalStatus = partapprstatus_now
     const nowParticipant = getNodeArray(hox, 'approvalFlow participant')
-      .filter((participant) => 'valid' !== getText(participant, 'validStatus'))
+      .filter((participant) => 'valid' === getText(participant, 'validStatus'))
       .filter((participant) => 'partapprstatus_now' === getText(participant, 'approvalStatus'))
       .filter((participant) => rInfo.user.ID === getText(participant, 'ID') || rInfo.user.ID === getText(participant, 'charger ID'))[0];
 

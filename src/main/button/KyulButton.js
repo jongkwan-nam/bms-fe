@@ -1,4 +1,4 @@
-import * as actionKyul from '../logic/actionKyul';
+import submitOfKyul from '../logic/submit/submitOfKyul';
 
 /**
  * 결재
@@ -12,12 +12,11 @@ export default class KyulButton extends HTMLButtonElement {
     //
     this.innerText = GWWEBMessage.cmsg_0012;
     this.classList.add('btn', 'btn-primary');
-    this.addEventListener('click', (e) => this.#doAction());
+    this.addEventListener('click', async (e) => this.#doAction());
   }
 
   async #doAction() {
-    //
-    await actionKyul.process();
+    await submitOfKyul();
   }
 }
 
