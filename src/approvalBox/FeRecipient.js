@@ -3,7 +3,7 @@ import syncFetch from 'sync-fetch';
 import '../lib/dynatree';
 import ArrayUtils from '../utils/ArrayUtils';
 import StringUtils from '../utils/StringUtils';
-import * as TagUI from '../utils/TabUI';
+import TagUI from '../utils/TabUI';
 import { HoxEventType, getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
 import FeApprovalBox from './FeApprovalBox';
 import './FeRecipient.scss';

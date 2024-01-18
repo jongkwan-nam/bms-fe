@@ -5,7 +5,7 @@ import './approvalBox/FeRecipient';
 import './approvalBox/FeSender';
 import StyleController from './config/styleController';
 import { FeMode, getFeMode } from './main/FeMode';
-import * as TabUI from './utils/TabUI';
+import TabUI from './utils/TabUI';
 import { HoxEventType, dispatchHoxEvent, getNodeArray, getNodes, getText, setAttr } from './utils/hoxUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 

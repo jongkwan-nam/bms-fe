@@ -1,5 +1,5 @@
 import syncFetch from 'sync-fetch';
-import * as TabUI from '../utils/TabUI';
+import TabUI from '../utils/TabUI';
 import json from './FeSignDialog.json';
 import './FeSignDialog.scss';
 
