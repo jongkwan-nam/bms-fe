@@ -1,6 +1,6 @@
 import { addNode, getAttr, getNode, getText, setAttr, setText } from '../../utils/hoxUtils';
 import IDUtils from '../../utils/IDUtils';
-import * as OrgUtils from '../../utils/orgUtils';
+import OrgUtils from '../../utils/OrgUtils';
 import * as StringUtils from '../../utils/stringUtils';
 
 /**
