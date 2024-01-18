@@ -1,4 +1,4 @@
-import { moveableElement, resizableElement } from '../utils/dragUtils';
+import DragUtils from '../utils/DragUtils';
 import { HoxEventType, createNode, dispatchHoxEvent, getNode, getNodes, getText, setAttr } from '../utils/hoxUtils';
 import './FeContent.scss';
 
@@ -115,8 +115,8 @@ export default class FeContent extends HTMLElement {
       this.classList.toggle('fold');
     });
 
-    moveableElement(this, this.shadowRoot.querySelector('div.header > label'));
-    resizableElement(this, this.shadowRoot.querySelector('.resizable'));
+    DragUtils.moveableElement(this, this.shadowRoot.querySelector('div.header > label'));
+    DragUtils.resizableElement(this, this.shadowRoot.querySelector('.resizable'));
 
     this.#renderContentList();
     // this.#appendLastContentItem();

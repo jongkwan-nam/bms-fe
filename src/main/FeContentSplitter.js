@@ -1,4 +1,4 @@
-import { moveableElement, resizableElement } from '../utils/dragUtils';
+import DragUtils from '../utils/DragUtils';
 import { HoxEventType, dispatchHoxEvent, getText } from '../utils/hoxUtils';
 import './FeContentSplitter.scss';
 import splitDocToExam from './logic/splitDocToExam';
@@ -132,8 +132,8 @@ export default class FeContentSplitter extends HTMLElement {
       e.target.style.display = 'none';
     });
 
-    moveableElement(this, this.shadowRoot.querySelector('div.header > label'));
-    resizableElement(this, this.shadowRoot.querySelector('.resizable'));
+    DragUtils.moveableElement(this, this.shadowRoot.querySelector('div.header > label'));
+    DragUtils.resizableElement(this, this.shadowRoot.querySelector('.resizable'));
 
     // 안분리 전까지 메인화면 레이어로 가리기
     document.querySelector('.modal-container').classList.add('open');
