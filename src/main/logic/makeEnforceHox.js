@@ -1,4 +1,4 @@
-import * as DateUtils from '../../utils/dateUtils';
+import DateUtils from '../../utils/DateUtils';
 import { createNode, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
 import { getParticipantIDs, getSancMsgID } from '../../utils/idUtils';
 import { takeDocNumber } from './docNumber';

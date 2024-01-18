@@ -1,4 +1,4 @@
-import * as DateUtils from '../../utils/dateUtils';
+import DateUtils from '../../utils/DateUtils';
 import { addNode, existsNode, getAttr, getNode, getNodeArray, getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
 import * as IdUtils from '../../utils/idUtils';
 import { makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';

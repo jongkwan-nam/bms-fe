@@ -1,4 +1,4 @@
-import * as DateUtils from '../../utils/dateUtils';
+import DateUtils from '../../utils/DateUtils';
 import { createNode, getAttr, getNode, getText } from '../../utils/hoxUtils';
 import './FeDocNumber.scss';
 

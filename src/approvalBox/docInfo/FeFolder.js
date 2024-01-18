@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import syncFetch from 'sync-fetch';
 import '../../lib/dynatree';
+import DateUtils from '../../utils/DateUtils';
 import feStorage from '../../utils/FeStorage';
-import * as DateUtils from '../../utils/dateUtils';
 import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
 import { isNotNullID } from '../../utils/idUtils';
 import * as StringUtils from '../../utils/stringUtils';

@@ -1,4 +1,4 @@
-import * as DateUtils from '../../../utils/dateUtils';
+import DateUtils from '../../../utils/DateUtils';
 import { setText } from '../../../utils/hoxUtils';
 /*
  * 문서 상태 관리

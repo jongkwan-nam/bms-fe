@@ -1,4 +1,4 @@
-import * as DateUtils from '../utils/dateUtils';
+import DateUtils from '../utils/DateUtils';
 import { createNode, existsNode, getAttr, getNodeArray, getText } from '../utils/hoxUtils';
 import * as StringUtils from '../utils/stringUtils';
 import './FeCommentDialog.scss';

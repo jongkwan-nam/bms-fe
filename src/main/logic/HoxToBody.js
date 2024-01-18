@@ -1,6 +1,6 @@
 import { colorNameToHex } from '../../utils/colorUtils';
 import { getContentCellName } from '../../utils/contentUtils';
-import * as DateUtils from '../../utils/dateUtils';
+import DateUtils from '../../utils/DateUtils';
 import { getAttr, getNodes, getText } from '../../utils/hoxUtils';
 import Cell from '../CellNames';
 

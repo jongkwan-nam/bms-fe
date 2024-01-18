@@ -1,4 +1,4 @@
-import * as DateUtils from '../../../utils/dateUtils';
+import DateUtils from '../../../utils/DateUtils';
 import { getNode, getText, setText } from '../../../utils/hoxUtils';
 import { NULL_APPRID, getParticipantIDs, getSancMsgID } from '../../../utils/idUtils';
 

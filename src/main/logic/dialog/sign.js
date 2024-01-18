@@ -1,4 +1,4 @@
-import * as DateUtils from '../../../utils/dateUtils';
+import DateUtils from '../../../utils/DateUtils';
 import { getText } from '../../../utils/hoxUtils';
 import FeSignDialog from '../../FeSignDialog';
 
