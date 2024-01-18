@@ -4,8 +4,8 @@ import '../../lib/dynatree';
 import DateUtils from '../../utils/DateUtils';
 import feStorage from '../../utils/FeStorage';
 import IDUtils from '../../utils/IDUtils';
+import StringUtils from '../../utils/StringUtils';
 import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
-import * as StringUtils from '../../utils/stringUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFolder.scss';
 

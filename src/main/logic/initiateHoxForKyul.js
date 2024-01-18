@@ -1,5 +1,5 @@
 import { getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
-import { isBlank } from '../../utils/stringUtils';
+import StringUtils from '../../utils/StringUtils';
 
 export default (hox) => {
   // 현재 결재자 결정
@@ -31,7 +31,7 @@ export default (hox) => {
   const contentLength = getNodes(hox, 'docInfo content').length;
   if (contentLength === 1) {
     const pageCnt = getText(hox, 'docInfo content pageCnt');
-    if (isBlank(pageCnt) || pageCnt === '0') {
+    if (StringUtils.isBlank(pageCnt) || pageCnt === '0') {
       setText(hox, 'docInfo content pageCnt', getText(hox, 'docInfo pageCnt'));
     }
   }

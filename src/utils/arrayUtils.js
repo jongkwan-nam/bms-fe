@@ -1,4 +1,4 @@
-import { isNotBlank } from './stringUtils';
+import StringUtils from './StringUtils';
 
 export default class ArrayUtils {
   /**
@@ -46,6 +46,6 @@ export default class ArrayUtils {
    * @returns
    */
   static split(text, delimiter = ' ') {
-    return text.split(delimiter).filter((e) => isNotBlank(e));
+    return text.split(delimiter).filter((e) => StringUtils.isNotBlank(e));
   }
 }

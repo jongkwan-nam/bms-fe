@@ -1,7 +1,7 @@
 import { addNode, getAttr, getNode, getText, setAttr, setText } from '../../utils/hoxUtils';
 import IDUtils from '../../utils/IDUtils';
 import OrgUtils from '../../utils/OrgUtils';
-import * as StringUtils from '../../utils/stringUtils';
+import StringUtils from '../../utils/StringUtils';
 
 /**
  * hox의 내용으로 문서번를 채번하여 docNumber 노드의 내용을 채운다

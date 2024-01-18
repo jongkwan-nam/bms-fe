@@ -1,6 +1,6 @@
+import StringUtils from '../utils/StringUtils';
 import { getContentCellName } from '../utils/contentUtils';
 import { HoxEventType, dispatchHoxEvent, getNode, getNodes, setText } from '../utils/hoxUtils';
-import * as StringUtils from '../utils/stringUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
 import FeHwpCtrl from './hwp/FeHwpCtrl';

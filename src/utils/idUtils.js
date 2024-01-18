@@ -1,5 +1,5 @@
 import syncFetch from 'sync-fetch';
-import { unshift } from './stringUtils';
+import StringUtils from './StringUtils';
 
 export default class IDUtils {
   static NULL_APPRID = '00000000000000000000';
@@ -28,7 +28,7 @@ export default class IDUtils {
    * @param {number} index
    */
   static getObjectID(apprid, index) {
-    return apprid.substring(0, 17) + unshift(index, 3, '0');
+    return apprid.substring(0, 17) + StringUtils.unshift(index, 3, '0');
   }
 
   /**

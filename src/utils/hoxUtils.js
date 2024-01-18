@@ -1,5 +1,5 @@
 import ArrayUtils from './ArrayUtils';
-import * as StringUtils from './stringUtils';
+import StringUtils from './StringUtils';
 
 const domParser = new DOMParser();
 const xmlSerializer = new XMLSerializer();

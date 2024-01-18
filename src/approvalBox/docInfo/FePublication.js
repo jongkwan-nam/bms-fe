@@ -1,7 +1,7 @@
 import ArrayUtils from '../../utils/ArrayUtils';
 import DateUtils from '../../utils/DateUtils';
+import StringUtils from '../../utils/StringUtils';
 import { HoxEventType, dispatchHoxEvent, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
-import * as StringUtils from '../../utils/stringUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import data from './FePublication.json';
 import './FePublication.scss';

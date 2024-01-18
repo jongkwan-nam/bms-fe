@@ -1,7 +1,7 @@
 import DateUtils from '../../utils/DateUtils';
 import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setAttr, setText } from '../../utils/hoxUtils';
 import IDUtils from '../../utils/IDUtils';
-import * as StringUtils from '../../utils/stringUtils';
+import StringUtils from '../../utils/StringUtils';
 import Cell from '../CellNames';
 import FeSignDialog from '../FeSignDialog';
 

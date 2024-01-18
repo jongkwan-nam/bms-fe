@@ -1,4 +1,4 @@
-import { unshift } from './stringUtils';
+import StringUtils from './StringUtils';
 
 export default class DateUtils {
   /**
@@ -44,6 +44,6 @@ export default class DateUtils {
   }
 
   static zero(num, len) {
-    return unshift(num, len, '0');
+    return StringUtils.unshift(num, len, '0');
   }
 }

@@ -1,5 +1,5 @@
 import { getText } from '../../utils/hoxUtils';
-import * as StringUtils from '../../utils/stringUtils';
+import StringUtils from '../../utils/StringUtils';
 
 /**
  * validateReceivedHox
