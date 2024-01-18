@@ -1,4 +1,4 @@
-import * as FileUtils from '../../utils/fileUtils';
+import FileUtils from '../../utils/FileUtils';
 import { HoxEventType, createNode, dispatchHoxEvent, getAttr, getBoolean, getNumber, getText, setAttr, setText } from '../../utils/hoxUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import './FeAttach.scss';

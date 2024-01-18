@@ -13,7 +13,7 @@
  * 첨부 순서 및 안 이동 기능
  */
 
-import * as FileUtils from '../utils/fileUtils';
+import FileUtils from '../utils/FileUtils';
 import { HoxEventType, getAttr, getNodes, getNumber } from '../utils/hoxUtils';
 import * as StringUtils from '../utils/stringUtils';
 import './FeAttachBox.scss';
