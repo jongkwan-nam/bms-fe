@@ -4,7 +4,7 @@ import './main/FeEditor';
 import { FeMode } from './main/FeMode';
 import './summaryBox.scss';
 import { createNode, existsFlag, getAttr, getNode, getNodeArray, getText, toggleFlag } from './utils/hoxUtils';
-import { getObjectID, isNotNullID } from './utils/idUtils';
+import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
 popupSizeRestorer('approvalBox.window.size', 800, 920);
@@ -47,7 +47,7 @@ let nodeObjectIDOfSummary = null; // 요약의 objectID 노드
     case FeMode.KYUL: {
       // 작성된 요약전이 있으면
       if (existsFlag(hox, 'docInfo approvalFlag', 'apprflag_summary')) {
-        const summaryId = getObjectID(apprID, 3);
+        const summaryId = IDUtils.getObjectID(apprID, 3);
         // TRID 구하기
         const { ok, size, TRID } = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveDocFileClone.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&FID=${summaryId}`).then((res) => res.json());
         if (!ok) {
@@ -116,8 +116,8 @@ document.querySelector('#btnSave').addEventListener('click', async () => {
   toggleFlag(hox, 'docInfo approvalFlag', 'apprflag_summary', true);
   if (nodeObjectIDOfSummary === null) {
     let id = '00000000000000000000';
-    if (isNotNullID(apprID)) {
-      id = getObjectID(apprID, 3);
+    if (IDUtils.isNotNullID(apprID)) {
+      id = IDUtils.getObjectID(apprID, 3);
     }
     const nodeObjectID = createNode(`
       <objectID dirty="new" type="objectidtype_summary">

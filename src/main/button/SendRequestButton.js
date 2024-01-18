@@ -1,6 +1,6 @@
 import DateUtils from '../../utils/DateUtils';
 import { addNode, existsNode, getAttr, getNode, getNodeArray, getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
-import * as IdUtils from '../../utils/idUtils';
+import IDUtils from '../../utils/IDUtils';
 import { makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';
 
 const FD_APPLID_SENDING = 4020;
@@ -83,7 +83,7 @@ export default class SendRequestButton extends HTMLButtonElement {
       // enforce 노드가 없다면 초기값으로 추가
       if (!existsNode(content, 'enforce')) {
         const enforceNode = addNode(content, 'enforce');
-        addNode(enforceNode, 'docID', IdUtils.NULL_APPRID);
+        addNode(enforceNode, 'docID', IDUtils.NULL_APPRID);
         addNode(enforceNode, 'sendStatus', 'apprstatus_ing');
         enforceNode.append(nodeFormInfo.cloneNode(true));
       }
@@ -116,7 +116,7 @@ export default class SendRequestButton extends HTMLButtonElement {
     // examRequest
     if (isMultiDraft) {
       // 일괄기안이면, examID 채번. 기안서식은 결재시 채번
-      setText(feMain.hox, 'examRequest exam examID', IdUtils.getSancMsgID());
+      setText(feMain.hox, 'examRequest exam examID', IDUtils.getSancMsgID());
     }
     setText(feMain.hox, 'examRequest exam examDate', todayNow);
 
@@ -132,7 +132,7 @@ export default class SendRequestButton extends HTMLButtonElement {
     }
 
     // examiner participant ID 채번
-    let participantID = IdUtils.getParticipantIDs(1)[0];
+    let participantID = IDUtils.getParticipantIDs(1)[0];
     setText(feMain.hox, 'examRequest exam examiner participantID', participantID);
     setText(feMain.hox, 'examRequest exam examiner position', rInfo.user.positionName);
     setText(feMain.hox, 'examRequest exam examiner dutyName', rInfo.user.dutyName);

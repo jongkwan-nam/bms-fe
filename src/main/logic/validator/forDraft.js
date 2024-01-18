@@ -1,5 +1,5 @@
 import { getNodes, getNumber, getText } from '../../../utils/hoxUtils';
-import { isNullID } from '../../../utils/idUtils';
+import IDUtils from '../../../utils/IDUtils';
 import * as StringUtils from '../../../utils/stringUtils';
 
 /**
@@ -25,7 +25,7 @@ export const validateForDraft = (hox) => {
   });
 
   // 기록물철
-  if (isNullID(getText(hox, 'docInfo folderInfo ID'))) {
+  if (IDUtils.isNullID(getText(hox, 'docInfo folderInfo ID'))) {
     ok = false;
     msg += `기록물철이 선택되지 않았습니다.\n`;
   }

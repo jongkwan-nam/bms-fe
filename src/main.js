@@ -21,8 +21,8 @@ import initiateHoxForRequest from './main/logic/initiateHoxForRequest';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
+import IDUtils from './utils/IDUtils';
 import { getAttr, getNodeArray, getNodes, loadHox } from './utils/hoxUtils';
-import { getObjectID } from './utils/idUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
 popupSizeRestorer('feMain.window.size', 1270, 900);
@@ -63,7 +63,7 @@ class FeMain {
         document.title = 'FE 결재기';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
-        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
         break;
       }
       case FeMode.VIEW: {
@@ -76,7 +76,7 @@ class FeMain {
         document.title = 'FE 발송의뢰';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
-        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
         break;
       }
       case FeMode.CONTROL: {

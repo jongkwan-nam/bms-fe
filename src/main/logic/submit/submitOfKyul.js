@@ -1,5 +1,5 @@
 import { getText, serializeHoxToString } from '../../../utils/hoxUtils';
-import { getObjectID } from '../../../utils/idUtils';
+import IDUtils from '../../../utils/IDUtils';
 import { dialogSign } from '../dialog/sign';
 import { doSetContentAttachID } from '../do/content';
 import { doFinishDoc } from '../do/docInfo';
@@ -83,17 +83,17 @@ export default async () => {
   formData.append('DID', rInfo.user.deptID);
   formData.append('WORDTYPE', rInfo.WORDTYPE);
   // 본문
-  formData.append('ref_' + getObjectID(apprID, 1), bodyTRID);
+  formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyTRID);
   // 첨부
   feAttachBox.listFileIDs().forEach((trid, i) => {
-    formData.append('ref_' + getObjectID(apprID, 100 + i), trid);
+    formData.append('ref_' + IDUtils.getObjectID(apprID, 100 + i), trid);
   });
   // 요약전
   if (feMain.summary.TRID !== null) {
-    formData.append('ref_' + getObjectID(apprID, 3), feMain.summary.TRID);
+    formData.append('ref_' + IDUtils.getObjectID(apprID, 3), feMain.summary.TRID);
   }
   // hox
-  formData.append('block_' + getObjectID(apprID, 2), serializeHoxToString(hox));
+  formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeHoxToString(hox));
 
   const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocProgrs.act`, {
     method: 'POST',

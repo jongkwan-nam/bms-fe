@@ -1,5 +1,5 @@
 import { getNodeArray, getText, setText } from '../../../utils/hoxUtils';
-import { getObjectID, isNullID } from '../../../utils/idUtils';
+import IDUtils from '../../../utils/IDUtils';
 
 /**
  * 첨부 objectID의 ID, participantID를 설정
@@ -15,14 +15,14 @@ export const doNewObjectIDofAttach = (hox, participant) => {
   const maxAttachNumber = Math.max(
     objectIDList.map((objectID) => {
       const id = getText(objectID, 'ID');
-      return isNullID(id) ? 0 : parseInt(id.substring(17));
+      return IDUtils.isNullID(id) ? 0 : parseInt(id.substring(17));
     })
   );
 
   objectIDList
-    .filter((objectID) => isNullID(getText(objectID, 'ID')))
+    .filter((objectID) => IDUtils.isNullID(getText(objectID, 'ID')))
     .forEach((objectID, i) => {
-      setText(objectID, 'ID', getObjectID(apprID, maxAttachNumber + i));
+      setText(objectID, 'ID', IDUtils.getObjectID(apprID, maxAttachNumber + i));
       setText(objectID, 'participantID', getText(participant, 'participantID'));
     });
 };
@@ -39,7 +39,7 @@ export const doNewObjectIDofSummary = (hox, participant) => {
   getNodeArray(hox, 'docInfo objectIDList objectID')
     .filter((objectID) => 'objectidtype_summary' === objectID.getAttribute('type'))
     .forEach((objectID) => {
-      setText(objectID, 'ID', getObjectID(apprID, 3));
+      setText(objectID, 'ID', IDUtils.getObjectID(apprID, 3));
       setText(objectID, 'participantID', getText(participant, 'participantID'));
     });
 };

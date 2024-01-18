@@ -1,5 +1,5 @@
 import { getText, setText } from '../../../utils/hoxUtils';
-import { NULL_APPRID, getSancMsgID, isNotNullID } from '../../../utils/idUtils';
+import IDUtils from '../../../utils/IDUtils';
 
 /**
  * apprID 채번
@@ -9,10 +9,10 @@ import { NULL_APPRID, getSancMsgID, isNotNullID } from '../../../utils/idUtils';
  */
 export const doNewApprID = (hox) => {
   const currApprId = getText(hox, 'docInfo apprID');
-  if (isNotNullID(currApprId)) {
+  if (IDUtils.isNotNullID(currApprId)) {
     throw new Error('docInfo apprID is not null. ' + currApprId);
   }
-  const newApprId = getSancMsgID();
+  const newApprId = IDUtils.getSancMsgID();
   console.debug('new apprID', newApprId);
   setText(hox, 'docInfo apprID', newApprId);
 };
@@ -22,5 +22,5 @@ export const doNewApprID = (hox) => {
  * @param {XMLDocument} hox
  */
 export const doDeleteApprID = (hox) => {
-  setText(hox, 'docInfo apprID', NULL_APPRID);
+  setText(hox, 'docInfo apprID', IDUtils.NULL_APPRID);
 };

@@ -1,6 +1,6 @@
 import DateUtils from '../../../utils/DateUtils';
 import { getNodeArray, getText, setText } from '../../../utils/hoxUtils';
-import { getParticipantIDs, isNullID } from '../../../utils/idUtils';
+import IDUtils from '../../../utils/IDUtils';
 
 /**
  * participantID 채번
@@ -8,9 +8,9 @@ import { getParticipantIDs, isNullID } from '../../../utils/idUtils';
  */
 export const doNewParticipantID = (hox) => {
   //
-  const nullParticipantID = getNodeArray(hox, 'approvalFlow participant participantID').filter((pID) => isNullID(pID.textContent));
+  const nullParticipantID = getNodeArray(hox, 'approvalFlow participant participantID').filter((pID) => IDUtils.isNullID(pID.textContent));
   if (nullParticipantID.length > 0) {
-    const idList = getParticipantIDs(nullParticipantID.length);
+    const idList = IDUtils.getParticipantIDs(nullParticipantID.length);
     nullParticipantID.forEach((pID, i) => (pID.textContent = idList[i]));
   }
 };

@@ -1,6 +1,6 @@
 import DateUtils from '../../../utils/DateUtils';
 import { getNode, getText, setText } from '../../../utils/hoxUtils';
-import { NULL_APPRID, getParticipantIDs, getSancMsgID } from '../../../utils/idUtils';
+import IDUtils from '../../../utils/IDUtils';
 
 /**
  * examRequest 노드 설정
@@ -21,10 +21,10 @@ export const doInitExamRequest = (hox) => {
 
   setText(hox, 'examRequest conversionDate', todayNow);
   setText(hox, 'examRequest requestDate', todayNow);
-  setText(hox, 'examRequest exam examiner participantID', NULL_APPRID);
+  setText(hox, 'examRequest exam examiner participantID', IDUtils.NULL_APPRID);
   setText(hox, 'examRequest exam examiner status', 'partapprstatus_will');
   setText(hox, 'examRequest exam examStatus', 'apprstatus_ing');
-  setText(hox, 'examRequest exam examID', NULL_APPRID);
+  setText(hox, 'examRequest exam examID', IDUtils.NULL_APPRID);
 };
 
 /**
@@ -37,7 +37,7 @@ export const doRequestStatusExamRequest = (hox) => {
 
   setText(hox, 'examRequest conversionDate', todayNow);
   setText(hox, 'examRequest requestDate', todayNow);
-  setText(hox, 'examRequest exam examiner participantID', getParticipantIDs(1)[0]);
+  setText(hox, 'examRequest exam examiner participantID', IDUtils.getParticipantIDs(1)[0]);
   setText(hox, 'examRequest exam examiner position', rInfo.user.positionName);
   setText(hox, 'examRequest exam examiner ID', rInfo.user.ID);
   setText(hox, 'examRequest exam examiner name', rInfo.user.name);
@@ -45,7 +45,7 @@ export const doRequestStatusExamRequest = (hox) => {
   setText(hox, 'examRequest exam examiner department name', rInfo.user.deptName);
   setText(hox, 'examRequest exam examiner status', 'partapprstatus_now');
   setText(hox, 'examRequest exam examStatus', 'apprstatus_request');
-  setText(hox, 'examRequest exam examID', getSancMsgID());
+  setText(hox, 'examRequest exam examID', IDUtils.getSancMsgID());
 };
 
 /**

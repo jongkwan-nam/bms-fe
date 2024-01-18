@@ -3,8 +3,8 @@ import syncFetch from 'sync-fetch';
 import '../../lib/dynatree';
 import DateUtils from '../../utils/DateUtils';
 import feStorage from '../../utils/FeStorage';
+import IDUtils from '../../utils/IDUtils';
 import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
-import { isNotNullID } from '../../utils/idUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFolder.scss';
@@ -69,7 +69,7 @@ export default class FeFolder extends FeApprovalBox {
     /* local storage의 해당 서식의 폴더 히스토리를 select > option 에 추가 */
     const folderIdList = feStorage.local.getArray(STORAGE_FOLDER_HISTORY_KEY);
 
-    if (isNotNullID(this.fldrId)) {
+    if (IDUtils.isNotNullID(this.fldrId)) {
       if (!folderIdList.includes(this.fldrId)) {
         folderIdList.push(this.fldrId);
       }
@@ -93,7 +93,7 @@ export default class FeFolder extends FeApprovalBox {
     }
 
     // 값 설정
-    if (isNotNullID(this.fldrId)) {
+    if (IDUtils.isNotNullID(this.fldrId)) {
       this.shadowRoot.querySelector('select').value = this.fldrId;
     }
 

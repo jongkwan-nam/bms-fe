@@ -1,5 +1,5 @@
 import { addNode, getAttr, getNode, getText, setAttr, setText } from '../../../utils/hoxUtils';
-import * as IdUtils from '../../../utils/idUtils';
+import IDUtils from '../../../utils/IDUtils';
 import * as OrgUtils from '../../../utils/orgUtils';
 import * as StringUtils from '../../../utils/stringUtils';
 
@@ -27,7 +27,7 @@ export const doSetDocNumber = (hox) => {
   }
 
   // 문서번호 채번
-  const newDocNumber = IdUtils.getDocNumber(refDeptId, apprID);
+  const newDocNumber = IDUtils.getDocNumber(refDeptId, apprID);
 
   //
   const displayDocNumber = docNumberFormat;

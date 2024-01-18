@@ -1,6 +1,6 @@
 import DateUtils from '../../utils/DateUtils';
 import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setAttr, setText } from '../../utils/hoxUtils';
-import { getObjectID, getParticipantIDs, getSancMsgID, isNullID } from '../../utils/idUtils';
+import IDUtils from '../../utils/IDUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import Cell from '../CellNames';
 import FeSignDialog from '../FeSignDialog';
@@ -30,7 +30,7 @@ export const validate = (hox) => {
   });
 
   // 기록물철
-  if (isNullID(getText(hox, 'docInfo folderInfo ID'))) {
+  if (IDUtils.isNullID(getText(hox, 'docInfo folderInfo ID'))) {
     ok = false;
     msg += `기록물철이 선택되지 않았습니다.\n`;
   }
@@ -136,10 +136,10 @@ export const process = async (hox) => {
 
   // participant id 채번
   // 필요한 갯수 구하기
-  const count = getNodeArray(hox, 'approvalFlow participant participantID').filter((pID) => isNullID(pID.textContent)).length;
-  const newParticipantIDs = getParticipantIDs(count);
+  const count = getNodeArray(hox, 'approvalFlow participant participantID').filter((pID) => IDUtils.isNullID(pID.textContent)).length;
+  const newParticipantIDs = IDUtils.getParticipantIDs(count);
   getNodeArray(hox, 'approvalFlow participant participantID')
-    .filter((pID) => isNullID(pID.textContent))
+    .filter((pID) => IDUtils.isNullID(pID.textContent))
     .forEach((pID, i) => {
       pID.textContent = newParticipantIDs[i];
     });
@@ -149,7 +149,7 @@ export const process = async (hox) => {
   getNodeArray(hox, 'docInfo objectIDList objectID')
     .filter((objectID) => getAttr(objectID, null, 'type') === 'objectidtype_attach')
     .forEach((objectID, i) => {
-      const newObjectId = getObjectID(newDocId, 100 + i);
+      const newObjectId = IDUtils.getObjectID(newDocId, 100 + i);
       setText(objectID, 'ID', newObjectId);
       setText(objectID, 'participantID', drafterParticipantID);
 
@@ -167,7 +167,7 @@ export const process = async (hox) => {
   getNodeArray(hox, 'docInfo objectIDList objectID')
     .filter((objectID) => getAttr(objectID, null, 'type') === 'objectidtype_summary')
     .forEach((objectID) => {
-      const newObjectId = getObjectID(newDocId, 3);
+      const newObjectId = IDUtils.getObjectID(newDocId, 3);
       setText(objectID, 'ID', newObjectId);
       setText(objectID, 'participantID', drafterParticipantID);
     });
@@ -222,8 +222,8 @@ export const process = async (hox) => {
       // 대내, 대외이면, examRequest 내용 채우기
       setText(hox, 'examRequest conversionDate', todayNow);
       setText(hox, 'examRequest requestDate', todayNow);
-      setText(hox, 'examRequest exam examID', getSancMsgID());
-      setText(hox, 'examRequest exam examiner participantID', getParticipantIDs(1)[0]);
+      setText(hox, 'examRequest exam examID', IDUtils.getSancMsgID());
+      setText(hox, 'examRequest exam examiner participantID', IDUtils.getParticipantIDs(1)[0]);
     }
   }
 
@@ -250,17 +250,17 @@ export const process = async (hox) => {
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
   // 본문
-  formData.append('ref_' + getObjectID(newDocId, 1), bodyTRID);
+  formData.append('ref_' + IDUtils.getObjectID(newDocId, 1), bodyTRID);
   // 첨부
   feAttachBox.listFileIDs().forEach((trid, i) => {
-    formData.append('ref_' + getObjectID(newDocId, 100 + i), trid);
+    formData.append('ref_' + IDUtils.getObjectID(newDocId, 100 + i), trid);
   });
   // 요약전
   if (feMain.summary.TRID !== null) {
-    formData.append('ref_' + getObjectID(newDocId, 3), feMain.summary.TRID);
+    formData.append('ref_' + IDUtils.getObjectID(newDocId, 3), feMain.summary.TRID);
   }
   // hox
-  formData.append('block_' + getObjectID(newDocId, 2), serializeHoxToString(hox));
+  formData.append('block_' + IDUtils.getObjectID(newDocId, 2), serializeHoxToString(hox));
 
   const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocDrft.act`, {
     method: 'POST',

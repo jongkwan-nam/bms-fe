@@ -1,5 +1,5 @@
 import { getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
-import { getObjectID } from '../../utils/idUtils';
+import IDUtils from '../../utils/IDUtils';
 
 /**
  * 보류
@@ -37,7 +37,7 @@ export default class HoldButton extends HTMLButtonElement {
     formData.append('PARTICIPANTID', participantID);
 
     // hox
-    formData.append('block_' + getObjectID(apprId, 2), serializeHoxToString(hox));
+    formData.append('block_' + IDUtils.getObjectID(apprId, 2), serializeHoxToString(hox));
 
     const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocProgrs.act`, {
       method: 'POST',

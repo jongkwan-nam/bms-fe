@@ -1,6 +1,6 @@
 import DateUtils from '../../utils/DateUtils';
 import { createNode, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
-import { getParticipantIDs, getSancMsgID } from '../../utils/idUtils';
+import IDUtils from '../../utils/IDUtils';
 import { takeDocNumber } from './docNumber';
 
 /**
@@ -55,7 +55,7 @@ export const makeEnforceHox4MultiDoc = (multiDraftHox, contentNumber) => {
   setAttr(enforceHox, 'hox', 'type', 'enforce');
 
   // apprID
-  const enforceApprID = getSancMsgID(); // 시행문의 apprID 채번
+  const enforceApprID = IDUtils.getSancMsgID(); // 시행문의 apprID 채번
   setText(enforceHox, 'docInfo apprID', enforceApprID);
 
   // draftApprID
@@ -75,7 +75,7 @@ export const makeEnforceHox4MultiDoc = (multiDraftHox, contentNumber) => {
 
   // participantID 채번
   const participantLength = getNodes(enforceHox, 'approvalFlow participant').length;
-  getParticipantIDs(participantLength).forEach((id, i) => {
+  IDUtils.getParticipantIDs(participantLength).forEach((id, i) => {
     getNode(enforceHox, 'approvalFlow participant participantID', i).textContent = id;
   });
 
@@ -97,7 +97,7 @@ export const makeEnforceHox4DraftForm = (draftFormHox) => {
   setAttr(enforceHox, 'hox', 'type', 'enforce');
 
   // apprID
-  const enforceApprID = getSancMsgID(); // 시행문의 apprID 채번
+  const enforceApprID = IDUtils.getSancMsgID(); // 시행문의 apprID 채번
   setText(enforceHox, 'docInfo apprID', enforceApprID);
 
   // draftApprID
@@ -117,7 +117,7 @@ export const makeEnforceHox4DraftForm = (draftFormHox) => {
 
   // participantID 채번
   const participantLength = getNodes(enforceHox, 'approvalFlow participant').length;
-  getParticipantIDs(participantLength).forEach((id, i) => {
+  IDUtils.getParticipantIDs(participantLength).forEach((id, i) => {
     getNode(enforceHox, 'approvalFlow participant participantID', i).textContent = id;
   });
 
