@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import syncFetch from 'sync-fetch';
 import '../lib/dynatree';
+import ArrayUtils from '../utils/ArrayUtils';
 import * as TagUI from '../utils/TabUI';
-import * as ArrayUtils from '../utils/arrayUtils';
 import { HoxEventType, getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
 import * as StringUtils from '../utils/stringUtils';
 import FeApprovalBox from './FeApprovalBox';

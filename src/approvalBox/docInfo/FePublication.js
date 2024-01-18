@@ -1,5 +1,5 @@
+import ArrayUtils from '../../utils/ArrayUtils';
 import DateUtils from '../../utils/DateUtils';
-import * as ArrayUtils from '../../utils/arrayUtils';
 import { HoxEventType, dispatchHoxEvent, existsFlag, getAttr, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
 import * as StringUtils from '../../utils/stringUtils';
 import FeApprovalBox from '../FeApprovalBox';

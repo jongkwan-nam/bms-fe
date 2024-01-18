@@ -1,4 +1,4 @@
-import * as ArrayUtils from './arrayUtils';
+import ArrayUtils from './ArrayUtils';
 import * as StringUtils from './stringUtils';
 
 const domParser = new DOMParser();
