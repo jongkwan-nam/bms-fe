@@ -1,4 +1,4 @@
-import { colorNameToHex } from '../../utils/colorUtils';
+import ColorUtils from '../../utils/ColorUtils';
 import { getContentCellName } from '../../utils/contentUtils';
 import DateUtils from '../../utils/DateUtils';
 import { getAttr, getNodes, getText } from '../../utils/hoxUtils';
@@ -136,7 +136,7 @@ export class HoxToBody {
     let agreeCellIndex = 0;
     let [posCellName, posCellValue] = ['', ''];
     let [signCellName, signCellValue] = ['', ''];
-    const textColor = colorNameToHex(doccfg.previewSignerNameFontColor);
+    const textColor = ColorUtils.colorNameToHex(doccfg.previewSignerNameFontColor);
     // const height = sizeToHwpUnit(doccfg.previewSignerNameFontSize);
 
     getNodes(this.hox, 'approvalFlow participant').forEach((paricipant) => {
