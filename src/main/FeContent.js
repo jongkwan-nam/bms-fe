@@ -122,12 +122,16 @@ export default class FeContent extends HTMLElement {
     // this.#appendLastContentItem();
 
     feMain.hox.addEventListener(HoxEventType.TITLE, (e) => {
+      console.log('FeEditor', HoxEventType.TITLE, e.detail.type);
       if (e.detail.type === 'change') {
-        // 변경된 제목 반영
+        // 변경된 제목, 발송정보 반영
         this.shadowRoot.querySelectorAll('.body ol li').forEach((li, i) => {
           //
           const nodeContent = getNode(feMain.hox, 'docInfo content', i);
           const title = getText(nodeContent, 'title');
+          const enforceType = getText(nodeContent, 'enforceType');
+
+          li.querySelector('.content-enforcetype').innerHTML = GWWEBMessage[enforceType];
           li.querySelector('.content-title').innerHTML = title;
         });
       }
@@ -137,6 +141,7 @@ export default class FeContent extends HTMLElement {
   /**
    *
    * @param {XMLDocument} hox
+   * @deprecated
    */
   set(hox) {
     feMain.hox = hox;

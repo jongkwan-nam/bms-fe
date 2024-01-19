@@ -127,7 +127,7 @@ export default class FeEditor extends FeHwpCtrl {
 
     // 제목 변경 감지. 에디터 밖으로 나가면 작동
     this.parentElement.addEventListener('mouseleave', (e) => {
-      // console.log('fe-editor parent mouseleave', this.detectTitle, this.contentCount);
+      console.log('fe-editor parent mouseleave', this.detectTitle, this.contentCount);
       //
       if (this.detectTitle) {
         //
