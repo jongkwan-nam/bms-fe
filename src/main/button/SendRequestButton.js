@@ -1,6 +1,6 @@
 import DateUtils from '../../utils/DateUtils';
 import IDUtils from '../../utils/IDUtils';
-import { addNode, existsNode, getAttr, getNode, getNodeArray, getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
+import { addNode, existsNode, getAttr, getNode, getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
 import { makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';
 
 const FD_APPLID_SENDING = 4020;
@@ -68,7 +68,7 @@ export default class SendRequestButton extends HTMLButtonElement {
     });
 
     // Doc.setExamDraftDocCommon
-    getNodeArray(feMain.hox, 'docInfo content').forEach((content, i) => {
+    getNodes(feMain.hox, 'docInfo content').forEach((content, i) => {
       const enforceType = getText(content, 'enforceType');
       const sendStatus = getText(content, 'enforce sendStatus');
       const contentNumber = i + 1;

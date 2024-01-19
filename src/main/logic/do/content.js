@@ -1,4 +1,4 @@
-import { addNode, getNode, getNodeArray, getNodes, getNumber, getText } from '../../../utils/xmlUtils';
+import { addNode, getNode, getNodes, getNumber, getText } from '../../../utils/xmlUtils';
 
 /**
  * 첨부 objectID 정보를 content의 attachInfo에 설정
@@ -9,7 +9,7 @@ export const doSetContentAttachID = (hox) => {
   // 초기화
   getNodes(hox, 'docInfo content attachInfo attach').forEach((attach) => (attach.textContent = null));
 
-  getNodeArray(hox, 'docInfo objectIDList objectID')
+  getNodes(hox, 'docInfo objectIDList objectID')
     .filter((objectID) => 'objectidtype_attach' === objectID.getAttribute('type'))
     .forEach((objectID) => {
       //

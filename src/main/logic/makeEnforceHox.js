@@ -1,6 +1,6 @@
 import DateUtils from '../../utils/DateUtils';
 import IDUtils from '../../utils/IDUtils';
-import { createNode, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, setAttr, setText, toggleFlag } from '../../utils/xmlUtils';
+import { createNode, getAttr, getNode, getNodes, getNumber, getText, setAttr, setText, toggleFlag } from '../../utils/xmlUtils';
 import { takeDocNumber } from './docNumber';
 
 /**
@@ -19,7 +19,7 @@ export const makeEnforceHox4MultiDoc = (multiDraftHox, contentNumber) => {
   const enforceHox = multiDraftHox.cloneNode(true);
 
   // 다른 content 노드 제거
-  getNodeArray(enforceHox, 'docInfo content').forEach((nodeOfContent, i) => {
+  getNodes(enforceHox, 'docInfo content').forEach((nodeOfContent, i) => {
     if (i !== contentIndex) {
       nodeOfContent.remove();
     } else {
@@ -29,7 +29,7 @@ export const makeEnforceHox4MultiDoc = (multiDraftHox, contentNumber) => {
   });
 
   // 다른 안의 첨부 objectID 제거
-  const nodesOfObjectID = getNodeArray(enforceHox, 'docInfo objectIDList objectID');
+  const nodesOfObjectID = getNodes(enforceHox, 'docInfo objectIDList objectID');
   for (let objectID of nodesOfObjectID) {
     const type = getAttr(objectID, null, 'type');
     const number = getNumber(objectID, 'contentNumber');

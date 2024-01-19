@@ -24,7 +24,7 @@ import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
 import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
-import { HoxEventType, dispatchHoxEvent, getAttr, getNodeArray, getNodes, loadXml } from './utils/xmlUtils';
+import { HoxEventType, dispatchHoxEvent, getAttr, getNodes, loadXml } from './utils/xmlUtils';
 
 popupSizeRestorer('feMain.window.size', 1270, 900);
 
@@ -214,7 +214,7 @@ class FeMain {
    */
   getCurrentParticipant() {
     //
-    return getNodeArray(this.hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true')[0];
+    return getNodes(this.hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true')[0];
   }
 }
 

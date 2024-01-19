@@ -1,5 +1,5 @@
 import IDUtils from '../../../utils/IDUtils';
-import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
+import { getNodes, getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * 첨부 objectID의 ID, participantID를 설정
@@ -11,7 +11,7 @@ import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
 export const doNewObjectIDofAttach = (hox, participant) => {
   const apprID = getText(hox, 'docInfo apprID');
   //
-  const objectIDList = getNodeArray(hox, 'docInfo objectIDList objectID').filter((objectID) => 'objectidtype_attach' === objectID.getAttribute('type'));
+  const objectIDList = getNodes(hox, 'docInfo objectIDList objectID').filter((objectID) => 'objectidtype_attach' === objectID.getAttribute('type'));
   const maxAttachNumber = Math.max(
     objectIDList.map((objectID) => {
       const id = getText(objectID, 'ID');
@@ -36,7 +36,7 @@ export const doNewObjectIDofAttach = (hox, participant) => {
 export const doNewObjectIDofSummary = (hox, participant) => {
   const apprID = getText(hox, 'docInfo apprID');
   //
-  getNodeArray(hox, 'docInfo objectIDList objectID')
+  getNodes(hox, 'docInfo objectIDList objectID')
     .filter((objectID) => 'objectidtype_summary' === objectID.getAttribute('type'))
     .forEach((objectID) => {
       setText(objectID, 'ID', IDUtils.getObjectID(apprID, 3));

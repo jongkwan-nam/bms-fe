@@ -7,7 +7,7 @@ import StyleController from './config/styleController';
 import { FeMode, getFeMode } from './main/FeMode';
 import TabUI from './utils/TabUI';
 import popupSizeRestorer from './utils/popupSizeRestorer';
-import { HoxEventType, dispatchHoxEvent, getNodeArray, getNodes, getText, setAttr } from './utils/xmlUtils';
+import { HoxEventType, dispatchHoxEvent, getNodes, getText, setAttr } from './utils/xmlUtils';
 
 popupSizeRestorer('approvalBox.window.size', 1020, 720);
 
@@ -115,11 +115,11 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
 
   if (feMode === FeMode.DRAFT) {
     // 첫 participant
-    const draftParticipant = getNodeArray(hox, 'approvalFlow participant').filter((participant) => 'valid' === getText(participant, 'validStatus'))[0];
+    const draftParticipant = getNodes(hox, 'approvalFlow participant').filter((participant) => 'valid' === getText(participant, 'validStatus'))[0];
     setAttr(draftParticipant, null, 'current', 'true');
   } else if (feMode === FeMode.KYUL) {
     // approvalStatus = partapprstatus_now
-    const nowParticipant = getNodeArray(hox, 'approvalFlow participant')
+    const nowParticipant = getNodes(hox, 'approvalFlow participant')
       .filter((participant) => 'valid' === getText(participant, 'validStatus'))
       .filter((participant) => 'partapprstatus_now' === getText(participant, 'approvalStatus'))
       .filter((participant) => rInfo.user.ID === getText(participant, 'ID') || rInfo.user.ID === getText(participant, 'charger ID'))[0];

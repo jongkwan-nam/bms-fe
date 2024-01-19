@@ -108,23 +108,13 @@ export const getNode = (element, selectors, nth = 0) => {
 };
 
 /**
- * 찾은 노드의 NodeListOf 반환
+ * 노드 배열 반환
  * @param {Element} element
  * @param {string} selectors
  * @returns
  */
 export const getNodes = (element, selectors) => {
-  return element.querySelectorAll(selectors);
-};
-
-/**
- * 찾은 노드의 배열로 반환
- * @param {Element} element
- * @param {string} selectors
- * @returns
- */
-export const getNodeArray = (element, selectors) => {
-  return Array.from(getNodes(element, selectors));
+  return Array.from(element.querySelectorAll(selectors));
 };
 
 /**

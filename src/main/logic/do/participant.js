@@ -1,6 +1,6 @@
 import DateUtils from '../../../utils/DateUtils';
 import IDUtils from '../../../utils/IDUtils';
-import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
+import { getNodes, getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * participantID 채번
@@ -8,7 +8,7 @@ import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
  */
 export const doNewParticipantID = (hox) => {
   //
-  const nullParticipantID = getNodeArray(hox, 'approvalFlow participant participantID').filter((pID) => IDUtils.isNullID(pID.textContent));
+  const nullParticipantID = getNodes(hox, 'approvalFlow participant participantID').filter((pID) => IDUtils.isNullID(pID.textContent));
   if (nullParticipantID.length > 0) {
     const idList = IDUtils.getParticipantIDs(nullParticipantID.length);
     nullParticipantID.forEach((pID, i) => (pID.textContent = idList[i]));
@@ -23,7 +23,7 @@ export const doNewParticipantID = (hox) => {
 export const doDoneParticipant = (hox) => {
   const todayNow = DateUtils.format(rInfo.currentDate, 'YYYY-MM-DDTHH24:MI:SS');
   //
-  const participant = getNodeArray(hox, 'approvalFlow participant')
+  const participant = getNodes(hox, 'approvalFlow participant')
     .filter((participant) => 'valid' === getText(participant, 'validStatus'))
     .filter((participant) => 'true' === participant.getAttribute('current'))[0];
   setText(participant, 'date', todayNow);

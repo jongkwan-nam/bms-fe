@@ -5,7 +5,7 @@ import { FeMode } from './main/FeMode';
 import './summaryBox.scss';
 import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
-import { createNode, existsFlag, getAttr, getNode, getNodeArray, getText, toggleFlag } from './utils/xmlUtils';
+import { createNode, existsFlag, getAttr, getNode, getNodes, getText, toggleFlag } from './utils/xmlUtils';
 
 popupSizeRestorer('approvalBox.window.size', 800, 920);
 
@@ -85,7 +85,7 @@ let nodeObjectIDOfSummary = null; // 요약의 objectID 노드
   feEditor.focusToField(Cell.CBODY);
 
   // 기존 요약이 있는지
-  let foundSummaryNodes = getNodeArray(hox, 'docInfo objectIDList objectID').filter((objectID) => 'objectidtype_summary' === getAttr(objectID, null, 'type'));
+  let foundSummaryNodes = getNodes(hox, 'docInfo objectIDList objectID').filter((objectID) => 'objectidtype_summary' === getAttr(objectID, null, 'type'));
   if (foundSummaryNodes.length === 0) {
     document.querySelector('#btnDelete').disabled = true;
   } else {

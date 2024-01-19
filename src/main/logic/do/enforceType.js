@@ -1,4 +1,4 @@
-import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
+import { getNodes, getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * 일괄기안을 고려하여, content/enforceType 조사하여, docInfo/enforceType 결정
@@ -7,7 +7,7 @@ import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
  */
 export const doSetEnforceType = (hox) => {
   //
-  const enforceTypes = getNodeArray(hox, 'docInfo content').map((content) => getText(content, 'enforceType'));
+  const enforceTypes = getNodes(hox, 'docInfo content').map((content) => getText(content, 'enforceType'));
   console.log('enforceTypes', enforceTypes);
 
   let enforceType = 'enforcetype_not';

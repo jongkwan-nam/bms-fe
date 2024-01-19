@@ -1,7 +1,7 @@
 import DateUtils from '../../utils/DateUtils';
 import IDUtils from '../../utils/IDUtils';
 import StringUtils from '../../utils/StringUtils';
-import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeXmlToString, setAttr, setText } from '../../utils/xmlUtils';
+import { addNodes, getAttr, getNode, getNodes, getNumber, getText, serializeXmlToString, setAttr, setText } from '../../utils/xmlUtils';
 import Cell from '../CellNames';
 import FeSignDialog from '../FeSignDialog';
 
@@ -136,9 +136,9 @@ export const process = async (hox) => {
 
   // participant id 채번
   // 필요한 갯수 구하기
-  const count = getNodeArray(hox, 'approvalFlow participant participantID').filter((pID) => IDUtils.isNullID(pID.textContent)).length;
+  const count = getNodes(hox, 'approvalFlow participant participantID').filter((pID) => IDUtils.isNullID(pID.textContent)).length;
   const newParticipantIDs = IDUtils.getParticipantIDs(count);
-  getNodeArray(hox, 'approvalFlow participant participantID')
+  getNodes(hox, 'approvalFlow participant participantID')
     .filter((pID) => IDUtils.isNullID(pID.textContent))
     .forEach((pID, i) => {
       pID.textContent = newParticipantIDs[i];
@@ -146,7 +146,7 @@ export const process = async (hox) => {
 
   // 첨부ID처리: 채번된 apprid와 participantid로 이용
   const drafterParticipantID = getText(hox, 'approvalFlow participant participantID');
-  getNodeArray(hox, 'docInfo objectIDList objectID')
+  getNodes(hox, 'docInfo objectIDList objectID')
     .filter((objectID) => getAttr(objectID, null, 'type') === 'objectidtype_attach')
     .forEach((objectID, i) => {
       const newObjectId = IDUtils.getObjectID(newDocId, 100 + i);
@@ -164,7 +164,7 @@ export const process = async (hox) => {
     });
 
   // 요약전
-  getNodeArray(hox, 'docInfo objectIDList objectID')
+  getNodes(hox, 'docInfo objectIDList objectID')
     .filter((objectID) => getAttr(objectID, null, 'type') === 'objectidtype_summary')
     .forEach((objectID) => {
       const newObjectId = IDUtils.getObjectID(newDocId, 3);
@@ -173,7 +173,7 @@ export const process = async (hox) => {
     });
 
   // enforceType
-  const enforceTypes = getNodeArray(hox, 'docInfo content').map((content) => getText(content, 'enforceType'));
+  const enforceTypes = getNodes(hox, 'docInfo content').map((content) => getText(content, 'enforceType'));
   console.log('enforceTypes', enforceTypes);
   let enforceType = 'enforcetype_not';
   if (enforceTypes.includes('enforcetype_external')) {
@@ -196,7 +196,7 @@ export const process = async (hox) => {
   setAttr(currentParticipant, null, 'IPAddress', window.myIpAddr);
 
   // 앞으로 결재할 사용자들
-  const leftParticiants = getNodeArray(hox, 'approvalFlow participant')
+  const leftParticiants = getNodes(hox, 'approvalFlow participant')
     .filter((participant) => 'valid' === getText(participant, 'validStatus'))
     .filter((participant) => {
       // 진행, 대기, 보류, 기안 상태

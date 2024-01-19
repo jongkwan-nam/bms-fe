@@ -2,7 +2,7 @@
  * 완료 조건
  */
 
-import { getNodeArray, getText } from '../../../utils/xmlUtils';
+import { getNodes, getText } from '../../../utils/xmlUtils';
 
 /**
  * 문서가 최종완료 상태인가
@@ -12,7 +12,7 @@ import { getNodeArray, getText } from '../../../utils/xmlUtils';
  */
 export const isDocCompleted = (hox) => {
   //
-  const leftParticiants = getNodeArray(hox, 'approvalFlow participant')
+  const leftParticiants = getNodes(hox, 'approvalFlow participant')
     .filter((participant) => 'valid' === getText(participant, 'validStatus'))
     .filter((participant) => {
       // 진행, 대기, 보류, 기안 상태

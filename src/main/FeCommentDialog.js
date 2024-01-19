@@ -1,6 +1,6 @@
 import DateUtils from '../utils/DateUtils';
 import StringUtils from '../utils/StringUtils';
-import { createNode, existsNode, getAttr, getNodeArray, getText } from '../utils/xmlUtils';
+import { createNode, existsNode, getAttr, getNodes, getText } from '../utils/xmlUtils';
 import './FeCommentDialog.scss';
 
 export default class FeCommentDialog extends HTMLElement {
@@ -108,7 +108,7 @@ export default class FeCommentDialog extends HTMLElement {
     const list = this.shadowRoot.querySelector('.comment-list ul');
     list.textContent = null;
     const hox = feMain.hox;
-    getNodeArray(hox, 'approvalFlow participant')
+    getNodes(hox, 'approvalFlow participant')
       .filter((participant) => getText(participant, 'validStatus') === 'valid')
       .filter((participant) => existsNode(participant, 'comment'))
       .forEach((participant) => {

@@ -1,5 +1,5 @@
 import DateUtils from '../../utils/DateUtils';
-import { getAttr, getNode, getNodeArray, getText, setAttr, setText } from '../../utils/xmlUtils';
+import { getAttr, getNode, getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
 import { makeEnforceHox4DraftForm, makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';
 
 /**
@@ -46,7 +46,7 @@ export default class SendControlButton extends HTMLButtonElement {
     const enforceHoxList = [];
 
     if (isMultiDraft || isDraftForm) {
-      getNodeArray(feMain.hox, 'docInfo content').forEach((content, i) => {
+      getNodes(feMain.hox, 'docInfo content').forEach((content, i) => {
         const enforceType = getText(content, 'enforceType');
         const sendStatus = getText(content, 'enforce sendStatus');
 
