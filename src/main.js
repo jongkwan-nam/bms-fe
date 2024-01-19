@@ -1,10 +1,11 @@
 /*
   feElement간의 상호 작용은 hoxEvent를 통한다. 서로를 찾을 필요가 없도록 할것
-  [logic].js에선 feElement의 함수 호출 가능
+  logic/*.js에선 feElement의 함수 호출 가능
   hox는 FeMain.js에만 존재. feElement는 window로 노출시킨 FeMain.js의 hox로 접근
 
   feElement 들은 document에 붙을때(connectedCallback 호출)부터 작동
  */
+
 import FeConfig from './config/FeConfig';
 import './main.scss';
 import FeAttachBox from './main/FeAttachBox';
@@ -26,8 +27,6 @@ import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 import { HoxEventType, dispatchHoxEvent, getAttr, getNodes, loadXml } from './utils/xmlUtils';
 
-popupSizeRestorer('feMain.window.size', 1270, 900);
-
 class FeMain {
   hox = null; // Handy Office Xml
   draftHox = null;
@@ -35,7 +34,6 @@ class FeMain {
   feEditor2 = null;
   feContent = null;
   feAttachBox = null;
-  buttonController = null;
   summary = { filePath: null, TRID: null };
   feMode = null;
   splitedExamDocMap = null;
@@ -140,8 +138,8 @@ class FeMain {
     this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
 
     // 버튼 컨트롤러
-    this.buttonController = new ButtonController('.menu-wrap');
-    this.buttonController.start();
+    const buttonController = new ButtonController('.menu-wrap');
+    buttonController.start();
 
     this.feContent = document.querySelector('main').appendChild(new FeContent());
     if ([FeMode.KYUL, FeMode.VIEW].includes(this.feMode)) {
@@ -217,6 +215,8 @@ class FeMain {
     return getNodes(this.hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true')[0];
   }
 }
+
+popupSizeRestorer('feMain.window.size', 1270, 900);
 
 window.feMain = new FeMain();
 window.feMain.start();
