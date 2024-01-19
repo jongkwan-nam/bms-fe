@@ -29,7 +29,7 @@ import { HoxEventType, dispatchHoxEvent, getAttr, getNodes, loadXml } from './ut
 popupSizeRestorer('feMain.window.size', 1270, 900);
 
 class FeMain {
-  hox = null;
+  hox = null; // Handy Office Xml
   draftHox = null;
   feEditor1 = null;
   feEditor2 = null;
