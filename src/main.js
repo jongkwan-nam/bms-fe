@@ -15,6 +15,7 @@ import { FeMode, getFeMode } from './main/FeMode';
 import ButtonController from './main/button/ButtonController';
 import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import initiateBodyByHox from './main/logic/initiateBodyByHox';
+import initiateHoxForAccept from './main/logic/initiateHoxForAccept';
 import initiateHoxForDraft from './main/logic/initiateHoxForDraft';
 import initiateHoxForKyul from './main/logic/initiateHoxForKyul';
 import initiateHoxForRequest from './main/logic/initiateHoxForRequest';
@@ -29,6 +30,7 @@ popupSizeRestorer('feMain.window.size', 1270, 900);
 
 class FeMain {
   hox = null;
+  draftHox = null;
   feEditor1 = null;
   feEditor2 = null;
   feContent = null;
@@ -48,6 +50,7 @@ class FeMain {
     const hoxTRID = rInfo.hoxFileTRID;
     let wordType = rInfo.WORDTYPE;
     let hoxURL;
+    let draftHoxURL;
     let docURL = null;
 
     this.feMode = getFeMode();
@@ -63,20 +66,25 @@ class FeMain {
         document.title = 'FE 결재기';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
-        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.VIEW: {
         break;
       }
       case FeMode.ACCEPT: {
+        document.title = 'FE 접수기';
+
+        hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
+        draftHoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=sanckyul&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}&_NOARG=${Date.now()}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.REQUEST: {
         document.title = 'FE 발송의뢰';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
-        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}&K=${szKEY}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.CONTROL: {
@@ -108,6 +116,9 @@ class FeMain {
       initiateBodyByHox(this.hox, this.feEditor1);
     } else if (this.feMode === FeMode.VIEW) {
       this.feEditor1.setReadMode(true);
+    } else if (this.feMode === FeMode.ACCEPT) {
+      //
+      initiateHoxForAccept(this.hox);
     } else if (this.feMode === FeMode.KYUL) {
       // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
       checkMissingNodeAndFillNode(this.hox);

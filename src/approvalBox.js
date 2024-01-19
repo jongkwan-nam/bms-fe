@@ -20,6 +20,16 @@ const feSender = document.querySelector('fe-sender');
 
 const contentSelector = document.querySelector('select#contentSelector');
 
+const feMode = getFeMode();
+
+if (feMode === FeMode.ACCEPT) {
+  // 접수일떄:
+  // 수신부서, 빌성부서 탭 hide
+  TabUI.toggle(document, 3, false);
+  TabUI.toggle(document, 4, false);
+  // 발송종류, 제목, 쪽수 disable => FeDocinfo에서 처리
+}
+
 hox.addEventListener(HoxEventType.CONTENT, (e) => {
   console.info('hoxEvent listen', e.type, e.detail);
   if (getContentCount() > 1) {
@@ -102,7 +112,7 @@ document.getElementById('btnVerify').addEventListener('click', (e) => {
 
   // 현재 결재자/기안자 participant current = true 처리
   getNodes(hox, 'approvalFlow participant').forEach((participant) => setAttr(participant, null, 'current', 'false'));
-  const feMode = getFeMode();
+
   if (feMode === FeMode.DRAFT) {
     // 첫 participant
     const draftParticipant = getNodeArray(hox, 'approvalFlow participant').filter((participant) => 'valid' === getText(participant, 'validStatus'))[0];

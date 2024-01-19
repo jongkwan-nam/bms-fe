@@ -1,3 +1,4 @@
+import { FeMode, getFeMode } from '../main/FeMode';
 import './docInfo/FeApprovalType';
 import './docInfo/FeDocNumber';
 import './docInfo/FeEnforceType';
@@ -65,6 +66,14 @@ export default class FeDocInfo extends HTMLElement {
     this.feSpecialDoc = this.shadowRoot.querySelector('fe-specialdoc');
     this.fePageCnt = this.shadowRoot.querySelector('fe-pagecnt');
     this.feSpecialList = this.shadowRoot.querySelector('fe-speciallist');
+
+    const feMode = getFeMode();
+    if (FeMode.ACCEPT === feMode) {
+      // 수신문서일때:
+      this.feEnforceType.toggleDisabled(true);
+      this.feViewRange.toggleDisabled(true);
+      this.fePageCnt.toggleDisabled(true);
+    }
   }
 
   set(hox) {

@@ -11,10 +11,16 @@
   color: var(--color-primary);
   border-color: var(--color-primary);
 }
+[role="tab"].hide {
+  display: none !important;
+}
 
 [role="tabpanel"] {
   display: none;
 }
 [role="tabpanel"][active] {
   display: block;
+}
+[role="tabpanel"].hide {
+  display: none !important;
 }

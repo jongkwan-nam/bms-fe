@@ -122,11 +122,11 @@
     <script>
       const container = document.querySelector('.container');
       [
-        { type: 'gian', text: '기안', form: 'select', url: '/bms/fe/retrieveDoccrdWritng.act?WORDTYPE=5&FORMID=' },
-        { type: 'kyul', text: '결재', form: 'input', url: '/bms/fe/retrieveDoccrdSanctn.act?WORDTYPE=5&CLTAPP=3&APPLID=2010&APPRIDLIST=' },
-        { type: 'request', text: '발송대기', form: 'input', url: '/bms/fe/retrieveDoccrdSndngRequest.act?WORDTYPE=5&CLTAPP=5&APPLID=4030&APPRIDLIST=' },
+        { type: 'gian', text: '기안', form: 'select', url: '/bms/fe/retrieveDoccrdWritng.act?WORDTYPE=5&FORMID={ID}' },
+        { type: 'kyul', text: '결재', form: 'input', url: '/bms/fe/retrieveDoccrdSanctn.act?WORDTYPE=5&CLTAPP=3&APPLID=2010&APPRIDLIST={ID}' },
+        { type: 'request', text: '발송대기', form: 'input', url: '/bms/fe/retrieveDoccrdSndngRequest.act?WORDTYPE=5&CLTAPP=5&APPLID=4030&APPRIDLIST={ID}' },
         { type: 'control', text: '발송처리', form: 'input', url: '/bms/fe/retrieveDoccrdSndng.act' },
-        { type: 'accept', text: '접수대기', form: 'input', url: '/bms/fe/retrieveDoccrdRecptn.act' },
+        { type: 'accept', text: '접수대기', form: 'input', url: '/bms/fe/retrieveDoccrdRecptn.act?WORDTYPE=5&CLTAPP=9&APPLID=5010&APPRIDLIST={ID}&SENDTYPELIST=1&RECDOCSTATUSLIST=2' },
         { type: 'view', text: '보기', form: 'input', url: '/bms/fe/retrieveDoccrdInqire.act' },
       ].forEach((item) => {
         const article = container.appendChild(document.createElement('article'));
@@ -149,7 +149,7 @@
           document.querySelectorAll('article').forEach((article) => {
             //
             const type = article.dataset.type;
-            const url = article.dataset.url + (article.dataset.type === 'gian' ? formId : apprId);
+            const url = article.dataset.url.replace('{ID}', article.dataset.type === 'gian' ? formId : apprId);
             article.querySelector('a').setAttribute('onclick', `window.open('${url}', 'fe${type}', 'width=1270px,height=900px')`);
             article.querySelector('a').innerHTML = url;
             article.querySelector('a + a').setAttribute('href', `${url}`);

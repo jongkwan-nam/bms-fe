@@ -70,6 +70,20 @@ export default class TabUI {
   }
 
   /**
+   * 탭 보이기 여부
+   * @param {ShadowRoot | Document} root
+   * @param {number} nth 탭 순번. (1부터)
+   * @param {*} force 보이기/안보이기 여부
+   */
+  static toggle(root, nth, force) {
+    const tab = root.querySelectorAll('[role="tab"]')[nth - 1];
+    tab.disabled = !force;
+    tab.classList.toggle('hide', !force);
+    const panel = root.querySelectorAll('[role="tabpanel"]')[nth - 1];
+    panel.classList.toggle('hide', !force);
+  }
+
+  /**
    * 탭 선택
    * @param {ShadowRoot | Document} root
    * @param {*} nth 탭 순번. (1부터)

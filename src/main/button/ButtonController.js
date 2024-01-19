@@ -1,4 +1,5 @@
 import { FeMode, getFeMode } from '../FeMode';
+import AcceptButton from './AcceptButton';
 import ApprovalBoxButton from './ApprovalBoxButton';
 import CommentButton from './CommentButton';
 import DraftButton from './DraftButton';
@@ -76,6 +77,7 @@ export default class ButtonController {
       }
       case FeMode.ACCEPT: {
         // 접수
+        this.#append(new AcceptButton());
         // 지정
         // 배부
         // 결재정보
