@@ -40,7 +40,10 @@ export default class SummaryButton extends HTMLButtonElement {
   }
 
   async #doAction() {
-    window.open('./summaryBox.html', 'summaryBox', 'width=800px,height=920px');
+    const windowProxy = window.open('./summaryBox.html', 'summaryBox', 'width=800px,height=920px');
+    if (windowProxy === null) {
+      alert(GWWEBMessage.cmsg_1255); // 팝업이 차단되었습니다. 현재 사이트의 팝업을 허용하십시오.
+    }
   }
 }
 
