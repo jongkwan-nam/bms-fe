@@ -23,7 +23,7 @@ import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
 import IDUtils from './utils/IDUtils';
-import { getAttr, getNodeArray, getNodes, loadHox } from './utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getAttr, getNodeArray, getNodes, loadHox } from './utils/hoxUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 
 popupSizeRestorer('feMain.window.size', 1270, 900);
@@ -195,7 +195,12 @@ class FeMain {
     console.log('reflectResult', reflectResult);
     if (reflectResult.ok) {
       // NOTICE! this.hox가 재할당되므로, 이전에 this.hox를 받은 class들은 hox 갱신이 되지 않는다!!!
-      window.feMain.hox = receivedHox;
+      // this.hox = receivedHox;
+
+      this.hox.querySelector('hox').remove();
+      this.hox.appendChild(receivedHox.querySelector('hox'));
+
+      dispatchHoxEvent(this.hox, 'docInfo', HoxEventType.TITLE, 'change', null);
     }
 
     return reflectResult;
