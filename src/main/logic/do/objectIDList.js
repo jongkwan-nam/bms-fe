@@ -1,5 +1,5 @@
-import { getNodeArray, getText, setText } from '../../../utils/hoxUtils';
 import IDUtils from '../../../utils/IDUtils';
+import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * 첨부 objectID의 ID, participantID를 설정

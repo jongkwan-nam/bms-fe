@@ -1,5 +1,5 @@
-import { addNode, addNodes, existsNode, getNode, getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
 import StringUtils from '../../utils/StringUtils';
+import { addNode, addNodes, existsNode, getNode, getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
 import { doInitDocNumber } from './do/docNumber';
 
 export default (hox) => {

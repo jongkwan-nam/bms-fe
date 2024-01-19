@@ -1,4 +1,4 @@
-import { addNode, existsNode, getNode } from '../../utils/hoxUtils';
+import { addNode, existsNode, getNode } from '../../utils/xmlUtils';
 
 export default (hox) => {
   //

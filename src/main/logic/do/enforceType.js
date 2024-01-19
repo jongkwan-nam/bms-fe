@@ -1,4 +1,4 @@
-import { getNodeArray, getText, setText } from '../../../utils/hoxUtils';
+import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * 일괄기안을 고려하여, content/enforceType 조사하여, docInfo/enforceType 결정

@@ -1,4 +1,4 @@
-import { getText, setText } from '../../utils/hoxUtils';
+import { getText, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeTitle.scss';
 

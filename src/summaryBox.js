@@ -3,9 +3,9 @@ import Cell from './main/CellNames';
 import './main/FeEditor';
 import { FeMode } from './main/FeMode';
 import './summaryBox.scss';
-import { createNode, existsFlag, getAttr, getNode, getNodeArray, getText, toggleFlag } from './utils/hoxUtils';
 import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
+import { createNode, existsFlag, getAttr, getNode, getNodeArray, getText, toggleFlag } from './utils/xmlUtils';
 
 popupSizeRestorer('approvalBox.window.size', 800, 920);
 

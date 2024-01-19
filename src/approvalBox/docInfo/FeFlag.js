@@ -1,4 +1,4 @@
-import { toggleFlag } from '../../utils/hoxUtils';
+import { toggleFlag } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFlag.scss';
 

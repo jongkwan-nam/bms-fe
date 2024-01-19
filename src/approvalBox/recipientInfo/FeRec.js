@@ -1,5 +1,5 @@
-import { getAttr, getText } from '../../utils/hoxUtils';
 import StringUtils from '../../utils/StringUtils';
+import { getAttr, getText } from '../../utils/xmlUtils';
 import './FeRec.scss';
 
 /**

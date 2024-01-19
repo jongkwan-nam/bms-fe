@@ -1,6 +1,6 @@
 import DateUtils from '../../../utils/DateUtils';
-import { getNodeArray, getText, setText } from '../../../utils/hoxUtils';
 import IDUtils from '../../../utils/IDUtils';
+import { getNodeArray, getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * participantID 채번

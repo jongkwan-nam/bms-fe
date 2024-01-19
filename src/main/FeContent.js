@@ -1,5 +1,5 @@
 import DragUtils from '../utils/DragUtils';
-import { HoxEventType, createNode, dispatchHoxEvent, getNode, getNodes, getText, setAttr } from '../utils/hoxUtils';
+import { HoxEventType, createNode, dispatchHoxEvent, getNode, getNodes, getText, setAttr } from '../utils/xmlUtils';
 import './FeContent.scss';
 
 /**

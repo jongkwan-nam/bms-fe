@@ -1,5 +1,5 @@
 import DateUtils from '../../utils/DateUtils';
-import { getAttr, getNode, getNodeArray, getText, setAttr, setText } from '../../utils/hoxUtils';
+import { getAttr, getNode, getNodeArray, getText, setAttr, setText } from '../../utils/xmlUtils';
 import { makeEnforceHox4DraftForm, makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';
 
 /**

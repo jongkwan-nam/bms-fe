@@ -1,4 +1,4 @@
-import { HoxEventType, getNode, getNodes } from '../utils/hoxUtils';
+import { HoxEventType, getNode, getNodes } from '../utils/xmlUtils';
 import './FeApprovalBox.scss';
 
 /**

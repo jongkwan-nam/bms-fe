@@ -1,4 +1,4 @@
-import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeEnforceType.scss';
 

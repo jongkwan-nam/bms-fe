@@ -1,6 +1,6 @@
-import { getNodes, getNumber, getText } from '../../../utils/hoxUtils';
 import IDUtils from '../../../utils/IDUtils';
 import StringUtils from '../../../utils/StringUtils';
+import { getNodes, getNumber, getText } from '../../../utils/xmlUtils';
 
 /**
  * 기안전 validation

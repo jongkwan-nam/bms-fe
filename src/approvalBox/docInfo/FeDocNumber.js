@@ -1,5 +1,5 @@
 import { findNodeOfDocNumber } from '../../main/logic/do/docNumber';
-import { getText } from '../../utils/hoxUtils';
+import { getText } from '../../utils/xmlUtils';
 import './FeDocNumber.scss';
 
 /**

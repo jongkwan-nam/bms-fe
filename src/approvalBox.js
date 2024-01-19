@@ -6,8 +6,8 @@ import './approvalBox/FeSender';
 import StyleController from './config/styleController';
 import { FeMode, getFeMode } from './main/FeMode';
 import TabUI from './utils/TabUI';
-import { HoxEventType, dispatchHoxEvent, getNodeArray, getNodes, getText, setAttr } from './utils/hoxUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
+import { HoxEventType, dispatchHoxEvent, getNodeArray, getNodes, getText, setAttr } from './utils/xmlUtils';
 
 popupSizeRestorer('approvalBox.window.size', 1020, 720);
 

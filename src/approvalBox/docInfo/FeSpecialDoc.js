@@ -1,4 +1,4 @@
-import { HoxEventType, getAttr, getFlagList, setText } from '../../utils/hoxUtils';
+import { HoxEventType, getAttr, getFlagList, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeSpecialDoc.scss';
 

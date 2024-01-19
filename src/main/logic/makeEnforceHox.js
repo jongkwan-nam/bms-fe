@@ -1,6 +1,6 @@
 import DateUtils from '../../utils/DateUtils';
-import { createNode, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, setAttr, setText, toggleFlag } from '../../utils/hoxUtils';
 import IDUtils from '../../utils/IDUtils';
+import { createNode, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, setAttr, setText, toggleFlag } from '../../utils/xmlUtils';
 import { takeDocNumber } from './docNumber';
 
 /**

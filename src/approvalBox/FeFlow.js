@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import '../lib/dynatree';
-import { getNodes, getText } from '../utils/hoxUtils';
+import { getNodes, getText } from '../utils/xmlUtils';
 import './FeFlow.scss';
 import './flowInfo/FeParticipantList';
 

@@ -1,4 +1,4 @@
-import { getText } from '../../utils/hoxUtils';
+import { getText } from '../../utils/xmlUtils';
 import ATO from '../flowInfo/ApprovalTypeOptions';
 import FeParticipant from './FeParticipant';
 

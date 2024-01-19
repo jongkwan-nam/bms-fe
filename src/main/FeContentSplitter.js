@@ -1,5 +1,5 @@
 import DragUtils from '../utils/DragUtils';
-import { HoxEventType, dispatchHoxEvent, getText } from '../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getText } from '../utils/xmlUtils';
 import './FeContentSplitter.scss';
 import splitDocToExam from './logic/splitDocToExam';
 

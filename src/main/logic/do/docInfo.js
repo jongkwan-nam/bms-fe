@@ -1,5 +1,5 @@
 import DateUtils from '../../../utils/DateUtils';
-import { setText } from '../../../utils/hoxUtils';
+import { setText } from '../../../utils/xmlUtils';
 /*
  * 문서 상태 관리
  * - 주로 docInfo

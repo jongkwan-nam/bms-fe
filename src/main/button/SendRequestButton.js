@@ -1,6 +1,6 @@
 import DateUtils from '../../utils/DateUtils';
-import { addNode, existsNode, getAttr, getNode, getNodeArray, getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
 import IDUtils from '../../utils/IDUtils';
+import { addNode, existsNode, getAttr, getNode, getNodeArray, getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
 import { makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';
 
 const FD_APPLID_SENDING = 4020;

@@ -4,7 +4,7 @@ import '../lib/dynatree';
 import ArrayUtils from '../utils/ArrayUtils';
 import StringUtils from '../utils/StringUtils';
 import TagUI from '../utils/TabUI';
-import { HoxEventType, getAttr, getNodes, getText, setText } from '../utils/hoxUtils';
+import { HoxEventType, getAttr, getNodes, getText, setText } from '../utils/xmlUtils';
 import FeApprovalBox from './FeApprovalBox';
 import './FeRecipient.scss';
 import './recipientInfo/FeRecList';

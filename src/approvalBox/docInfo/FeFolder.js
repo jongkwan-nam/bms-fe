@@ -5,7 +5,7 @@ import DateUtils from '../../utils/DateUtils';
 import feStorage from '../../utils/FeStorage';
 import IDUtils from '../../utils/IDUtils';
 import StringUtils from '../../utils/StringUtils';
-import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/hoxUtils';
+import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFolder.scss';
 

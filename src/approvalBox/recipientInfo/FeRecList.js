@@ -1,5 +1,5 @@
 import syncFetch from 'sync-fetch';
-import { addNodes, createNode, existsNode, getAttr, getNode, getNodes, getText } from '../../utils/hoxUtils';
+import { addNodes, createNode, existsNode, getAttr, getNode, getNodes, getText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import FeRec from './FeRec';
 import './FeRecList.scss';

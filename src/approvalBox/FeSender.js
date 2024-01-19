@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import '../lib/dynatree';
-import { setText } from '../utils/hoxUtils';
+import { setText } from '../utils/xmlUtils';
 import FeApprovalBox from './FeApprovalBox';
 import './FeSender.scss';
 

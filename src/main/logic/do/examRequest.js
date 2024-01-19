@@ -1,6 +1,6 @@
 import DateUtils from '../../../utils/DateUtils';
-import { getNode, getText, setText } from '../../../utils/hoxUtils';
 import IDUtils from '../../../utils/IDUtils';
+import { getNode, getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * examRequest 노드 설정

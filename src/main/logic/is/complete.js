@@ -2,7 +2,7 @@
  * 완료 조건
  */
 
-import { getNodeArray, getText } from '../../../utils/hoxUtils';
+import { getNodeArray, getText } from '../../../utils/xmlUtils';
 
 /**
  * 문서가 최종완료 상태인가

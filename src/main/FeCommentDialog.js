@@ -1,6 +1,6 @@
 import DateUtils from '../utils/DateUtils';
-import { createNode, existsNode, getAttr, getNodeArray, getText } from '../utils/hoxUtils';
 import StringUtils from '../utils/StringUtils';
+import { createNode, existsNode, getAttr, getNodeArray, getText } from '../utils/xmlUtils';
 import './FeCommentDialog.scss';
 
 export default class FeCommentDialog extends HTMLElement {

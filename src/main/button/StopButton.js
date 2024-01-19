@@ -1,5 +1,5 @@
-import { getText, serializeHoxToString, setText } from '../../utils/hoxUtils';
 import IDUtils from '../../utils/IDUtils';
+import { getText, serializeXmlToString, setText } from '../../utils/xmlUtils';
 
 /**
  * 중단
@@ -37,7 +37,7 @@ export default class StopButton extends HTMLButtonElement {
     formData.append('PARTICIPANTID', participantID);
 
     // hox
-    formData.append('block_' + IDUtils.getObjectID(apprId, 2), serializeHoxToString(hox));
+    formData.append('block_' + IDUtils.getObjectID(apprId, 2), serializeXmlToString(hox));
 
     const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocProgrs.act`, {
       method: 'POST',

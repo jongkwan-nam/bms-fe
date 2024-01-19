@@ -1,5 +1,5 @@
-import { getText, serializeHoxToString } from '../../../utils/hoxUtils';
 import IDUtils from '../../../utils/IDUtils';
+import { getText, serializeXmlToString } from '../../../utils/xmlUtils';
 import { dialogSign } from '../dialog/sign';
 import { doSetContentAttachID } from '../do/content';
 import { doFinishDoc } from '../do/docInfo';
@@ -93,7 +93,7 @@ export default async () => {
     formData.append('ref_' + IDUtils.getObjectID(apprID, 3), feMain.summary.TRID);
   }
   // hox
-  formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeHoxToString(hox));
+  formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeXmlToString(hox));
 
   const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocProgrs.act`, {
     method: 'POST',

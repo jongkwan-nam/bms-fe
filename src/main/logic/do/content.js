@@ -1,4 +1,4 @@
-import { addNode, getNode, getNodeArray, getNodes, getNumber, getText } from '../../../utils/hoxUtils';
+import { addNode, getNode, getNodeArray, getNodes, getNumber, getText } from '../../../utils/xmlUtils';
 
 /**
  * 첨부 objectID 정보를 content의 attachInfo에 설정

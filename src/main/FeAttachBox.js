@@ -15,7 +15,7 @@
 
 import FileUtils from '../utils/FileUtils';
 import StringUtils from '../utils/StringUtils';
-import { HoxEventType, getAttr, getNodes, getNumber } from '../utils/hoxUtils';
+import { HoxEventType, getAttr, getNodes, getNumber } from '../utils/xmlUtils';
 import './FeAttachBox.scss';
 import FeAttach from './attach/FeAttach';
 

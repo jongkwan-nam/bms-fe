@@ -1,4 +1,4 @@
-import { existsFlag } from '../../utils/hoxUtils';
+import { existsFlag } from '../../utils/xmlUtils';
 import { FeMode } from '../FeMode';
 
 export default class SummaryButton extends HTMLButtonElement {

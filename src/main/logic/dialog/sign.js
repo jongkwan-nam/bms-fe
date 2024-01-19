@@ -1,5 +1,5 @@
 import DateUtils from '../../../utils/DateUtils';
-import { getText } from '../../../utils/hoxUtils';
+import { getText } from '../../../utils/xmlUtils';
 import FeSignDialog from '../../FeSignDialog';
 
 /**

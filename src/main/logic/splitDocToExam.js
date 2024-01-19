@@ -1,4 +1,4 @@
-import { getAttr, getNode, getNodes, getText, setAttr, setText } from '../../utils/hoxUtils';
+import { getAttr, getNode, getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
 
 /**
  * @param {number[]} contentNumbers

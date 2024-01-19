@@ -1,3 +1,7 @@
+/*
+ * XMLDocument Utility
+ */
+
 import ArrayUtils from './ArrayUtils';
 import StringUtils from './StringUtils';
 
@@ -9,29 +13,24 @@ const xmlSerializer = new XMLSerializer();
  * @param {string} url
  * @returns
  */
-export const loadHox = async (url) => {
+export const loadXml = async (url) => {
   const res = await fetch(url);
   const xmlText = await res.text();
 
   const xmlDoc = domParser.parseFromString(xmlText, 'application/xml');
   console.debug(xmlDoc);
 
-  // hox 정상인지 체크
-  if (xmlDoc.querySelector('docInfo title') === null) {
-    throw new Error('hox is not valid');
-  }
-
   return xmlDoc;
 };
 
 /**
  * hox를 문자열로 변환
- * @param {XMLDocument} hox
+ * @param {XMLDocument} xml
  * @returns
  */
-export const serializeHoxToString = (hox) => {
+export const serializeXmlToString = (xml) => {
   // TODO 신규 추가한 node에 xmlns="" 자동 추가되는 현상. .replace(/xmlns=""/gi, '') 로 지우는거보다, 처음부터 안생기게 하는 방법
-  return xmlSerializer.serializeToString(hox);
+  return xmlSerializer.serializeToString(xml);
 };
 
 /**
@@ -40,7 +39,7 @@ export const serializeHoxToString = (hox) => {
  * @returns
  */
 export const createNode = (xmlText) => {
-  return domParser.parseFromString(xmlText, 'application/xml').childNodes[0];
+  return domParser.parseFromString(xmlText, 'application/xml').children[0];
 };
 
 /**

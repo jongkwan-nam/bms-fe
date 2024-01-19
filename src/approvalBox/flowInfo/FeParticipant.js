@@ -1,5 +1,5 @@
 import SVG from '../../svg/SVG';
-import { getText, setText, toggleFlag } from '../../utils/hoxUtils';
+import { getText, setText, toggleFlag } from '../../utils/xmlUtils';
 import './FeParticipant.scss';
 
 /**

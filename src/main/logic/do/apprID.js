@@ -1,5 +1,5 @@
-import { getText, setText } from '../../../utils/hoxUtils';
 import IDUtils from '../../../utils/IDUtils';
+import { getText, setText } from '../../../utils/xmlUtils';
 
 /**
  * apprID 채번

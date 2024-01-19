@@ -1,6 +1,6 @@
 import Cell from '../../main/CellNames';
 import OrgUtils from '../../utils/OrgUtils';
-import { createNode, getNode, getNodes, getText } from '../../utils/hoxUtils';
+import { createNode, getNode, getNodes, getText } from '../../utils/xmlUtils';
 import FeParticipant from './FeParticipant';
 import './FeParticipantList.scss';
 import { decideApprovalType } from './decideApprovalType';

@@ -1,4 +1,4 @@
-import { getText } from '../../utils/hoxUtils';
+import { getText } from '../../utils/xmlUtils';
 
 export default class MultiContentButton extends HTMLButtonElement {
   constructor() {

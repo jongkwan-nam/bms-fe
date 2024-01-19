@@ -1,7 +1,7 @@
 import ColorUtils from '../../utils/ColorUtils';
 import { getContentCellName } from '../../utils/contentUtils';
 import DateUtils from '../../utils/DateUtils';
-import { getAttr, getNodes, getText } from '../../utils/hoxUtils';
+import { getAttr, getNodes, getText } from '../../utils/xmlUtils';
 import Cell from '../CellNames';
 
 /**

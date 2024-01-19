@@ -1,4 +1,4 @@
-import { getText } from '../../utils/hoxUtils';
+import { getText } from '../../utils/xmlUtils';
 import './FeApprovalType.scss';
 
 /**

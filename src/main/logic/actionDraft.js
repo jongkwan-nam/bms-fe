@@ -1,7 +1,7 @@
 import DateUtils from '../../utils/DateUtils';
-import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeHoxToString, setAttr, setText } from '../../utils/hoxUtils';
 import IDUtils from '../../utils/IDUtils';
 import StringUtils from '../../utils/StringUtils';
+import { addNodes, getAttr, getNode, getNodeArray, getNodes, getNumber, getText, serializeXmlToString, setAttr, setText } from '../../utils/xmlUtils';
 import Cell from '../CellNames';
 import FeSignDialog from '../FeSignDialog';
 
@@ -260,7 +260,7 @@ export const process = async (hox) => {
     formData.append('ref_' + IDUtils.getObjectID(newDocId, 3), feMain.summary.TRID);
   }
   // hox
-  formData.append('block_' + IDUtils.getObjectID(newDocId, 2), serializeHoxToString(hox));
+  formData.append('block_' + IDUtils.getObjectID(newDocId, 2), serializeXmlToString(hox));
 
   const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocDrft.act`, {
     method: 'POST',

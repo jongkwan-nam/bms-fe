@@ -1,4 +1,4 @@
-import { addNode, addNodes, existsNode, getNode, getNodes } from '../../utils/hoxUtils';
+import { addNode, addNodes, existsNode, getNode, getNodes } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeSpecialList.scss';
 
