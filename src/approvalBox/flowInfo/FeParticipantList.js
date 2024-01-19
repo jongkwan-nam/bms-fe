@@ -1,6 +1,6 @@
 import Cell from '../../main/CellNames';
 import OrgUtils from '../../utils/OrgUtils';
-import { createNode, getNode, getNodes, getText } from '../../utils/xmlUtils';
+import { createNode, getAttr, getNode, getNodes, getText } from '../../utils/xmlUtils';
 import FeParticipant from './FeParticipant';
 import './FeParticipantList.scss';
 import { decideApprovalType } from './decideApprovalType';
@@ -265,6 +265,16 @@ export default class FeParticipantList extends HTMLElement {
     let feParticipantNodeList = Array.from(this.LIST.querySelectorAll('fe-participant'));
     feParticipantNodeList.reverse(); // 화면표시 순서와 hox 순서가 반대이므로, 배열 반전
 
+    // 수신문서일때: 몇차 수신인지에 따라 번호 붙이기
+    let receiptSuffixNumber = '';
+    const approvalType = getText(this.hox, 'approvalType');
+    if ('apprtype_receipt' === approvalType) {
+      // previewInfo@depth
+      const depth = getAttr(this.hox, 'previewInfo', 'depth');
+      const signDepth = parseInt(depth);
+      receiptSuffixNumber = '.' + (signDepth + 1);
+    }
+
     let signCellCount = 0;
     let agreeCellCount = 0;
     feParticipantNodeList.forEach((feParticipant, i) => {
@@ -275,7 +285,7 @@ export default class FeParticipantList extends HTMLElement {
         case 'user_approval':
         case 'user_jeonkyul':
         case 'user_daekyul':
-          feParticipant.setCellName(`${Cell.SIGN}.${++signCellCount}`);
+          feParticipant.setCellName(`${Cell.SIGN}.${++signCellCount}${receiptSuffixNumber}`);
           break;
         case 'user_agree_s':
         case 'user_agree_p':

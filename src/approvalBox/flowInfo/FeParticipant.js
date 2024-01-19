@@ -49,7 +49,9 @@ export default class FeParticipant extends HTMLElement {
     wrapper.classList.add('fe-participant');
     wrapper.innerHTML = `
       <div class="no"></div>
-      <div class="type"><select></select></div>
+      <div class="type">
+        <select></select>
+      </div>
       <div class="info">
         <span class="img-profile"></span>
         <span class="name"></span>

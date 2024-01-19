@@ -101,7 +101,7 @@ class FeMain {
     this.feEditor1.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
     await this.feEditor1.open(docURL); // 문서 열기
 
-    // 기안시 할 것들
+    // 문서 오픈 후 할 것들
     if (this.feMode === FeMode.DRAFT) {
       // 리본메뉴 보이기
       this.feEditor1.foldRibbon(false);
@@ -115,6 +115,8 @@ class FeMain {
     } else if (this.feMode === FeMode.VIEW) {
       this.feEditor1.setReadMode(true);
     } else if (this.feMode === FeMode.ACCEPT) {
+      this.feEditor1.foldRibbon(true);
+      this.feEditor1.setReadMode(true);
       //
       initiateHoxForAccept(this.hox);
     } else if (this.feMode === FeMode.KYUL) {

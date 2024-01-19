@@ -49,5 +49,6 @@ export default (hox) => {
     }
   }
 
+  // 문서번호(접수번호) 초기 설정
   doInitDocNumber(hox);
 };

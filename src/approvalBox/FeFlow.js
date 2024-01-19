@@ -3,6 +3,7 @@ import '../lib/dynatree';
 import { getNodes, getText } from '../utils/xmlUtils';
 import './FeFlow.scss';
 import './flowInfo/FeParticipantList';
+import FeParticipantList from './flowInfo/FeParticipantList';
 
 /**
  * 결재선 화면
@@ -35,14 +36,13 @@ export default class FeFlow extends HTMLElement {
         <div id="tree" class="folder"></div>
       </div>
       <div class="list">
-        <fe-participantlist></fe-participantlist>
       </div>
     `;
 
     this.shadowRoot.append(LINK, LINK2, wrapper);
 
     this.orgTree = this.shadowRoot.querySelector('#tree');
-    this.feParticipantlist = this.shadowRoot.querySelector('fe-participantlist');
+    this.feParticipantlist = this.shadowRoot.querySelector('.list').appendChild(new FeParticipantList());
 
     this.feParticipantlist.addEventListener('delete', (e) => {
       console.log('Event', e.type, e.target, e);
