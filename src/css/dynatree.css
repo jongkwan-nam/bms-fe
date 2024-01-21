@@ -195,13 +195,13 @@ span.dynatree-radio:hover {
 * 2nd character (optional): 'f': folder
 */
 
-/* Default icon 
+/* Default icon
 span.dynatree-icon {
 	margin-left: 3px;
 	background-position: 0px 0px;
 } */
 
-/* Status node icons 
+/* Status node icons
 .dynatree-statusnode-wait span.dynatree-icon {
 	background-image: url("loading.gif");
 }
@@ -230,7 +230,7 @@ ul.dynatree-container a /*, ul.dynatree-container a:visited*/ {
   margin: 0px;
   font-size: 0.875rem;
   line-height: 21px;
-  color: #111;
+  color: var(--color-text);
   text-decoration: none;
   vertical-align: top;
 }
@@ -272,6 +272,7 @@ span.dynatree-focused a:link /* @IE */ {
   height: 22px;
   line-height: 22px;
   cursor: pointer;
+  color: var(--color-text);
 }
 
 .dynatree-active a.dynatree-title {
