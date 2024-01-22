@@ -1,4 +1,4 @@
-import { getContentCellName } from '../../utils/contentUtils';
+import { getContentCellName } from '../../utils/HoxUtils';
 import Cell from '../CellNames';
 
 /**

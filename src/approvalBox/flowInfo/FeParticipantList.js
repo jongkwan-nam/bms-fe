@@ -3,7 +3,7 @@ import OrgUtils from '../../utils/OrgUtils';
 import { createNode, getAttr, getNode, getNodes, getText } from '../../utils/xmlUtils';
 import FeParticipant from './FeParticipant';
 import './FeParticipantList.scss';
-import { decideApprovalType } from './decideApprovalType';
+import { decideApprovalType, decideApprovalTypeOfNoSign } from './decideApprovalType';
 
 /**
  * 전체 결재선 관리
@@ -251,7 +251,25 @@ export default class FeParticipantList extends HTMLElement {
   #decideApprovalType(detail = null) {
     let feParticipantNodeList = Array.from(this.LIST.querySelectorAll('fe-participant'));
     feParticipantNodeList.reverse(); // 화면표시 순서와 hox 순서가 반대이므로, 배열 반전
-    decideApprovalType(this.hox, feParticipantNodeList, detail);
+
+    // 수신문서이고, 수신결재 셀이 없으면, 참조와 확인만 가능
+    // 수신문서: 수신결재셀명(서명.1.2 형식)이 없으면, 참조와 확인만 가능
+    let testCellName = null;
+    if ('apprtype_receipt' === getText(this.hox, 'docInfo approvalType')) {
+      const depth = getAttr(this.hox, 'receiptInfo', 'depth');
+      const signDepth = parseInt(depth) + 1;
+      testCellName = '서명.1.' + signDepth;
+    } else {
+      testCellName = '서명.1';
+    }
+
+    let foundSignCell = getNodes(this.hox, 'clientInfo cellInfo cell').filter((cell) => testCellName === getText(cell, 'cellName')).length > 0;
+
+    if (foundSignCell) {
+      decideApprovalType(this.hox, feParticipantNodeList, detail);
+    } else {
+      decideApprovalTypeOfNoSign(this.hox, feParticipantNodeList, detail);
+    }
 
     this.#decideCellName();
     this.#updateHox();

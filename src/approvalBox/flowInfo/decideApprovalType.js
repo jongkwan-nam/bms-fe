@@ -10,7 +10,7 @@ import FeParticipant from './FeParticipant';
  */
 export const decideApprovalType = (hox, feParticipantNodeList, detail) => {
   // 기안자
-  let drafterId = getText(hox, 'docInfo drafter ID');
+  const drafterId = getText(hox, 'docInfo drafter ID');
 
   // 최종 결재자 인덱스 구하기
   let indexLastUser = getLastIndexByApprovalType(feParticipantNodeList, 0, 'user_approval', 'user_jeonkyul', 'user_daekyul');
@@ -278,3 +278,27 @@ function getLastIndexByApprovalType(feParticipantNodeList, i, ...approvalTypes) 
   }
   return lastIndex;
 }
+
+export const decideApprovalTypeOfNoSign = (hox, feParticipantNodeList, detail) => {
+  //
+  const drafterId = getText(hox, 'docInfo drafter ID');
+
+  for (let i = 0; i < feParticipantNodeList.length; i++) {
+    let feParticipant = feParticipantNodeList[i];
+
+    feParticipant.setIndex(i);
+
+    let isFirst = i === 0 && feParticipant.id === drafterId;
+
+    if (feParticipant.type === 'dept') {
+      // 부서는 [순차협조, 병렬협조]
+      feParticipant.setApprovalTypes([ATO.DEPT_HYEOBJO_S, ATO.DEPT_HYEOBJO_P]);
+    } else {
+      if (isFirst) {
+        feParticipant.setApprovalTypes([ATO.HWAGIN]);
+      } else {
+        feParticipant.setApprovalTypes([ATO.HWAGIN, ATO.REFER]);
+      }
+    }
+  }
+};

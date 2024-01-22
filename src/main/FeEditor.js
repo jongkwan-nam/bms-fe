@@ -1,5 +1,5 @@
+import { getContentCellName } from '../utils/HoxUtils';
 import StringUtils from '../utils/StringUtils';
-import { getContentCellName } from '../utils/contentUtils';
 import { HoxEventType, dispatchHoxEvent, getNode, getNodes, setText } from '../utils/xmlUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
