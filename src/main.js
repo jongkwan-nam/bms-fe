@@ -20,6 +20,7 @@ import initiateHoxForAccept from './main/logic/initiateHoxForAccept';
 import initiateHoxForDraft from './main/logic/initiateHoxForDraft';
 import initiateHoxForKyul from './main/logic/initiateHoxForKyul';
 import initiateHoxForRequest from './main/logic/initiateHoxForRequest';
+import initiateHoxForView from './main/logic/initiateHoxForView';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
@@ -32,6 +33,7 @@ class FeMain {
   draftHox = null;
   feEditor1 = null;
   feEditor2 = null;
+  feEditor4Extra = null;
   feContent = null;
   feAttachBox = null;
   summary = { filePath: null, TRID: null };
@@ -54,24 +56,28 @@ class FeMain {
     this.feMode = getFeMode();
     switch (this.feMode) {
       case FeMode.DRAFT: {
-        document.title = 'FE 기안기';
+        document.title = 'FE 기안';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.KYUL: {
-        document.title = 'FE 결재기';
+        document.title = 'FE 결재';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.VIEW: {
+        document.title = 'FE 조회';
+
+        hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
         break;
       }
       case FeMode.ACCEPT: {
-        document.title = 'FE 접수기';
+        document.title = 'FE 접수';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         draftHoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=sanckyul&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}&_NOARG=${Date.now()}`;
@@ -114,6 +120,8 @@ class FeMain {
       initiateBodyByHox(this.hox, this.feEditor1);
     } else if (this.feMode === FeMode.VIEW) {
       this.feEditor1.setReadMode(true);
+      //
+      initiateHoxForView(this.hox);
     } else if (this.feMode === FeMode.ACCEPT) {
       this.feEditor1.foldRibbon(true);
       this.feEditor1.setReadMode(true);
@@ -215,6 +223,19 @@ class FeMain {
   getCurrentParticipant() {
     //
     return getNodes(this.hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true')[0];
+  }
+
+  /**
+   *
+   * @returns PC저장용 에디터
+   */
+  async getEditor4Extra() {
+    //
+    if (this.feEditor4Extra === null) {
+      this.feEditor4Extra = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor4extra'));
+      await this.feEditor4Extra.init(); // 에디터 로딩
+    }
+    return this.feEditor4Extra;
   }
 }
 

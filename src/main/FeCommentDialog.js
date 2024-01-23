@@ -2,6 +2,7 @@ import DateUtils from '../utils/DateUtils';
 import StringUtils from '../utils/StringUtils';
 import { createNode, existsNode, getAttr, getNodes, getText } from '../utils/xmlUtils';
 import './FeCommentDialog.scss';
+import { FeMode, getFeMode } from './FeMode';
 
 export default class FeCommentDialog extends HTMLElement {
   isClose = false;
@@ -38,6 +39,13 @@ export default class FeCommentDialog extends HTMLElement {
     `;
 
     this.shadowRoot.append(link, wrapper);
+
+    const feMode = getFeMode();
+    if (feMode === FeMode.VIEW) {
+      wrapper.classList.add('readonly');
+    } else {
+      //
+    }
 
     const textarea = this.shadowRoot.querySelector('textarea');
     // 글자갯수
