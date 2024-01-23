@@ -183,6 +183,15 @@ export default class FeEditor extends FeHwpCtrl {
     console.timeEnd(TIME_LABEL_OPEN);
   }
 
+  async openByJSON(jsonData) {
+    this.hwpCtrl.Clear(1);
+    let res = await super.insert(jsonData, 'JSON');
+    console.log('openByJSON', res);
+    if (!res.result) {
+      throw new Error('openByJSON Error');
+    }
+  }
+
   /**
    * 문서에서 필요한 정보를 구한다.
    *
@@ -622,6 +631,34 @@ export default class FeEditor extends FeHwpCtrl {
     this.hwpCtrl.MoveToFieldEx(cellName, true, true, false);
   }
 
+  /**
+   * 배포용 문서로 PC저장
+   */
+  saveDistributeHwp() {
+    const title = (StringUtils.isBlank(this.title) ? 'Noname' : this.title) + '_배포용.hwp';
+    const password = randomPassword();
+    //
+    const hwpAction = this.hwpCtrl.CreateAction('FileSetSecurity');
+    const hwpActionSet = hwpAction.CreateSet();
+    hwpAction.GetDefault(hwpActionSet);
+    hwpActionSet.SetItem('FileName', title);
+    hwpActionSet.SetItem('Password', password);
+    hwpActionSet.SetItem('NoPrint', 0);
+    hwpActionSet.SetItem('NoCopy', 1);
+    const ret = hwpAction.Execute(hwpActionSet);
+    console.log('saveDistributeHwp', ret);
+  }
+
+  saveHwpx() {
+    const title = (StringUtils.isBlank(this.title) ? 'Noname' : this.title) + '.hwpx';
+    this.saveLocal(title, 'HWPX');
+  }
+
+  saveHwp() {
+    const title = (StringUtils.isBlank(this.title) ? 'Noname' : this.title) + '.hwp';
+    this.saveLocal(title, 'HWP');
+  }
+
   set title(title) {
     this.hwpCtrl.PutFieldText(Cell.DOC_TITLE, title);
   }
@@ -639,3 +676,7 @@ export default class FeEditor extends FeHwpCtrl {
 
 // Define the new element
 customElements.define('fe-editor', FeEditor);
+
+function randomPassword() {
+  return Math.random().toString(36).slice(2) + Math.random().toString(36).toUpperCase().slice(2);
+}

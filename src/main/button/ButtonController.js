@@ -7,6 +7,9 @@ import HoldButton from './HoldButton';
 import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
 import RejectButton from './RejectButton';
+import SaveHwpButton from './SaveHwpButton';
+import SaveHwpDistButton from './SaveHwpDistButton';
+import SaveHwpxButton from './SaveHwpxButton';
 import SendControlButton from './SendControlButton';
 import SendRequestButton from './SendRequestButton';
 import StopButton from './StopButton';
@@ -61,6 +64,9 @@ export default class ButtonController {
         break;
       }
       case FeMode.VIEW: {
+        // 재작성: 문서함에서 열었을때
+        // 재발송
+        // 공람지정
         // 본문복사
         // 메일쓰기
         // 게시하기
@@ -72,6 +78,9 @@ export default class ButtonController {
         // 의견
         this.#append(new CommentButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
+        this.#append(new SaveHwpDistButton());
+        this.#append(new SaveHwpxButton());
+        this.#append(new SaveHwpButton());
         // 인쇄
         break;
       }
