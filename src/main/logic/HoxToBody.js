@@ -2,7 +2,7 @@ import ColorUtils from '../../utils/ColorUtils';
 import DateUtils from '../../utils/DateUtils';
 import { getContentCellName } from '../../utils/HoxUtils';
 import { getAttr, getNodes, getText } from '../../utils/xmlUtils';
-import Cell from '../CellNames';
+import Cell, { signPosMap } from '../CellNames';
 
 /**
  * hox 내용을 본문에 적용하는 함수 모음
@@ -139,15 +139,15 @@ export class HoxToBody {
     const textColor = ColorUtils.colorNameToHex(doccfg.previewSignerNameFontColor);
     // const height = sizeToHwpUnit(doccfg.previewSignerNameFontSize);
 
-    getNodes(this.hox, 'approvalFlow participant').forEach((paricipant) => {
-      if (getText(paricipant, 'validStatus') === 'revoked') {
+    getNodes(this.hox, 'approvalFlow participant').forEach((participant) => {
+      if (getText(participant, 'validStatus') === 'revoked') {
         return;
       }
       // 기 결재된 서명은 건드리면 안되고, 남는 서명칸은 비워야 한다.
-      let approvalType = getText(paricipant, 'approvalType');
-      let approvalStatus = getText(paricipant, 'approvalStatus');
-      let position = getText(paricipant, 'position');
-      let name = getText(paricipant, 'name');
+      let approvalType = getText(participant, 'approvalType');
+      let approvalStatus = getText(participant, 'approvalStatus');
+      let position = getText(participant, 'position');
+      let name = getText(participant, 'name');
 
       if ('partapprstatus_done' === approvalStatus) {
         return;
@@ -187,6 +187,55 @@ export class HoxToBody {
       this.editor.putFieldText(`${Cell.AGREE_POS}.${agreeCellIndex}`, '');
       this.editor.putFieldText(`${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
       console.debug('putFieldText', `${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
+    }
+  }
+
+  setApprovalFlowByCellInfo() {
+    const textColor = ColorUtils.colorNameToHex(doccfg.previewSignerNameFontColor);
+    let agreeCellCount = 0;
+    //
+    getNodes(this.hox, 'clientInfo cellInfo cell').forEach((cell) => {
+      //
+      const signCellName = getText(cell, 'cellName');
+      const posCellName = getPosCellName(signCellName);
+      const found = getNodes(this.hox, 'approvalFlow participant').filter((participant) => signCellName === getText(participant, 'mappingCell cellName'));
+      if (found === null || found.length === 0) {
+        // 셀명으로 결재자를 찾지 못함. -> 설정되어 있지 않음. -> 본문의 셀 내용 지우기
+        this.editor.putFieldText(signCellName, '');
+        this.editor.putFieldText(posCellName, '');
+      } else {
+        // 참여자가 연결되어 있음. 상태에 따라
+        const participant = found[0];
+        const approvalStatus = getText(participant, 'approvalStatus');
+        const approvalType = getText(participant, 'approvalType');
+        const position = getText(participant, 'position');
+        const name = getText(participant, 'name');
+        if (['user_agree_s', 'user_agree_p', 'dept_agree_s', 'dept_agree_p'].includes(approvalType)) {
+          agreeCellCount++;
+        }
+        if ('partapprstatus_done' === approvalStatus) {
+          // 완료는 이미 서명이 되어 있으므로,  pass
+          return;
+        }
+        this.editor.putFieldText(posCellName, position);
+        if (doccfg.usePreviewSignerName) {
+          this.editor.putFieldText(signCellName, name, textColor);
+        }
+      }
+    });
+    // assist_signer_caption: 결재선에 협조자(부서/개인)가 있으면 "협조" 표시, 없으면 빈값
+    this.editor.putFieldText('assist_signer_caption', agreeCellCount > 0 ? GWWEBMessage.assist_signer_caption : '');
+  }
+
+  setSignOfFlow() {
+    // TODO 결재선을 본문 사인셀에 적용
+    // 생산, 협조, 감사 = 서명.1 사용
+    // 수신 = 서명.1.2 사용
+    const approvalType = getText(this.hox, 'docInfo approvalType');
+    if ('apprtype_receipt' === approvalType) {
+      //
+    } else {
+      //
     }
   }
 
@@ -303,4 +352,17 @@ function sizeToHwpUnit(sizeValue) {
   if (sizeValue.includes('pt')) {
     return parseInt(sizeValue) * 100;
   }
+}
+
+/**
+ *
+ * @param {string} signCellName
+ */
+function getPosCellName(signCellName) {
+  const idx = signCellName.indexOf('.');
+  const namePrefix = signCellName.substring(0, idx);
+  const nameSuffix = signCellName.substring(idx);
+  console.log('Cell [%s] [%s]', namePrefix, nameSuffix);
+
+  return signPosMap.get(namePrefix);
 }

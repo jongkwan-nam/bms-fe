@@ -1,4 +1,4 @@
-export default {
+const Cell = {
   CBODY: '본문',
   USER_ADDR: '주소',
   DELIBDEPT_SIGN: '심의부서',
@@ -98,3 +98,23 @@ export default {
   BUDGET_PLANNER_POS: '기획예산직위',
   BUDGET_PLANNER_SIGN: '기획예산',
 };
+export default Cell;
+
+export const signPosMap = new Map();
+signPosMap.set(Cell.SIGN, Cell.POS);
+signPosMap.set(Cell.AGREE_SIGN, Cell.AGREE_POS);
+signPosMap.set(Cell.AUDIT_SIGN, Cell.AUDIT_POS);
+signPosMap.set(Cell.AUDITDEPT_SIGN, Cell.AUDITDEPT_POS);
+signPosMap.set(Cell.CONFIRM_SIGN, Cell.CONFIRM_POS);
+signPosMap.set(Cell.DELIBDEPT_SIGN, Cell.DELIBDEPT_POS);
+signPosMap.set(Cell.CUSTOM_SIGN, Cell.CUSTOM_POS);
+signPosMap.set(Cell.COMPL_SIGN, Cell.COMPL_POS);
+signPosMap.set(Cell.COMPLDEPT_SIGN, Cell.COMPLDEPT_POS);
+signPosMap.set(Cell.COMPUTATION_AUDIT_SIGN, Cell.COMPUTATION_AUDIT_POS);
+signPosMap.set(Cell.BUDGET_CONTROL_SIGN, Cell.BUDGET_CONTROL_POS);
+signPosMap.set(Cell.BUDGET_PLANNER_SIGN, Cell.BUDGET_PLANNER_POS);
+signPosMap.set(Cell.INSPECTOR_SIGN, Cell.INSPECTOR_POSITION);
+signPosMap.set(Cell.PUBLIC_NOTICE_CHARGE_SIGN, Cell.PUBLIC_NOTICE_CHARGE_POS);
+signPosMap.set(Cell.ENTRANT_SIGN, Cell.ENTRANT_POSITION);
+signPosMap.set(Cell.RECV_SIGN, Cell.RECV_POS);
+signPosMap.set(Cell.DRAFTER, Cell.DRAFTER_POS);
