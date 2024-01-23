@@ -101,11 +101,7 @@
     <div class="container">
       <div class="input-group">
         <div class="form-floating">
-          <select class="form-select">
-            <option value="JHOMS233520000102000">JHOMS233520000102000 [웹한글] 통합. 서명4, 협조3</option>
-            <option value="JHOMS232880000001000">JHOMS232880000001000 [통합] 웹기본서식</option>
-            <option value="JHOMS240160000148000">JHOMS240160000148000 [웹한글] 기안서식</option>
-          </select>
+          <select class="form-select"></select>
           <label>Form ID</label>
         </div>
         <div class="form-floating"><input type="text" placeholder="Appr ID" class="form-control" value="" /><label>Appr ID</label></div>
@@ -120,6 +116,21 @@
     </div>
 
     <script>
+      const formSelect = document.querySelector('select');
+      fetch(`/bms/com/hs/gwweb/appr/retrieveCmmnFormatList.act?userId=001000001&deptId=000010100&lstType=list&applId=1030&resultType=json&fldrId=JHOMS232790000001000`)
+        .then((res) => res.json())
+        .then((data) => {
+          //
+          data.item.forEach((item) => {
+            //
+            const option = formSelect.appendChild(document.createElement('option'));
+            option.value = item.formID;
+            option.innerHTML = `${item.formID} [${item.formClassName}] ${item.formNm}`;
+          });
+
+          formSelect.dispatchEvent(new Event('change'));
+        });
+
       const container = document.querySelector('.container');
       [
         { type: 'gian', text: '기안', form: 'select', url: '/bms/fe/retrieveDoccrdWritng.act?WORDTYPE=5&FORMID={ID}' },
@@ -137,7 +148,6 @@
           <a href="#">${item.url}</a>
           <a href="#" target="_blank">🪟</a>
         `;
-        //
       });
 
       document.querySelectorAll('select, input').forEach((form) => {
@@ -156,7 +166,6 @@
           });
         });
       });
-      document.querySelector('select').dispatchEvent(new Event('change'));
     </script>
   </body>
 </html>
