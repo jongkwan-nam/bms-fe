@@ -6,10 +6,9 @@ import { doSetContentAttachID } from '../do/content';
 import { doFinishDoc } from '../do/docInfo';
 import { doSetDocNumber } from '../do/docNumber';
 import { doSetEnforceType } from '../do/enforceType';
-import { doInitExamRequest, doRequestStatusExamRequest } from '../do/examRequest';
+import { doExamRequest, doInitExamRequest } from '../do/examRequest';
 import { doNewObjectIDofAttach, doNewObjectIDofSummary } from '../do/objectIDList';
 import { doDoneParticipant, doNewParticipantID } from '../do/participant';
-import { isAutoSendDoc } from '../is/autoSend';
 import { isDocCompleted } from '../is/complete';
 import { validateForDraft } from '../validator/forDraft';
 
@@ -63,9 +62,7 @@ export default async () => {
   if (isDocCompleted(hox)) {
     doSetDocNumber(hox);
     doFinishDoc(hox);
-    if (isAutoSendDoc(hox)) {
-      doRequestStatusExamRequest(hox);
-    }
+    doExamRequest(hox);
   }
 
   const apprID = getText(hox, 'apprID');
@@ -108,6 +105,6 @@ export default async () => {
   if ('{RESULT:OK}' === ret.trim()) {
     alert('완료되었습니다.');
   } else {
-    throw new Error('기안에 실패하였습니다. ' + ret.trim());
+    throw new Error('기안에 실패하였습니다.');
   }
 };

@@ -5,10 +5,9 @@ import { doSetContentAttachID } from '../do/content';
 import { doFinishDoc } from '../do/docInfo';
 import { doSetDocNumber } from '../do/docNumber';
 import { doSetEnforceType } from '../do/enforceType';
-import { doInitExamRequest, doRequestStatusExamRequest } from '../do/examRequest';
+import { doExamRequest, doInitExamRequest } from '../do/examRequest';
 import { doNewObjectIDofAttach } from '../do/objectIDList';
 import { doDoneParticipant, doNewParticipantID } from '../do/participant';
-import { isAutoSendDoc } from '../is/autoSend';
 import { isDocCompleted } from '../is/complete';
 import { validateForKyul } from '../validator/forKyul';
 
@@ -59,16 +58,14 @@ export default async () => {
   if (isDocCompleted(hox)) {
     doSetDocNumber(hox);
     doFinishDoc(hox);
-    if (isAutoSendDoc(hox)) {
-      doRequestStatusExamRequest(hox);
-    }
+    doExamRequest(hox);
   }
 
   const apprID = getText(hox, 'apprID');
   const downloadURL = await feEditor1.saveServer(apprID);
   const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
   if (!bodyFileInfo.ok) {
-    console.error('downloadURL=%d, bodyFileInfo=%d', downloadURL, bodyFileInfo);
+    console.error('downloadURL=%s, bodyFileInfo=%s', downloadURL, bodyFileInfo);
     throw new Error('웹한글 파일 저장 오류.');
   }
   const bodyTRID = bodyFileInfo.TRID;
@@ -105,6 +102,6 @@ export default async () => {
   if ('{RESULT:OK}' === ret.trim()) {
     alert('완료되었습니다.');
   } else {
-    throw new Error('기안에 실패하였습니다. ' + ret.trim());
+    throw new Error('결재에 실패하였습니다.');
   }
 };

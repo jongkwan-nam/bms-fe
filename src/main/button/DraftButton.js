@@ -16,6 +16,7 @@ export default class DraftButton extends HTMLButtonElement {
   }
 
   async #doAction() {
+    this.disabled = true;
     await submitOfDraft();
   }
 }
