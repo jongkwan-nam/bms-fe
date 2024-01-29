@@ -26,7 +26,7 @@ export default async (contentNumbers) => {
     hwpJsonData = await feEditor2.copyDocument('JSON');
 
     splitedExamDocMap.set('content' + n, {
-      hwp: hwpJsonData,
+      hwpJson: hwpJsonData,
     });
   }
 

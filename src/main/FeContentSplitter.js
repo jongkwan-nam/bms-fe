@@ -59,6 +59,7 @@ export default class FeContentSplitter extends HTMLElement {
             li.classList.add('selected');
             if (this.viewMode === 'draft') {
               this.draftDocSelectedIndex = i;
+              feMain.feEditor1.selectContent(i + 1);
               dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
               feMain.feEditor1.setReadMode(true);
             } else {
@@ -66,7 +67,7 @@ export default class FeContentSplitter extends HTMLElement {
               dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
               // feEditor2 에 본문 붙여넣기
               const examDoc = feMain.splitedExamDocMap.get('content' + (i + 1));
-              feMain.feEditor2.insertContent(examDoc.hwp);
+              feMain.feEditor2.insertContent(examDoc.hwpJson);
               feMain.feEditor2.setReadMode(true);
             }
           } else {

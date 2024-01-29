@@ -51,6 +51,10 @@ export const makeEnforceHox4MultiDoc = (multiDraftHox, contentNumber) => {
     }
   }
 
+  // approvalFlag > apprflag_attach
+  const attachLength = getNodes(enforceHox, 'docInfo objectIDList objectID').length;
+  toggleFlag(enforceHox, 'approvalFlag', 'apprflag_attach', attachLength > 0);
+
   // hox type 속성
   setAttr(enforceHox, 'hox', 'type', 'enforce');
 
@@ -78,6 +82,20 @@ export const makeEnforceHox4MultiDoc = (multiDraftHox, contentNumber) => {
   IDUtils.getParticipantIDs(participantLength).forEach((id, i) => {
     getNode(enforceHox, 'approvalFlow participant participantID', i).textContent = id;
   });
+
+  // examRequest exam
+  setText(enforceHox, 'examRequest exam examiner participantID', null);
+  setText(enforceHox, 'examRequest exam examiner position', null);
+  setText(enforceHox, 'examRequest exam examiner dutyName', null);
+  setText(enforceHox, 'examRequest exam examiner ID', IDUtils.NULL_ORGID);
+  setText(enforceHox, 'examRequest exam examiner name', null);
+  setText(enforceHox, 'examRequest exam examiner type', 'user');
+  setText(enforceHox, 'examRequest exam examiner date', '1970-01-01T09:00:00');
+  setText(enforceHox, 'examRequest exam examiner status', 'partapprstatus_will');
+  setText(enforceHox, 'examRequest exam examiner examType', 'examinertype_send');
+  setText(enforceHox, 'examRequest exam examDate', '1970-01-01T09:00:00');
+  setText(enforceHox, 'examRequest exam examStatus', 'apprstatus_finish');
+  setText(enforceHox, 'examRequest exam examID', IDUtils.NULL_APPRID);
 
   return enforceHox;
 };

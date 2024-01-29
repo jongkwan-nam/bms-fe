@@ -3,6 +3,7 @@ import StringUtils from './StringUtils';
 
 export default class IDUtils {
   static NULL_APPRID = '00000000000000000000';
+  static NULL_ORGID = '000000000';
 
   /**
    *

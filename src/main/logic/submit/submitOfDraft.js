@@ -40,13 +40,13 @@ export default async () => {
   const validationResult = validateForDraft(hox);
   if (!validationResult.ok) {
     alert(validationResult.message);
-    return;
+    return false;
   }
 
   const signResult = await dialogSign(hox);
   if (!signResult.ok) {
     // 서명 취소
-    return;
+    return false;
   }
 
   const currentParticipant = feMain.getCurrentParticipant();
@@ -104,6 +104,7 @@ export default async () => {
 
   if ('{RESULT:OK}' === ret.trim()) {
     alert('완료되었습니다.');
+    return true;
   } else {
     throw new Error('기안에 실패하였습니다.');
   }

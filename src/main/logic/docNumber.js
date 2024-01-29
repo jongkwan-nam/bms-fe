@@ -29,7 +29,7 @@ export const takeDocNumber = (hox) => {
   const newDocNumber = IDUtils.getDocNumber(refDeptId, apprID);
 
   //
-  const displayDocNumber = docNumberFormat;
+  let displayDocNumber = docNumberFormat;
   // expression param 지운후 새로 채우기
   nodeOfExpression.textContent = null;
   docNumberFormat.split(/[^@\w]/).forEach((name) => {
@@ -84,7 +84,7 @@ export const takeDocNumber = (hox) => {
       default:
         break;
     }
-    displayDocNumber.replace(name, value);
+    displayDocNumber = displayDocNumber.replace(name, value);
     // add param node
     const nodeOfParam = addNode(nodeOfExpression, 'param', value);
     setAttr(nodeOfParam, null, 'name', name);

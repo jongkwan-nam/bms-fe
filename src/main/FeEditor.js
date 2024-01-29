@@ -95,39 +95,39 @@ export default class FeEditor extends FeHwpCtrl {
    * - 제목 변경 감지 -> hoxEvent 발행
    */
   start() {
-    feMain.hox.addEventListener(HoxEventType.CONTENT, (e) => {
+    feMain.hox.addEventListener(HoxEventType.CONTENT, async (e) => {
       console.info('hoxEvent listen', e.type, e.detail);
-      switch (e.detail.type) {
-        case 'add': {
-          // 안 추가 이벤트
-          this.addContent();
-          break;
-        }
-        case 'delete': {
-          // 안 삭제 이벤트
-          const deletedContentNumbers = e.detail.value;
-          this.deleteContent(...deletedContentNumbers);
-          break;
-        }
-        case 'select': {
-          // 안 선택 이벤트
-          this.selectContent(e.detail.value);
-          break;
-        }
-        case 'move': {
-          // 안 이동 이벤트
-          let { from, to } = e.detail.value;
-          this.moveContent(from, to);
-          break;
-        }
-        default:
-          throw new Error('undefinded detatil.type: ' + e.detail.type);
-      }
+      // switch (e.detail.type) {
+      //   case 'add': {
+      //     // 안 추가 이벤트
+      //     await this.addContent();
+      //     break;
+      //   }
+      //   case 'delete': {
+      //     // 안 삭제 이벤트
+      //     const deletedContentNumbers = e.detail.value;
+      //     await this.deleteContent(...deletedContentNumbers);
+      //     break;
+      //   }
+      //   case 'select': {
+      //     // 안 선택 이벤트
+      //     await this.selectContent(e.detail.value);
+      //     break;
+      //   }
+      //   case 'move': {
+      //     // 안 이동 이벤트
+      //     let { from, to } = e.detail.value;
+      //     await this.moveContent(from, to);
+      //     break;
+      //   }
+      //   default:
+      //     throw new Error('undefinded detatil.type: ' + e.detail.type);
+      // }
     });
 
     // 제목 변경 감지. 에디터 밖으로 나가면 작동
     this.parentElement.addEventListener('mouseleave', (e) => {
-      console.debug('fe-editor', 'parent', this.parentElement, e.type, 'detectTitle', this.detectTitle, 'contentCount', this.contentCount);
+      // console.debug('fe-editor', 'parent', this.parentElement, e.type, 'detectTitle', this.detectTitle, 'contentCount', this.contentCount);
       //
       if (this.detectTitle) {
         //
@@ -259,7 +259,7 @@ export default class FeEditor extends FeHwpCtrl {
       }
 
       hwpAction.Execute(hwpActionSet);
-      this.hwpCtrl.Run('Cancel');
+      super.run('Cancel');
     }
   }
 
@@ -377,10 +377,10 @@ export default class FeEditor extends FeHwpCtrl {
 
     let jsonData = await super.getTextFile('JSON', 'saveblock');
 
-    this.hwpCtrl.Run('Cancel');
+    await super.run('Cancel');
 
-    this.hwpCtrl.Run('MoveDocEnd');
-    this.hwpCtrl.Run('BreakPage');
+    await super.run('MoveDocEnd');
+    await super.run('BreakPage');
 
     this.hwpCtrl.MovePos(5, 0, 0); // 현재 리스트의 끝
 
@@ -416,7 +416,7 @@ export default class FeEditor extends FeHwpCtrl {
           let bodyText = await super.getTextFile('JSON', 'saveblock');
 
           this.hwpCtrl.MoveToField(Cell.CBODY + '_' + this.contentCount, true, true, true);
-          this.hwpCtrl.Run('Erase');
+          await super.run('Erase');
 
           let ret = await super.setTextFile(bodyText, 'JSON', 'insertfile');
         }
@@ -439,14 +439,14 @@ export default class FeEditor extends FeHwpCtrl {
    * ref) batchDraft.js #deleteHwpBody
    * @param  {...any} contentNumbers
    */
-  deleteContent(...contentNumbers) {
+  async deleteContent(...contentNumbers) {
     console.time('deleteContent');
     this.detectTitle = false;
 
     this.setEditMode(1);
 
     super.toggleViewOptionCtrkMark(true);
-    contentNumbers.reverse().forEach((contentNumber) => {
+    for (const contentNumber of contentNumbers.reverse()) {
       // 발신명의 셀을 기준으로 이전 안의 끝과 현재 안의 끝을 찾아서 삭제
       console.log('deleteContent', contentNumber);
 
@@ -454,8 +454,8 @@ export default class FeEditor extends FeHwpCtrl {
       const currRect = super.getBoundingContentRect(contentNumber);
 
       this.hwpCtrl.SelectText(prevRect.ePara, prevRect.ePos, currRect.ePara, currRect.ePos);
-      this.hwpCtrl.Run('Erase');
-    });
+      await super.run('Erase');
+    }
     // 셀_n 조정
     /* 삭제전 총 6안일때, 안 번호를 배열 [1, 2, 3, 4, 5, 6]로 만들고, 삭제한 안 [3, 5] 번호 빼서
        남은 [1, 2, 4, 6] 배열로 인덱스와 값의 관계가 틀어지는 걸로 찾아
@@ -484,16 +484,19 @@ export default class FeEditor extends FeHwpCtrl {
    *
    * @param {number} contentNumber
    */
-  selectContent(contentNumber) {
+  async selectContent(contentNumber) {
     // 안번호의 제목셀을 찾고, 현재 페이지를 구하여 스크롤 이동한다.
-    this.hwpCtrl.MoveToFieldEx(getContentCellName(Cell.DOC_TITLE, contentNumber), true, true, false);
-    // let set = super.getDocumentInfo(true);
-    // let curPage = set.Item('DetailCurPage');
-    // console.log('curPage', curPage);
-    this.hwpCtrl.Run('MovePageBegin');
+    const cellName = getContentCellName(Cell.DOC_TITLE, contentNumber);
+    console.debug('selectContent', contentNumber, cellName);
+
+    const ret1 = this.hwpCtrl.MoveToFieldEx(cellName, true, false, false);
+    console.log('MoveToFieldEx', cellName, ret1);
+    await super.run('MovePageBegin');
+    // const ret2 = this.hwpCtrl.MoveToField(cellName, true, false, false);
+    // console.log('MoveToField', cellName, ret2);
   }
 
-  moveContent(from, to) {
+  async moveContent(from, to) {
     console.time('moveContent');
     this.detectTitle = false;
 
@@ -514,7 +517,7 @@ export default class FeEditor extends FeHwpCtrl {
     this.setEditMode(1);
     this.putFieldText(cellName, text, 0x000000);
     this.hwpCtrl.MoveToField(cellName, true, true, true);
-    this.hwpCtrl.Run('ParagraphShapeAlignCenter');
+    await super.run('ParagraphShapeAlignCenter');
     this.hwpCtrl.MovePos(23); // moveEndOfLine
     await super.insertPicture(url, true, 3, false, false, 0);
     this.setEditMode(2);

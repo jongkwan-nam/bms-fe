@@ -210,6 +210,20 @@ export default class FeHwpCtrl extends HTMLElement {
   }
 
   /**
+   * 액션을 실행한다
+   *
+   * @param {string} actionID 액션ID
+   * @returns
+   */
+  async run(actionID) {
+    return new Promise((resolve, reject) => {
+      // HWPFIX API명세에는 callback이 있으나, 내부로직에서 불리지 않음
+      this.hwpCtrl.Run(actionID);
+      resolve();
+    });
+  }
+
+  /**
    * 새로 추가된 안의 셀명 정리
    */
   reAssignContentCellName() {

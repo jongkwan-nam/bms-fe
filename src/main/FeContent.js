@@ -52,24 +52,25 @@ export default class FeContent extends HTMLElement {
     this.shadowRoot.append(LINK, wrapper);
 
     // 안 추가 이벤트
-    this.shadowRoot.querySelector('#addBtn').addEventListener('click', (e) => {
-      this.addContent();
+    this.shadowRoot.querySelector('#addBtn').addEventListener('click', async (e) => {
+      await this.addContent();
     });
 
     // 안 삭제 이벤트
-    this.shadowRoot.querySelector('#delBtn').addEventListener('click', (e) => {
-      this.removeContent();
+    this.shadowRoot.querySelector('#delBtn').addEventListener('click', async (e) => {
+      await this.removeContent();
     });
 
     // 안 선택 이벤트
-    this.shadowRoot.querySelector('.body ol').addEventListener('click', (e) => {
+    this.shadowRoot.querySelector('.body ol').addEventListener('click', async (e) => {
       //
       const selectedLi = e.target.closest('li');
       this.shadowRoot.querySelectorAll('.body ol li').forEach((li, i) => {
         if (li === selectedLi) {
           li.classList.add('selected');
           this.currentContentNumber = i + 1;
-          dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'select', i + 1);
+          feMain.feEditor1.selectContent(this.currentContentNumber);
+          dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'select', this.currentContentNumber);
         } else {
           li.classList.remove('selected');
         }
@@ -79,7 +80,7 @@ export default class FeContent extends HTMLElement {
     // TODO 안 이동을 어떻게 할것인가? 이동과 동시에 바로 반영? 확정 클릭시 반영. 웹한글 반응 속도에 따라
 
     // 안 위로 이벤트
-    this.shadowRoot.querySelector('#upBtn').addEventListener('click', (e) => {
+    this.shadowRoot.querySelector('#upBtn').addEventListener('click', async (e) => {
       // 선택된 안 찾기
       const selectedLi = this.shadowRoot.querySelector('.body ol li.selected');
       if (selectedLi !== null) {
@@ -89,13 +90,14 @@ export default class FeContent extends HTMLElement {
           // TODO 위로 이동
           let from = selectedLi.querySelector('input').value;
           let to = prevLi.querySelector('input').value;
+          await feMain.feEditor1.moveContent(from, to);
           dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
         }
       }
     });
 
     // 안 아래로 이벤트
-    this.shadowRoot.querySelector('#downBtn').addEventListener('click', (e) => {
+    this.shadowRoot.querySelector('#downBtn').addEventListener('click', async (e) => {
       const selectedLi = this.shadowRoot.querySelector('.body ol li.selected');
       if (selectedLi !== null) {
         const nextLi = selectedLi.nextSibling;
@@ -104,6 +106,7 @@ export default class FeContent extends HTMLElement {
           // TODO 아래로 이동
           let from = selectedLi.querySelector('input').value;
           let to = nextLi.querySelector('input').value;
+          await feMain.feEditor1.moveContent(from, to);
           dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'move', { from: from, to: to });
         }
       }
@@ -131,7 +134,7 @@ export default class FeContent extends HTMLElement {
           const title = getText(nodeContent, 'title');
           const enforceType = getText(nodeContent, 'enforceType');
 
-          li.querySelector('.content-enforcetype').innerHTML = GWWEBMessage[enforceType];
+          li.querySelector('.content-enforcetype').innerHTML = `[${GWWEBMessage[enforceType]}]`;
           li.querySelector('.content-title').innerHTML = title;
         });
       }
@@ -170,7 +173,7 @@ export default class FeContent extends HTMLElement {
   /**
    * 안추가
    */
-  addContent() {
+  async addContent() {
     const title = getText(feMain.hox, 'docInfo title');
     const enforceType = getText(feMain.hox, 'docInfo enforceType');
     //
@@ -207,6 +210,7 @@ export default class FeContent extends HTMLElement {
     setAttr(feMain.hox, 'hox', 'type', this.contentLength > 1 ? 'multiDraft' : 'draft');
 
     // hox 이벤트 전파
+    await feMain.feEditor1.addContent();
     dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'add', contentNode);
     // 추가된 안(마지막 안) 선택
     this.shadowRoot.querySelector('.body ol li:last-child').click();
@@ -250,7 +254,7 @@ export default class FeContent extends HTMLElement {
     `;
   }
 
-  removeContent() {
+  async removeContent() {
     //
     const checkedContentCheckerList = this.shadowRoot.querySelectorAll('.body ol input[type="checkbox"]:checked');
     console.log('checkedContent', checkedContentCheckerList);
@@ -281,6 +285,7 @@ export default class FeContent extends HTMLElement {
     setAttr(feMain.hox, 'hox', 'type', this.contentLength > 1 ? 'multiDraft' : 'draft');
 
     // hox 이벤트 전파
+    await feMain.feEditor1.deleteContent(...checkedContentNumberArray);
     dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.CONTENT, 'delete', checkedContentNumberArray);
 
     // 1개 안만 있으면, 스스로 숨기기

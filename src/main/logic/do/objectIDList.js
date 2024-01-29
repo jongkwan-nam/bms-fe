@@ -1,5 +1,5 @@
 import IDUtils from '../../../utils/IDUtils';
-import { getNodes, getText, setText } from '../../../utils/xmlUtils';
+import { getNodes, getText, setText, toggleFlag } from '../../../utils/xmlUtils';
 
 /**
  * 첨부 objectID의 ID, participantID를 설정
@@ -12,17 +12,21 @@ export const doNewObjectIDofAttach = (hox, participant) => {
   const apprID = getText(hox, 'docInfo apprID');
   //
   const objectIDList = getNodes(hox, 'docInfo objectIDList objectID').filter((objectID) => 'objectidtype_attach' === objectID.getAttribute('type'));
-  const maxAttachNumber = Math.max(
-    objectIDList.map((objectID) => {
+
+  toggleFlag(hox, 'approvalFlag', 'apprflag_attach', objectIDList.length > 0);
+
+  let maxAttachNumber = Math.max(
+    ...objectIDList.map((objectID) => {
       const id = getText(objectID, 'ID');
-      return IDUtils.isNullID(id) ? 0 : parseInt(id.substring(17));
+      return IDUtils.isNullID(id) ? 100 : parseInt(id.substring(17));
     })
   );
+  console.debug('doNewObjectIDofAttach maxAttachNumber', maxAttachNumber);
 
   objectIDList
     .filter((objectID) => IDUtils.isNullID(getText(objectID, 'ID')))
     .forEach((objectID, i) => {
-      setText(objectID, 'ID', IDUtils.getObjectID(apprID, maxAttachNumber + i));
+      setText(objectID, 'ID', IDUtils.getObjectID(apprID, maxAttachNumber++));
       setText(objectID, 'participantID', getText(participant, 'participantID'));
     });
 };
