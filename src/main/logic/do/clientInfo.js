@@ -49,7 +49,7 @@ export const doInitClientInfo = (hox, fieldList) => {
     // 서명, 협조, 감사, 감사부, 특별협조, 심의부서
 
     let cellType = '';
-    let cellFormat = 'cellFormat';
+    let cellFormat = 'fmt_normal';
 
     if (equalsCell(cellName, Cell.SIGN)) {
       // 서명
@@ -86,6 +86,10 @@ export const doInitClientInfo = (hox, fieldList) => {
     } else if (equalsCell(cellName, Cell.COMPLDEPT_SIGN)) {
       // 준법감시부
       cellType = 'celltype_compliancedept';
+      cellInfo.appendChild(createCellNode(CellXmlText, cellType, cellName, cellFormat));
+    } else if (equalsCell(cellName, Cell.BUDGET_CONTROL_SIGN)) {
+      // 예산통제
+      cellType = 'celltype_budgetcontrol';
       cellInfo.appendChild(createCellNode(CellXmlText, cellType, cellName, cellFormat));
     }
   });
