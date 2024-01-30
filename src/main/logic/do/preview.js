@@ -10,5 +10,5 @@ export const doSetPreview = (hox, bodyText) => {
     addNode(preview, 'data');
   }
 
-  setTextCDATA(hox, 'docInfo preview data', StringUtils.cutByMaxBytes(bodyText, 2000));
+  setTextCDATA(hox, 'docInfo preview data', StringUtils.cutByMaxBytes(bodyText.trim(), 2000));
 };
