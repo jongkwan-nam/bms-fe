@@ -631,6 +631,15 @@ export default class FeEditor extends FeHwpCtrl {
     return this.hwpCtrl.GetPageText(pageNo, option).trim();
   }
 
+  /**
+   * 본문셀의 내용을 텍스트로 구한다
+   * @param {number} contentNumber
+   * @returns
+   */
+  getCellBodyText(contentNumber = 1) {
+    return this.hwpCtrl.GetFieldText(`${Cell.CBODY}{{${contentNumber - 1}}}`);
+  }
+
   focusToField(cellName) {
     this.hwpCtrl.MoveToFieldEx(cellName, true, true, false);
   }

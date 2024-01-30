@@ -9,6 +9,7 @@ import { doSetEnforceType } from '../do/enforceType';
 import { doExamRequest, doInitExamRequest } from '../do/examRequest';
 import { doNewObjectIDofAttach, doNewObjectIDofSummary } from '../do/objectIDList';
 import { doDoneParticipant, doNewParticipantID } from '../do/participant';
+import { doSetPreview } from '../do/preview';
 import { isDocCompleted } from '../is/complete';
 import { validateForDraft } from '../validator/forDraft';
 
@@ -57,6 +58,7 @@ export default async () => {
   doNewObjectIDofSummary(hox, currentParticipant);
   doSetContentAttachID(hox);
   doSetEnforceType(hox);
+  doSetPreview(hox, feEditor1.getCellBodyText());
   doInitExamRequest(hox);
   doDoneParticipant(hox);
   if (isDocCompleted(hox)) {
