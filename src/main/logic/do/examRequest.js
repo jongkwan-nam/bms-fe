@@ -27,9 +27,13 @@ export const doExamRequest = (hox) => {
   }
   if (enforceType === 'enforcetype_internal') {
     if (formType === 'formtype_draft' && doccfg.isDirectInternalEnforce) {
+      //
+      setText(feMain.hox, 'docInfo enforceDate', todayNow);
       return;
     }
     if (formType === 'formtype_uniform' && doccfg.autoInternalSend) {
+      // 심사하지 않고 바로 발송
+      setText(feMain.hox, 'docInfo enforceDate', todayNow);
       return;
     }
   }
