@@ -1,6 +1,7 @@
 import DateUtils from '../../../utils/DateUtils';
 import IDUtils from '../../../utils/IDUtils';
 import { addNode, existsNode, getAttr, getNode, getNodes, getText, serializeXmlToString, setAttr, setText } from '../../../utils/xmlUtils';
+import Cell from '../../CellNames';
 import { makeEnforceHox4MultiDoc } from '../makeEnforceHox';
 
 const FD_APPLID_SENDING = 4020;
@@ -121,6 +122,11 @@ export default async () => {
     //
     const splitedExamDoc = feMain.splitedExamDocMap.get('content' + enforceDocInfo.contentNumber);
     await feMain.feEditor2.openByJSON(splitedExamDoc.hwpJson);
+
+    // submit전에 문서에 표시할 내용들
+    feMain.feEditor2.putFieldText(Cell.DOC_NUM, getText(enforceDocInfo.hox, 'docInfo docNumber displayDocNumber')); // 문서번호
+    feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(enforceDocInfo.hox, 'docInfo enforceDate')); // 시행일자
+
     const downloadURL = await feMain.feEditor2.saveServer(enforceDocInfo.apprID);
     const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
     if (!bodyFileInfo.ok) {
