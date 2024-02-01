@@ -545,7 +545,8 @@ export default class FeEditor extends FeHwpCtrl {
     this.hwpCtrl.MovePos(23); // moveEndOfLine
     await super.insertPicture(url, true, 3, false, false, 0);
     this.setEditMode(2);
-    URL.revokeObjectURL(url);
+    // URL.revokeObjectURL(url);
+    console.debug('doSign', cellName, text, url);
   }
 
   /**

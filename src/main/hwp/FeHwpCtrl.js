@@ -179,8 +179,11 @@ export default class FeHwpCtrl extends HTMLElement {
   async insertPicture(path, embeded, sizeOption, reverse, waterMark, effect, width, height) {
     return new Promise((resolve, reject) => {
       this.hwpCtrl.InsertPicture(path, embeded, sizeOption, reverse, waterMark, effect, width, height, (ctrl) => {
-        console.debug('hwpCtrl.InsertPicture', ctrl);
-        resolve(ctrl);
+        // HWPFIX 작업이 끝나지도 않았는데, 콜백이 불림
+        setTimeout(() => {
+          console.debug('hwpCtrl.InsertPicture', ctrl);
+          resolve(ctrl);
+        }, 100);
       });
     });
   }

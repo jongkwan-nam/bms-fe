@@ -167,10 +167,7 @@ export default class FeStampDialog extends HTMLElement {
 
       await this.#doSealStamp(contentNumber);
 
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
       // 날인된 본문 저장
-      // await feMain.feEditor2.copyDocument('JSON');
       examDoc.hwpJson = await feMain.feEditor2.copyDocument('JSON');
     }
   }
