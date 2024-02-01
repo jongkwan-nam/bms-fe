@@ -1,6 +1,6 @@
 import syncFetch from 'sync-fetch';
 import { getLastSignParticipant } from '../utils/HoxUtils';
-import { HoxEventType, getNode, getText } from '../utils/xmlUtils';
+import { HoxEventType, addNode, existsNode, getNode, getText, setText } from '../utils/xmlUtils';
 import './FeStampDialog.scss';
 
 /**
@@ -166,6 +166,13 @@ export default class FeStampDialog extends HTMLElement {
       await feMain.feEditor2.openByJSON(examDoc.hwpJson);
 
       await this.#doSealStamp(contentNumber);
+
+      // hox 처리
+      const nodeContent = getNode(feMain.hox, 'docInfo content', contentNumber - 1);
+      if (!existsNode(nodeContent, 'stampName')) {
+        addNode(nodeContent, 'stampName');
+      }
+      setText(nodeContent, 'stampName', this.shadowRoot.querySelector('.list li.selected').innerHTML);
 
       // 날인된 본문 저장
       examDoc.hwpJson = await feMain.feEditor2.copyDocument('JSON');
