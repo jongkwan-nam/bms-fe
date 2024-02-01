@@ -3,6 +3,7 @@ import { getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
 
 export default (hox) => {
   // 현재 결재자 결정
+  let foundCurrentParticipant = false;
   for (const participant of getNodes(hox, 'approvalFlow participant')) {
     const participantID = getText(participant, 'participantID');
     const id = getText(participant, 'ID');
@@ -22,9 +23,13 @@ export default (hox) => {
     if (['partapprstatus_draft', 'partapprstatus_now', 'partapprstatus_will', 'partapprstatus_postpone'].includes(approvalStatus) && (id === rInfo.user.ID || chargerID === rInfo.user.ID)) {
       console.log('이게 현재 사용자의 participant이다');
       setAttr(participant, null, 'current', 'true');
+      foundCurrentParticipant = true;
     } else {
       setAttr(participant, null, 'current', 'false');
     }
+  }
+  if (!foundCurrentParticipant) {
+    throw new Error('현재 결재자를 찾을수 없음');
   }
 
   // 단일안 일때 content/pageCnt가 이전 기안기에서 설정 안됬을수도 있어 검사
