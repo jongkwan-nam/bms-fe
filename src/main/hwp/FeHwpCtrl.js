@@ -51,6 +51,19 @@ export default class FeHwpCtrl extends HTMLElement {
     return set;
   }
 
+  getCellInfo(cellName) {
+    this.hwpCtrl.MoveToField(cellName);
+    return this.hwpCtrl.CellShape.Item('Cell');
+  }
+
+  getTableInfo(tableCellName) {
+    this.hwpCtrl.MoveToField(tableCellName);
+    const hwpAction = this.hwpCtrl.CreateAction('TablePropertyDialog');
+    const hwpSet = hwpAction.CreateSet();
+    hwpAction.GetDefault(hwpSet);
+    return hwpSet;
+  }
+
   getPageCount() {
     // const set = this.getDocumentInfo(true);
     // return set.Item('DetailPageCount');
@@ -161,11 +174,12 @@ export default class FeHwpCtrl extends HTMLElement {
    * - 2: 흑백 효과
    * @param {*} width 가로 크기. 단위 mm
    * @param {*} height 높이 크기. 단위 mm
-   * @returns 성공기 생성된 오브젝트, 실패시 null
+   * @returns 성공시 생성된 오브젝트, 실패시 null
    */
   async insertPicture(path, embeded, sizeOption, reverse, waterMark, effect, width, height) {
     return new Promise((resolve, reject) => {
       this.hwpCtrl.InsertPicture(path, embeded, sizeOption, reverse, waterMark, effect, width, height, (ctrl) => {
+        console.debug('hwpCtrl.InsertPicture', ctrl);
         resolve(ctrl);
       });
     });

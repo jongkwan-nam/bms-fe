@@ -1,4 +1,4 @@
-import { getNodes } from './xmlUtils';
+import { getNodes, getText } from './xmlUtils';
 
 /**
  * 안번호에 맞는 셀명 반환
@@ -22,4 +22,23 @@ export const existSignCell = (hox) => {
     //
   }
   return false;
+};
+
+/**
+ * 최종결재자 participant 반환
+ * @param {XMLDocument} hox
+ */
+export const getLastSignParticipant = (hox) => {
+  for (const participant of getNodes(hox, 'approvalFlow participant').reverse()) {
+    const validStatus = getText(participant, 'validStatus');
+    const approvalType = getText(participant, 'approvalType');
+
+    if (validStatus !== 'valid') {
+      continue;
+    }
+    if (['user_approval', 'user_draft', 'user_jeonkyul', 'user_daekyul'].includes(approvalType)) {
+      return participant;
+    }
+  }
+  throw new Error('최종결재자를 찾을수 없음');
 };

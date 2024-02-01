@@ -14,7 +14,6 @@ export default async (contentNumbers) => {
   for (let n of contentNumbers) {
     // feEditor1 에서 n번째 안 복사
     let hwpJsonData = await feEditor1.copyContent(n, 'JSON');
-    console.log(n, 'copy', hwpJsonData);
 
     // feEditor2 로 붙여넣기
     await feEditor2.insertContent(hwpJsonData);

@@ -138,7 +138,7 @@
         { type: 'gian', text: '기안', form: 'select', url: '/bms/fe/retrieveDoccrdWritng.act?WORDTYPE=5&FORMID={ID}' },
         { type: 'kyul', text: '결재', form: 'input', url: '/bms/fe/retrieveDoccrdSanctn.act?WORDTYPE=5&CLTAPP=3&APPLID=2010&APPRIDLIST={ID}' },
         { type: 'request', text: '발송대기', form: 'input', url: '/bms/fe/retrieveDoccrdSndngRequest.act?WORDTYPE=5&CLTAPP=5&APPLID=4030&APPRIDLIST={ID}' },
-        { type: 'control', text: '발송처리', form: 'input', url: '/bms/fe/retrieveDoccrdSndng.act' },
+        { type: 'control', text: '발송처리', form: 'input', url: '/bms/fe/retrieveDoccrdSndng.act?WORDTYPE=5&CLTAPP=5&APPLID=4010&APPRIDLIST={ID}' },
         { type: 'accept', text: '접수대기', form: 'input', url: '/bms/fe/retrieveDoccrdRecptn.act?WORDTYPE=5&CLTAPP=9&APPLID=5010&APPRIDLIST={ID}&SENDTYPELIST=1&RECDOCSTATUSLIST=2' },
         { type: 'view', text: '보기', form: 'input', url: '/bms/fe/retrieveDoccrdInqire.act?WORDTYPE=5&CLTAPP=1&APPLID=8010&APPRIDLIST={ID}' },
       ].forEach((item) => {

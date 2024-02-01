@@ -13,6 +13,10 @@ export default class FeContentSplitter extends HTMLElement {
   }
 
   connectedCallback() {
+    this.init();
+  }
+
+  init() {
     console.debug('FeContentSplitter connected');
     this.attachShadow({ mode: 'open' });
 
@@ -117,7 +121,8 @@ export default class FeContentSplitter extends HTMLElement {
     });
 
     // 시행문으로 분리 버튼 이벤트
-    this.shadowRoot.querySelector('#splitDocBtn').addEventListener('click', async (e) => {
+    const splitDocBtn = this.shadowRoot.querySelector('#splitDocBtn');
+    splitDocBtn.addEventListener('click', async (e) => {
       //
       // 체크된 contentNumber 모음
       const contentNumbers = Array.from(this.shadowRoot.querySelectorAll('.body ol input:checked')).map((input) => parseInt(input.value));
@@ -130,7 +135,7 @@ export default class FeContentSplitter extends HTMLElement {
       btnExamDocView.click();
 
       document.querySelector('.modal-container').classList.remove('open');
-      e.target.style.display = 'none';
+      splitDocBtn.style.display = 'none';
     });
 
     DragUtils.moveableElement(this, this.shadowRoot.querySelector('div.header > label'));
@@ -149,6 +154,7 @@ export default class FeContentSplitter extends HTMLElement {
       const title = getText(content, 'title');
       const contentNumber = i + 1;
       const isDisabled = enforceType === 'enforcetype_not' ? 'disabled' : '';
+      // TODO 이미 발송된 것 제외
 
       const item = list.appendChild(document.createElement('li'));
       item.dataset.type = enforceType;

@@ -12,6 +12,7 @@ import SaveHwpDistButton from './SaveHwpDistButton';
 import SaveHwpxButton from './SaveHwpxButton';
 import SendControlButton from './SendControlButton';
 import SendRequestButton from './SendRequestButton';
+import StampSealButton from './StampSealButton';
 import StopButton from './StopButton';
 import SummaryButton from './SummaryButton';
 
@@ -108,6 +109,7 @@ export default class ButtonController {
       }
       case FeMode.CONTROL: {
         // 관인
+        this.#append(new StampSealButton());
         // 발송처리
         this.#append(new SendControlButton());
         // 반송

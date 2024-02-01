@@ -10,6 +10,7 @@ import FeConfig from './config/FeConfig';
 import './main.scss';
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
+import FeContentNavigator from './main/FeContentNavigator';
 import FeContentSplitter from './main/FeContentSplitter';
 import FeEditor from './main/FeEditor';
 import { FeMode, getFeMode } from './main/FeMode';
@@ -92,6 +93,10 @@ class FeMain {
         break;
       }
       case FeMode.CONTROL: {
+        document.title = 'FE 발송처리';
+
+        hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
+        docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
         break;
       }
       default:
@@ -135,6 +140,8 @@ class FeMain {
       // TODO 현재 participant의 수정권한 여부로 readmode 설정
     } else if (this.feMode === FeMode.REQUEST) {
       initiateHoxForRequest(this.hox);
+    } else if (this.feMode === FeMode.CONTROL) {
+      //
     }
 
     // 양식모드 설정
@@ -169,6 +176,20 @@ class FeMain {
       this.feEditor2 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor2'));
       await this.feEditor2.init(); // 에디터 로딩
       this.feEditor2.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
+    }
+
+    if (this.feMode === FeMode.CONTROL) {
+      // 1st 에디터
+      this.feEditor1.setReadMode(true);
+      // 2nd 에티터
+      this.feEditor2 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor2'));
+      await this.feEditor2.init(); // 에디터 로딩
+      this.feEditor2.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
+      await this.feEditor2.loadStampTable();
+
+      // 발송처리: 안 선택기 표시
+      this.feContentNavigator = document.querySelector('main').appendChild(new FeContentNavigator());
+      this.feContentNavigator.classList.add('show');
     }
 
     document.querySelector('main').appendChild(new FeConfig());

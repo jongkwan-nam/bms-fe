@@ -3,6 +3,7 @@ import StringUtils from '../utils/StringUtils';
 import { HoxEventType, dispatchHoxEvent, getNode, getNodes, setText } from '../utils/xmlUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
+import { FeMode, getFeMode } from './FeMode';
 import FeHwpCtrl from './hwp/FeHwpCtrl';
 
 const TIME_LABEL_INIT = 'Editor-init';
@@ -125,35 +126,48 @@ export default class FeEditor extends FeHwpCtrl {
       // }
     });
 
-    // 제목 변경 감지. 에디터 밖으로 나가면 작동
-    this.parentElement.addEventListener('mouseleave', (e) => {
-      // console.debug('fe-editor', 'parent', this.parentElement, e.type, 'detectTitle', this.detectTitle, 'contentCount', this.contentCount);
-      //
-      if (this.detectTitle) {
+    const feMode = getFeMode();
+    if ([FeMode.DRAFT, FeMode.KYUL].includes(feMode)) {
+      // 제목 변경 감지. 에디터 밖으로 나가면 작동
+      this.parentElement.addEventListener('mouseleave', (e) => {
+        // console.debug('fe-editor', 'parent', this.parentElement, e.type, 'detectTitle', this.detectTitle, 'contentCount', this.contentCount);
         //
-        let changed = false;
-        for (let i = 0; i < this.contentCount; i++) {
-          // 제목셀
-          const titleCellName = getContentCellName(Cell.DOC_TITLE, i + 1);
-          const titleCellText = this.hwpCtrl.GetFieldText(titleCellName);
+        if (this.detectTitle) {
+          //
+          let changed = false;
+          for (let i = 0; i < this.contentCount; i++) {
+            // 제목셀
+            const titleCellName = getContentCellName(Cell.DOC_TITLE, i + 1);
+            const titleCellText = this.hwpCtrl.GetFieldText(titleCellName);
 
-          // hox 제목
-          let contentTitleNode = getNode(feMain.hox, 'docInfo content', i).querySelector('title');
-          if (titleCellText !== contentTitleNode.textContent) {
-            setText(contentTitleNode, null, titleCellText, true);
-            console.log('setTitle', titleCellName, titleCellText);
-            changed = true;
+            // hox 제목
+            let contentTitleNode = getNode(feMain.hox, 'docInfo content', i).querySelector('title');
+            if (titleCellText !== contentTitleNode.textContent) {
+              setText(contentTitleNode, null, titleCellText, true);
+              console.log('setTitle', titleCellName, titleCellText);
+              changed = true;
 
-            if (i === 0) {
-              setText(feMain.hox, 'docInfo title', titleCellText, true);
+              if (i === 0) {
+                setText(feMain.hox, 'docInfo title', titleCellText, true);
+              }
             }
           }
+          if (changed) {
+            dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.TITLE, 'change', null);
+          }
         }
-        if (changed) {
-          dispatchHoxEvent(feMain.hox, 'docInfo', HoxEventType.TITLE, 'change', null);
-        }
-      }
-    });
+      });
+    }
+  }
+
+  /**
+   * 발송처리: stamptable.hwp 로딩. 재사용을 위해
+   */
+  async loadStampTable() {
+    //
+    await this.openOnly(`${location.origin}${PROJECT_CODE}/js/com/hs/gwweb/appr/editor/stamptable.hwp`, 'HWP');
+    this.stamptableHwpjson = await super.getTextFile('JSON');
+    console.debug('loadStampTable', this.stamptableHwpjson);
   }
 
   /**
@@ -167,7 +181,7 @@ export default class FeEditor extends FeHwpCtrl {
     await super.openDocument(docUrl, format, arg);
     console.timeEnd(TIME_LABEL_OPEN);
 
-    this.#resolveDocInfo();
+    this.resolveDocInfo();
   }
 
   /**
@@ -199,7 +213,7 @@ export default class FeEditor extends FeHwpCtrl {
    * - fieldList: 전체 필드명 목록
    * - cellCount: 서명 관련 셀 갯수. 직위,서명,협조 등
    */
-  #resolveDocInfo() {
+  resolveDocInfo() {
     // 필드 정보 구하기
     this.fieldList = [];
     this.fieldList.push(...this.hwpCtrl.GetFieldList(0, 1).split(String.fromCharCode(2)));
@@ -326,6 +340,7 @@ export default class FeEditor extends FeHwpCtrl {
     const text = await super.getTextFile(format);
     super.toggleViewOptionCtrkMark(false);
     // this.setEditMode(2);
+    console.debug('copyDocument', format);
     return text;
   }
 
@@ -343,15 +358,24 @@ export default class FeEditor extends FeHwpCtrl {
     const text = await super.getTextFile(format, 'saveblock');
     super.toggleViewOptionCtrkMark(false);
     this.setEditMode(2);
+    console.debug('copyContent', contentNumber, format);
     return text;
   }
 
   async insertContent(jsonData) {
     this.hwpCtrl.Clear(1);
     let res = await super.insert(jsonData, 'JSON');
-    console.log('insertContent', res);
+    console.debug('insertContent', res);
     if (!res.result) {
       throw new Error('insertContent Error');
+    }
+  }
+
+  async insert(url, format) {
+    let res = await super.insert(url, format);
+    console.debug('insert', res);
+    if (!res.result) {
+      throw new Error('insert Error. url=' + url + ' format=' + format);
     }
   }
 
@@ -522,6 +546,132 @@ export default class FeEditor extends FeHwpCtrl {
     await super.insertPicture(url, true, 3, false, false, 0);
     this.setEditMode(2);
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * 관인/부서장인 날인
+   *
+   * @param {string} url 관인 이미지 URL
+   */
+  async doSealStamp(url) {
+    //
+    this.resolveDocInfo();
+
+    this.putFieldText(Cell.SEAL_STAMP, '');
+    this.putFieldText(Cell.SEAL_OMISSION, '');
+
+    const existSealStamp = this.existField(Cell.SEAL_STAMP);
+    if (!existSealStamp) {
+      await super.run('MoveDocEnd');
+      // await this.insert(`${location.origin}${PROJECT_CODE}/js/com/hs/gwweb/appr/editor/stamptable.hwp`, 'HWP');
+
+      await this.insert(this.stamptableHwpjson, 'JSON');
+    }
+
+    const existSenderName = this.existField(Cell.SENDERNAME);
+    if (!existSenderName) {
+      throw new Error('Error: not found cell ' + Cell.SENDERNAME);
+    }
+
+    this.hwpCtrl.MoveToField(Cell.SEAL_STAMP, true, true, false);
+    super.run('MoveLeft');
+
+    this.hwpCtrl.MoveToField(Cell.SEAL_STAMP, true, true, false);
+
+    await super.insertPicture(url, true, 3, false, false, 0);
+
+    // 날인된 도장의 위치 이동
+    super.toggleViewOptionCtrkMark(true);
+
+    const senderNameCellInfo = super.getCellInfo(Cell.SENDERNAME);
+    const senderNameTableInfo = super.getTableInfo(Cell.SENDERNAME);
+    const sealStampTableInfo = super.getTableInfo(Cell.SEAL_STAMP);
+
+    this.hwpCtrl.MoveToField(Cell.SENDERNAME, true, true, false);
+
+    let yPos = senderNameTableInfo.Item('Height') - (sealStampTableInfo.Item('Height') + senderNameCellInfo.Item('Height')) / 2;
+    let xPos = senderNameTableInfo.Item('HorzOffset') + (senderNameTableInfo.Item('Width') - sealStampTableInfo.Item('Width')) / 2;
+
+    const senderNameText = this.hwpCtrl.GetFieldText(Cell.SENDERNAME);
+    if (StringUtils.isBlank(senderNameText)) {
+      throw new Error('발신명의가 비어 있습니다.');
+    }
+
+    let faceName = this.hwpCtrl.CharShape.Item('FaceNameHangul');
+    if (StringUtils.isBlank(faceName)) {
+      faceName = '굴림';
+    }
+    const height = this.hwpCtrl.CharShape.Item('Height');
+    const fontSize = Math.round(height / 100);
+
+    let textSize = 0;
+    for (var i = 0; i < senderNameText.length; i++) {
+      if ((senderNameText.charCodeAt(i) & 0xff00) !== 0) {
+        textSize += 2;
+      } else {
+        textSize += 1;
+      }
+    }
+
+    const charOffset = (textSize > 34 ? 34 : textSize) / 2 - 1;
+    const fontWidth = fontSize * 50;
+    let horizontalAdjust = charOffset * fontWidth;
+
+    if (fontWidth > senderNameCellInfo.Item('Width')) {
+      xPos += senderNameCellInfo.Item('Width') / 2;
+    } else {
+      xPos += horizontalAdjust;
+    }
+
+    const para = this.hwpCtrl.ParaShape;
+    para.SetItem('AlignType', 3);
+    this.hwpCtrl.ParaShape = para;
+
+    this.hwpCtrl.MoveToFieldEx(Cell.SEAL_STAMP);
+    const hwpAction = this.hwpCtrl.CreateAction('TablePropertyDialog');
+    const hwpSet = hwpAction.CreateSet();
+    hwpAction.GetDefault(hwpSet);
+
+    hwpSet.SetItem('HorzRelTo', 1); //가로 위치의 기준. 		0 = 종이 영역(Paper) 		1 = 쪽 영역(Page) 		2 = 다단 영역(Column) 		3 = 문단 영역(Paragraph) 		(TreatAsChar가 FALSE일 경우에만 사용된다)
+    hwpSet.SetItem('VertRelTo', 1);
+    hwpSet.SetItem('HorzAlign', 0);
+    hwpSet.SetItem('VertAlign', 2);
+    hwpSet.SetItem('HorzOffset', parseInt(xPos)); //HorzRelTo와 HorzAlign을 기준으로 한 X축 위치 오프셋 값. HWPUNIT 단위.
+    hwpSet.SetItem('VertOffset', Math.round(yPos));
+    hwpSet.SetItem('TreatAsChar', 0);
+    hwpSet.SetItem('TextWrap', 2);
+    /*
+      그리기 개체와 본문 사이의 배치 방법.
+      0 = 어울림(Square)
+      1 = 자리 차지(Top & Bottom)
+      2 = 글 뒤로(Behind Text)
+      3 = 글 앞으로(In front of Text)
+      4 = 경계를 명확히 지킴(Tight) - 현재 사용안함
+      5 = 경계를 통과함(Through) - 현재 사용안함
+      (TreatAsChar가 FALSE일 경우에만 사용된다)
+    */
+    hwpSet.SetItem('FlowWithText', 1);
+    hwpSet.Item('ShapeTableCell')?.SetItem('VertAlign', 1);
+
+    hwpAction.Execute(hwpSet);
+
+    super.toggleViewOptionCtrkMark(false);
+
+    console.debug('doSealStamp', url);
+  }
+
+  async doSkipStamp(url) {
+    //
+    this.putFieldText(Cell.SEAL_STAMP, '');
+    this.putFieldText(Cell.SEAL_OMISSION, '');
+
+    this.hwpCtrl.MoveToField(Cell.SEAL_OMISSION, true, true, false);
+
+    super.toggleViewOptionCtrkMark(true);
+    await super.insertPicture(url, true, 3, false, false, 0);
+    super.toggleViewOptionCtrkMark(false);
+
+    console.debug('doSkipStamp', url);
   }
 
   /**
