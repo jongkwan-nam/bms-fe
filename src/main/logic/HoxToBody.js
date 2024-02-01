@@ -176,18 +176,18 @@ export class HoxToBody {
     // TODO enforcement_caption: 쓰는건가?
 
     // 남는 서명칸 비우기
-    for (signCellIndex++; signCellIndex <= this.editor.cellCount.sign; signCellIndex++) {
-      // 남는 서명
-      this.editor.putFieldText(`${Cell.POS}.${signCellIndex}`, '');
-      this.editor.putFieldText(`${Cell.SIGN}.${signCellIndex}`, '');
-      console.debug('putFieldText', `${Cell.SIGN}.${signCellIndex}`, '');
-    }
-    for (agreeCellIndex++; agreeCellIndex <= this.editor.cellCount.agreeSign; agreeCellIndex++) {
-      // 남는 협조
-      this.editor.putFieldText(`${Cell.AGREE_POS}.${agreeCellIndex}`, '');
-      this.editor.putFieldText(`${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
-      console.debug('putFieldText', `${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
-    }
+    // for (signCellIndex++; signCellIndex <= this.editor.cellCount.sign; signCellIndex++) {
+    //   // 남는 서명
+    //   this.editor.putFieldText(`${Cell.POS}.${signCellIndex}`, '');
+    //   this.editor.putFieldText(`${Cell.SIGN}.${signCellIndex}`, '');
+    //   console.debug('putFieldText', `${Cell.SIGN}.${signCellIndex}`, '');
+    // }
+    // for (agreeCellIndex++; agreeCellIndex <= this.editor.cellCount.agreeSign; agreeCellIndex++) {
+    //   // 남는 협조
+    //   this.editor.putFieldText(`${Cell.AGREE_POS}.${agreeCellIndex}`, '');
+    //   this.editor.putFieldText(`${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
+    //   console.debug('putFieldText', `${Cell.AGREE_SIGN}.${agreeCellIndex}`, '');
+    // }
   }
 
   setApprovalFlowByCellInfo() {

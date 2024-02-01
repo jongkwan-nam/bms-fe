@@ -25,7 +25,7 @@ export default (hox, editor) => {
     hoxToBody.setDocNumber(); // 문서번호
     hoxToBody.setPublication(); // 공개여부
     // hoxToBody.setApprovalFlow(); // 결재선에 따른 사인(직위, 이름 미리보기) 처리
-    hoxToBody.setSignOfFlow();
+    // hoxToBody.setSignOfFlow();
     hoxToBody.setEnforceDate(); // 시행일자
   } catch (error) {
     result.ok = false;
