@@ -539,11 +539,27 @@ export default class FeEditor extends FeHwpCtrl {
    */
   async doSign(cellName, text, url) {
     this.setEditMode(1);
-    this.putFieldText(cellName, text, 0x000000);
-    this.hwpCtrl.MoveToField(cellName, true, true, true);
-    await super.run('ParagraphShapeAlignCenter');
-    this.hwpCtrl.MovePos(23); // moveEndOfLine
-    await super.insertPicture(url, true, 3, false, false, 0);
+
+    // doccfg.signShowSignerDataAlign: 서명칸에 날짜 표시(서명일자) 위치 설정. [ top : 서명 위 (default) ,  bottom : 서명 아래 ]
+
+    const contentCount = getNodes(feMain.hox, 'docInfo content').length;
+    for (let i = 0; i < contentCount; i++) {
+      const name = `${cellName}{{${i}}}`;
+
+      this.putFieldText(name, text, 0x000000);
+
+      this.hwpCtrl.MoveToField(name, true, true, true);
+      await super.run('ParagraphShapeAlignCenter');
+
+      if (doccfg.signShowSignerDataAlign === 'top') {
+        this.hwpCtrl.MovePos(23); // moveEndOfLine
+      } else {
+        this.hwpCtrl.MovePos(22); // moveStartOfLine
+      }
+
+      await super.insertPicture(url, true, 3, false, false, 0);
+    }
+
     this.setEditMode(2);
     // URL.revokeObjectURL(url);
     console.debug('doSign', cellName, text, url);
