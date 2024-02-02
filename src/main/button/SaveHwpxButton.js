@@ -1,4 +1,5 @@
 import { getNodes, getText } from '../../utils/xmlUtils';
+import Cell from '../CellNames';
 
 /**
  * PC저장(배포용)
@@ -27,7 +28,9 @@ export default class SaveHwpxButton extends HTMLButtonElement {
       editor.putFieldText(signCellName, '');
     });
 
-    // TODO 관인셀 제거
+    // 관인셀 제거
+    editor.putFieldText(Cell.SEAL_STAMP, '');
+    editor.putFieldText(Cell.SEAL_OMISSION, '');
 
     // hwpx로 다운로드
     editor.saveHwpx();
