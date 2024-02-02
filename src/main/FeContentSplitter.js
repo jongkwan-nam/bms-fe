@@ -153,8 +153,10 @@ export default class FeContentSplitter extends HTMLElement {
       const enforceType = getText(content, 'enforceType');
       const title = getText(content, 'title');
       const contentNumber = i + 1;
-      const isDisabled = enforceType === 'enforcetype_not' ? 'disabled' : '';
-      // TODO 이미 발송된 것 제외
+      let isDisabled = enforceType === 'enforcetype_not' ? 'disabled' : '';
+      // 이미 발송된 것 제외. content/enforce/sendStatus
+      const isSendFinished = getText(content, 'enforce sendStatus') === 'apprstatus_finish';
+      if (isSendFinished) isDisabled = 'disabled';
 
       const item = list.appendChild(document.createElement('li'));
       item.dataset.type = enforceType;
@@ -163,7 +165,7 @@ export default class FeContentSplitter extends HTMLElement {
         <label class="content-number">${contentNumber} ${GWWEBMessage.cmsg_765}</label>
         <label class="content-enforcetype">[${GWWEBMessage[enforceType]}]</label>
         <label class="content-title">${title}</label>
-        <label class="content-status"></label>
+        <label class="content-status">${isSendFinished ? GWWEBMessage.W4276 : ''}</label>
       `;
     });
   }
