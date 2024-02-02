@@ -1,4 +1,4 @@
-import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/xmlUtils';
+import { HoxEventType, dispatchHoxEvent, getNodes, getText, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeEnforceType.scss';
 
@@ -37,30 +37,38 @@ export default class FeEnforceType extends FeApprovalBox {
 
     this.shadowRoot.querySelectorAll('input').forEach((input) => {
       input.addEventListener('change', (e) => {
-        console.debug('Event', e.type, e.target.value);
-        //
-        if (this.contentNumber === 1) {
-          // TODO 전체의 최대값
-          setText(this.hox, 'docInfo enforceType', e.target.value);
-        }
         setText(this.contentNode, 'enforceType', e.target.value);
+
+        this.#setDocInfoEnforceType();
 
         console.info('hoxEvent dispatch', HoxEventType.ENFORCETYPE);
         dispatchHoxEvent(this.contentNode, null, HoxEventType.ENFORCETYPE, 'change', e.target.value);
       });
     });
 
-    // let enforceType = getText(hox, 'docInfo enforceType');
-    // let enforceTypeRadio = this.shadowRoot.querySelector('#' + enforceType);
-    // if (enforceTypeRadio) {
-    //   enforceTypeRadio.click();
-    // }
+    this.#setDocInfoEnforceType();
   }
 
   changeContentNumberCallback() {
     const enforceType = getText(this.contentNode, 'enforceType');
 
     this.shadowRoot.querySelector('#' + enforceType)?.click();
+  }
+
+  /**
+   * 개별안의 발송종류로부터 docInfo enforceType을 결정하여 설정
+   */
+  #setDocInfoEnforceType() {
+    const intCount = getNodes(this.hox, 'docInfo content').filter((content) => 'enforcetype_internal' === getText(content, 'enforceType')).length;
+    const extCount = getNodes(this.hox, 'docInfo content').filter((content) => 'enforcetype_external' === getText(content, 'enforceType')).length;
+
+    let enforceType = 'enforcetype_not';
+    if (extCount > 0) {
+      enforceType = 'enforcetype_external';
+    } else if (intCount > 0) {
+      enforceType = 'enforcetype_internal';
+    }
+    setText(this.hox, 'docInfo enforceType', enforceType);
   }
 }
 
