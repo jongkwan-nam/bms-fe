@@ -117,7 +117,7 @@ export default class FeContentSplitter extends HTMLElement {
       this.viewMode = 'exam';
       //
       const li = this.shadowRoot.querySelectorAll('.body ol li')[this.examDocSelectedIndex];
-      li.click();
+      if (li) li.click();
     });
 
     // 시행문으로 분리 버튼 이벤트
