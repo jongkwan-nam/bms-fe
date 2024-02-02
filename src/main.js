@@ -103,61 +103,81 @@ class FeMain {
         throw new Error('undefiend FeMode: ' + this.feMode);
     }
 
-    // hox 로딩
+    /* ************************************************************************
+      hox 로딩
+     */
     this.hox = await loadXml(hoxURL);
 
+    /* ************************************************************************
+      editor 로딩, 문서 open
+     */
     this.feEditor1 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor1'));
     this.feEditor1.show();
     await this.feEditor1.init(); // 에디터 로딩
     this.feEditor1.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
     await this.feEditor1.open(docURL); // 문서 열기
 
-    // 문서 오픈 후 할 것들
-    if (this.feMode === FeMode.DRAFT) {
-      // 리본메뉴 보이기
-      this.feEditor1.foldRibbon(false);
-      this.feEditor1.setReadMode(false);
-      // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
-      checkMissingNodeAndFillNode(this.hox);
-      //
-      initiateHoxForDraft(this.hox);
-      // hox 정보를 기반으로 초기 서식의 내용 채우기
-      initiateBodyByHox(this.hox, this.feEditor1);
-    } else if (this.feMode === FeMode.VIEW) {
-      this.feEditor1.setReadMode(true);
-      //
-      initiateHoxForView(this.hox);
-    } else if (this.feMode === FeMode.ACCEPT) {
-      this.feEditor1.foldRibbon(true);
-      this.feEditor1.setReadMode(true);
-      //
-      initiateHoxForAccept(this.hox);
-    } else if (this.feMode === FeMode.KYUL) {
-      // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
-      checkMissingNodeAndFillNode(this.hox);
-      // current participant 설정
-      initiateHoxForKyul(this.hox);
-      // TODO 현재 participant의 수정권한 여부로 readmode 설정
-    } else if (this.feMode === FeMode.REQUEST) {
-      initiateHoxForRequest(this.hox);
-    } else if (this.feMode === FeMode.CONTROL) {
-      //
+    /* ************************************************************************
+      문서 오픈 후 할 것들
+     */
+    switch (this.feMode) {
+      case FeMode.DRAFT: {
+        this.feEditor1.foldRibbon(false); // 리본메뉴
+        this.feEditor1.setReadMode(false);
+
+        checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
+        initiateHoxForDraft(this.hox);
+        initiateBodyByHox(this.hox, this.feEditor1); // hox 정보를 기반으로 초기 서식의 내용 채우기
+        break;
+      }
+      case FeMode.KYUL: {
+        checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
+        initiateHoxForKyul(this.hox);
+        // TODO 현재 participant의 수정권한 여부로 readmode 설정
+        break;
+      }
+      case FeMode.VIEW: {
+        this.feEditor1.setReadMode(true); // 읽기 전용
+
+        initiateHoxForView(this.hox);
+        break;
+      }
+      case FeMode.ACCEPT: {
+        this.feEditor1.foldRibbon(true);
+        this.feEditor1.setReadMode(true);
+
+        initiateHoxForAccept(this.hox);
+        break;
+      }
+      case FeMode.REQUEST: {
+        initiateHoxForRequest(this.hox);
+        break;
+      }
+      case FeMode.CONTROL: {
+        break;
+      }
+      default:
+        throw new Error('undefiend FeMode: ' + this.feMode);
     }
 
-    // 양식모드 설정
-    this.feEditor1.setEditMode(2);
-    // 첫 페이지 이동
-    this.feEditor1.selectContent(1);
-    // 에디터의 이벤트 시작. 제목변경, hox 이벤트(안 관련)
-    this.feEditor1.start();
+    this.feEditor1.setEditMode(2); // 편집모드 0: 읽기, 1: 편집, 2: 양식
+    this.feEditor1.selectContent(1); // 첫 페이지 이동
+    this.feEditor1.start(); // 에디터의 이벤트 시작. 제목변경, hox 이벤트(안 관련)
 
-    // 첨부박스 생성, 초기화
+    /* ************************************************************************
+      첨부박스 생성, 초기화
+     */
     this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
 
-    // 버튼 컨트롤러
+    /* ************************************************************************
+      버튼 컨트롤러
+     */
     const buttonController = new ButtonController('.menu-wrap');
     buttonController.start();
 
+    /* ************************************************************************
+      결재, 보기: 안 바로가기
+     */
     this.feContent = document.querySelector('main').appendChild(new FeContent());
     if ([FeMode.KYUL, FeMode.VIEW].includes(this.feMode)) {
       if (getNodes(this.hox, 'docInfo content').length > 1) {
@@ -165,6 +185,9 @@ class FeMain {
       }
     }
 
+    /* ************************************************************************
+      발송의뢰: 안 분리기, editor2 로딩
+     */
     if (this.feMode === FeMode.REQUEST) {
       // 발송대기: 안 분리기 표시
       this.feContentSplitter = document.querySelector('main').appendChild(new FeContentSplitter());
@@ -178,6 +201,9 @@ class FeMain {
       this.feEditor2.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
     }
 
+    /* ************************************************************************
+      발송처리: 안 분리기, editor2 로딩
+     */
     if (this.feMode === FeMode.CONTROL) {
       // 1st 에디터
       this.feEditor1.setReadMode(true);
@@ -192,6 +218,9 @@ class FeMain {
       this.feContentNavigator.classList.add('show');
     }
 
+    /* ************************************************************************
+      설정 UI
+     */
     document.querySelector('main').appendChild(new FeConfig());
 
     console.timeEnd('main');
@@ -260,14 +289,14 @@ class FeMain {
   }
 }
 
+window.onerror = (error) => {
+  alert(error.toString());
+};
+
 popupSizeRestorer('feMain.window.size', 1270, 900);
 
 window.feMain = new FeMain();
 window.feMain.start();
-
-window.onerror = (error) => {
-  alert(error.toString());
-};
 
 resizableGrid();
 

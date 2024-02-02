@@ -6,8 +6,8 @@ import './FeEditor.scss';
 import { FeMode, getFeMode } from './FeMode';
 import FeHwpCtrl from './hwp/FeHwpCtrl';
 
-const TIME_LABEL_INIT = 'Editor-init';
-const TIME_LABEL_OPEN = 'Editor-open';
+const TIME_LABEL_INIT = 'Editor-init-';
+const TIME_LABEL_OPEN = 'Editor-open-';
 
 /**
  * 웹한글 에디터

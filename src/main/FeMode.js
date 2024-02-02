@@ -40,6 +40,5 @@ if (rInfo.appType === 'sancgian' && rInfo.cltType === 'draft') {
 }
 
 export const getFeMode = () => {
-  console.log('feMode', feMode);
   return feMode;
 };
