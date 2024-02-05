@@ -2,13 +2,16 @@ import IDUtils from '../../../utils/IDUtils';
 import OrgUtils from '../../../utils/OrgUtils';
 import StringUtils from '../../../utils/StringUtils';
 import { addNode, getAttr, getNode, getNodes, getText, setAttr, setText } from '../../../utils/xmlUtils';
+import Cell from '../../CellNames';
+import FeEditor from '../../FeEditor';
 
 /**
  * hox의 내용으로 문서번를 채번하여 docNumber 노드의 내용을 채운다
  *
  * @param {XMLDocument} hox
+ * @param {FeEditor} feEditor
  */
-export const doSetDocNumber = (hox) => {
+export const doSetDocNumber = (hox, feEditor) => {
   const apprID = getText(hox, 'docInfo apprID');
   const draftDeptId = getText(hox, 'docInfo drafter department ID');
 
@@ -87,6 +90,13 @@ export const doSetDocNumber = (hox) => {
   setText(nodeOfDocNumber, 'displayDocNumber', displayDocNumber);
   setText(nodeOfDocNumber, 'docRegSequence', newDocNumber);
   setText(nodeOfDocNumber, 'regNumber', refDeptCode + StringUtils.unshift(newDocNumber, 6, '0'));
+
+  const approvalType = getText(hox, 'docInfo approvalType');
+  if ('apprtype_receipt' === approvalType) {
+    feEditor.putFieldText(Cell.ACCEPT_NUM, displayDocNumber); // 접수번호
+  } else {
+    feEditor.putFieldText(Cell.DOC_NUM, displayDocNumber); // 문서번호
+  }
 };
 
 /**

@@ -62,8 +62,8 @@ export default async () => {
   doInitExamRequest(hox);
   doDoneParticipant(hox);
   if (isDocCompleted(hox)) {
-    doSetDocNumber(hox);
-    doFinishDoc(hox);
+    doSetDocNumber(hox, feEditor1);
+    doFinishDoc(hox, feEditor1);
     doExamRequest(hox);
   }
 
