@@ -7,7 +7,7 @@
 
 html {
   font-size: 14px;
-  font-family: 'Malgun Gothic';
+  font-family: "Malgun Gothic";
 }
 
 body {
@@ -40,18 +40,19 @@ input {
   font-size: 1rem;
   line-height: 1.25rem;
 }
-input[type='text'],
-input[type='search'],
-input[type='number'],
-input[type='date'] {
+input[type="text"],
+input[type="search"],
+input[type="number"],
+input[type="date"] {
   border-bottom: 1px solid var(--color-border);
   background-color: var(--color-bg);
   color: var(--color-text);
+  padding: 0.25rem 0.5rem;
 }
-input[type='text']:disabled,
-input[type='search']:disabled,
-input[type='number']:disabled,
-input[type='date']:disabled {
+input[type="text"]:disabled,
+input[type="search"]:disabled,
+input[type="number"]:disabled,
+input[type="date"]:disabled {
   border-color: transparent;
   background-color: transparent;
   opacity: 0.7;
@@ -92,14 +93,14 @@ p {
   padding: 0;
 }
 
-[type='checkbox'],
-[type='radio'],
+[type="checkbox"],
+[type="radio"],
 label {
   vertical-align: middle;
 }
 
-[type='checkbox'],
-[type='radio'] {
+[type="checkbox"],
+[type="radio"] {
   appearance: none;
   border: 1px solid gray;
   border-radius: 50%;
@@ -108,47 +109,47 @@ label {
   height: 1rem;
   transition: border 0.2s ease-in-out;
 }
-[type='checkbox'] {
+[type="checkbox"] {
   border-radius: 20%;
 }
 
-[type='checkbox']:checked,
-[type='radio']:checked {
+[type="checkbox"]:checked,
+[type="radio"]:checked {
   border: 0.4em solid var(--color-primary);
 }
 
-[type='checkbox']:focus-visible,
-[type='radio']:focus-visible {
+[type="checkbox"]:focus-visible,
+[type="radio"]:focus-visible {
   outline-offset: max(2px, 0.1em);
   outline: max(2px, 0.1em) dotted tomato;
 }
 
-[type='checkbox']:hover,
-[type='radio']:hover {
+[type="checkbox"]:hover,
+[type="radio"]:hover {
   box-shadow: 0 0 max(4px, 0.2em) max(2px, 0.1em) lightgray;
   cursor: pointer;
 }
 
-[type='checkbox'] + label,
-[type='radio'] + label {
+[type="checkbox"] + label,
+[type="radio"] + label {
   margin-right: 0.5rem;
 }
 
-[type='checkbox']:hover + label,
-[type='radio']:hover + label {
+[type="checkbox"]:hover + label,
+[type="radio"]:hover + label {
   cursor: pointer;
 }
 
-[type='checkbox']:disabled,
-[type='radio']:disabled {
+[type="checkbox"]:disabled,
+[type="radio"]:disabled {
   background-color: lightgray;
   box-shadow: none;
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-[type='checkbox']:disabled + label,
-[type='radio']:disabled + label {
+[type="checkbox"]:disabled + label,
+[type="radio"]:disabled + label {
   opacity: 0.7;
   cursor: not-allowed;
 }
