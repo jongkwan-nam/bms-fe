@@ -17,6 +17,7 @@ import FileUtils from '../utils/FileUtils';
 import StringUtils from '../utils/StringUtils';
 import { HoxEventType, getAttr, getNodes, getNumber } from '../utils/xmlUtils';
 import './FeAttachBox.scss';
+import { FeMode, getFeMode } from './FeMode';
 import FeAttach from './attach/FeAttach';
 
 const MULTIPART = {
@@ -152,6 +153,10 @@ export default class FeAttachBox extends HTMLElement {
 
     this.addContent();
     this.renderFileListByHox();
+
+    if (FeMode.DRAFT !== getFeMode()) {
+      this.#foldIfEmpty();
+    }
   }
 
   /**
@@ -620,6 +625,12 @@ export default class FeAttachBox extends HTMLElement {
     return Array.from(this.shadowRoot.querySelectorAll('fe-attach'))
       .filter((feAttach) => StringUtils.isNotBlank(feAttach.fileID))
       .map((feAttach) => feAttach.fileID);
+  }
+
+  #foldIfEmpty() {
+    if (this.shadowRoot.querySelectorAll('fe-attach').length === 0) {
+      this.foldBtn.click();
+    }
   }
 }
 
