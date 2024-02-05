@@ -131,6 +131,8 @@ class FeMain {
         break;
       }
       case FeMode.KYUL: {
+        this.feEditor1.foldRibbon(true);
+
         checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
         initiateHoxForKyul(this.hox);
         // TODO 현재 participant의 수정권한 여부로 readmode 설정
