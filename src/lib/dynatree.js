@@ -776,7 +776,7 @@ var DTNodeStatus_Ok = 0;
 
     _activate: function (flag, fireEvents) {
       // (De)Activate - but not focus - this node.
-      console.debug('dtnode._activate(%o, fireEvents=%o) - %o', flag, fireEvents, this);
+      // console.debug('dtnode._activate(%o, fireEvents=%o) - %o', flag, fireEvents, this);
       var opts = this.tree.options;
       if (this.data.isStatusNode) {
         return;
@@ -1080,7 +1080,7 @@ var DTNodeStatus_Ok = 0;
 
     _expand: function (bExpand, forceSync) {
       if (this.bExpanded === bExpand) {
-        console.debug('dtnode._expand(%o) IGNORED - %o', bExpand, this);
+        // console.debug('dtnode._expand(%o) IGNORED - %o', bExpand, this);
         return;
       }
       console.debug('dtnode._expand(%o) - %o', bExpand, this);
@@ -2851,12 +2851,12 @@ var DTNodeStatus_Ok = 0;
 
   $.widget('ui.dynatree', {
     /*
-	init: function() {
-		// ui.core 1.6 renamed init() to _init(): this stub assures backward compatibility
-		console.debug("warn", "ui.dynatree.init() was called; you should upgrade to jquery.ui.core.js v1.8 or higher.");
-		return this._init();
-	},
- */
+      init: function() {
+        // ui.core 1.6 renamed init() to _init(): this stub assures backward compatibility
+        console.debug("warn", "ui.dynatree.init() was called; you should upgrade to jquery.ui.core.js v1.8 or higher.");
+        return this._init();
+      },
+    */
     _init: function () {
       //      if( parseFloat($.ui.version) < 1.8 ) {
       if (versionCompare($.ui.version, '1.8') < 0) {

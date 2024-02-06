@@ -24,6 +24,9 @@
   doccfg.docViewRatio = 2;
   doccfg.baseBodyContent = 1;
   doccfg.usePreviewSignerName = true;
+
+  //
+  rInfo.sendID = '<c:out value="${param.SENDIDLIST}"/>';
 </script>
 <main>
   <header class="menu-wrap"></header>

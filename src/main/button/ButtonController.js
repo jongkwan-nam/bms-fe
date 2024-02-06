@@ -1,7 +1,10 @@
 import { FeMode, getFeMode } from '../FeMode';
 import AcceptButton from './AcceptButton';
+import AcceptRejectButton from './AcceptRejectButton';
 import ApprovalBoxButton from './ApprovalBoxButton';
+import AssignDocButton from './AssignDocButton';
 import CommentButton from './CommentButton';
+import DeliverDocButton from './DeliverDocButton';
 import DraftButton from './DraftButton';
 import HoldButton from './HoldButton';
 import KyulButton from './KyulButton';
@@ -89,7 +92,11 @@ export default class ButtonController {
         // 접수
         this.#append(new AcceptButton());
         // 지정
+        this.#append(new AssignDocButton());
         // 배부
+        this.#append(new DeliverDocButton());
+        // 반송
+        this.#append(new AcceptRejectButton());
         // 결재정보
         this.#append(new ApprovalBoxButton());
         // 요약
