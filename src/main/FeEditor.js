@@ -177,9 +177,9 @@ export default class FeEditor extends FeHwpCtrl {
    * @returns
    */
   async open(docUrl, format = '', arg = 'imagedownsize') {
-    console.time(TIME_LABEL_OPEN);
+    console.time(TIME_LABEL_OPEN + this.id);
     await super.openDocument(docUrl, format, arg);
-    console.timeEnd(TIME_LABEL_OPEN);
+    console.timeEnd(TIME_LABEL_OPEN + this.id);
 
     this.resolveDocInfo();
   }
@@ -193,11 +193,15 @@ export default class FeEditor extends FeHwpCtrl {
    * @param {string} arg
    */
   async openOnly(docUrl, format = '', arg = 'imagedownsize') {
-    console.time(TIME_LABEL_OPEN);
+    console.time(TIME_LABEL_OPEN + this.id);
     await super.openDocument(docUrl, format, arg);
-    console.timeEnd(TIME_LABEL_OPEN);
+    console.timeEnd(TIME_LABEL_OPEN + this.id);
   }
 
+  /**
+   * hwpjson으로 문서열기
+   * @param {string} jsonData
+   */
   async openByJSON(jsonData) {
     this.hwpCtrl.Clear(1);
     let res = await super.insert(jsonData, 'JSON');
