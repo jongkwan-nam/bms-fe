@@ -10,6 +10,7 @@ module.exports = {
     main: './src/main.js',
     approvalBox: './src/approvalBox.js',
     summaryBox: './src/summaryBox.js',
+    testTree: './src/testTree.js',
   },
   devtool: 'source-map',
   output: {

@@ -1,0 +1,17 @@
+html {
+  font-size: 14px;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+fe-orgtree {
+  border: 1px solid orange;
+}
+
+fe-recorgtree {
+  border: 1px solid orange;
+}
