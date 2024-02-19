@@ -1,5 +1,5 @@
-import $ from 'jquery';
 import '../lib/dynatree';
+import FeAssignOrgTree from '../tree/FeAssignOrgTree';
 import StringUtils from '../utils/StringUtils';
 import './FeAssignDocDialog.scss';
 
@@ -21,10 +21,6 @@ export default class FeAssignDocDialog extends HTMLElement {
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', './main.css');
 
-    const dynatreeLink = document.createElement('link');
-    dynatreeLink.setAttribute('rel', 'stylesheet');
-    dynatreeLink.setAttribute('href', './css/dynatree.css');
-
     const wrapper = document.createElement('div');
     wrapper.classList.add(this.tagName.toLocaleLowerCase());
     wrapper.innerHTML = `
@@ -32,7 +28,6 @@ export default class FeAssignDocDialog extends HTMLElement {
         <label>${GWWEBMessage.cmsg_2390}</label>
       </div>
       <div class="body">
-        <div id="tree" class="folder"></div>
       </div>
       <div class="comment-write">
         <textarea placeholder="${GWWEBMessage.cmsg_1809}"></textarea>
@@ -46,9 +41,8 @@ export default class FeAssignDocDialog extends HTMLElement {
       </div>
     `;
 
-    this.shadowRoot.append(link, dynatreeLink, wrapper);
+    this.shadowRoot.append(link, wrapper);
 
-    this.orgTree = this.shadowRoot.querySelector('#tree');
     this.renderOrgTree();
 
     // 글자갯수
@@ -135,91 +129,14 @@ export default class FeAssignDocDialog extends HTMLElement {
   }
 
   renderOrgTree() {
-    const params = {
-      acton: 'initOrgTree',
-      baseDept: rInfo.dept.ID,
-      startDept: rInfo.dept.ID,
-      notUseDept: '000000101',
-      checkbox: 'list',
-      display: 'org,rootdept',
-    };
-    const queryString = new URLSearchParams(params).toString();
-    fetch('/directory-web/org.do?' + queryString)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('org.do data', data);
-
-        // 부서 펼치기, 자신 선택 제외
-        data.forEach((item) => {
-          item.expand = true;
-          item.children.forEach((child) => {
-            if (child.key === rInfo.user.ID) {
-              child.unselectable = true;
-            }
-          });
-        });
-
-        const ROOT_FOLDER_ID = '00000000000000000001';
-
-        $(this.orgTree).dynatree({
-          title: 'orgtree',
-          persist: false,
-          checkbox: true,
-          selectMode: 1,
-          clickFolderMode: 1,
-          key: ROOT_FOLDER_ID,
-          fx: { height: 'toggle', duration: 200 },
-          children: data,
-          /**
-           *
-           * @param {boolean} select 선택/해제 여부
-           * @param {*} dtnode 해당 노드
-           */
-          onSelect: (select, dtnode) => {
-            console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
-            if (select) {
-              this.#setUser(dtnode);
-            } else {
-              this.#clearUser();
-            }
-          },
-          onClick: (dtnode, event) => {
-            const eventTarget = dtnode.getEventTargetType(event); // title or checkbox
-            // console.debug('[dynatree] onClick', dtnode.data.title, eventTarget, dtnode);
-            if (eventTarget === 'title') {
-              dtnode.toggleSelect();
-            } else if (eventTarget === 'checkbox') {
-              dtnode.activate();
-            }
-          },
-          onLazyRead: (dtnode) => {
-            console.debug('[dynatree] onLazyRead', dtnode.data.title, dtnode);
-            const lazyParam = {
-              ...params,
-              ...{
-                acton: 'expandOrgTree',
-                deptID: dtnode.data.key,
-              },
-            };
-
-            dtnode.appendAjax({
-              url: '/directory-web/org.do',
-              type: 'post',
-              data: lazyParam,
-              success: (dtnode) => {
-                console.debug('[dynatree] appendAjax', dtnode.data.title, dtnode);
-              },
-            });
-          },
-          onRender: (dtnode, nodeSpan) => {
-            // console.debug('onLoader', dtnode, nodeSpan);
-            if (!dtnode.data.isFolder) {
-              var res = $(nodeSpan).html().replace('dynatree-checkbox', 'dynatree-radio');
-              $(nodeSpan).html(res);
-            }
-          },
-        });
-      });
+    this.shadowRoot.querySelector('.body').appendChild(new FeAssignOrgTree());
+    this.shadowRoot.addEventListener('select', (e) => {
+      if (e.detail.isSelected) {
+        this.#setUser(e.detail.dtnode);
+      } else {
+        this.#clearUser();
+      }
+    });
   }
 }
 
