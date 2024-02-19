@@ -2,7 +2,7 @@ import FeDynatree from './FeDynaTree';
 import './FeOrgTree.scss';
 
 /**
- * 조직도 트리
+ * 조직도 트리 - 결재용
  */
 export default class FeOrgTree extends FeDynatree {
   title = 'orgTree';
@@ -19,22 +19,22 @@ export default class FeOrgTree extends FeDynatree {
     this.dynatree = super.renderTree(
       super.getOrgData({
         acton: 'initOrgTree',
-        baseDept: '000010100',
+        baseDept: rInfo.dept.ID,
         startDept: '',
-        notUseDept: '000000101',
+        // notUseDept: '000000101',
         checkbox: 'both',
-        display: ',userListHeight255px',
+        // display: ',userListHeight255px',
         informalUser: false,
       })
     );
     console.log('dynatree', this.dynatree);
 
-    this.dynatree.dynatree('getRoot').tree.getNodeByKey('000010100').activate();
+    this.dynatree.dynatree('getRoot').tree.getNodeByKey(rInfo.user.ID).activate();
   }
 
   onSelect(isSelected, dtnode) {
-    console.log('[dynatree] onSelect', isSelected, dtnode.data.title, dtnode);
-    //
+    console.debug('[dynatree] onSelect', dtnode.data.title, isSelected);
+    this.divTree.dispatchEvent(new CustomEvent('select', { bubbles: true, composed: true, detail: { isSelected: isSelected, dtnode: dtnode } }));
   }
 
   onClick(dtnode, event) {
@@ -46,7 +46,7 @@ export default class FeOrgTree extends FeDynatree {
   }
 
   onLazyRead(dtnode) {
-    console.log('[dynatree] onLazyRead', dtnode.data.title, dtnode);
+    console.debug('[dynatree] onLazyRead', dtnode.data.title, dtnode);
     //
     dtnode.appendAjax({
       url: '/directory-web/org.do',
@@ -54,19 +54,20 @@ export default class FeOrgTree extends FeDynatree {
       data: {
         acton: 'expandOrgTree',
         deptID: dtnode.data.key,
-        notUseDept: '000000101',
+        // notUseDept: '000000101',
         checkbox: 'both',
-        display: ',userListHeight255px',
+        // display: ',userListHeight255px',
         informalUser: false,
       },
       success: (dtnode) => {
         console.log('[dynatree] appendAjax', dtnode.data.title, dtnode);
+        this.divTree.dispatchEvent(new CustomEvent('lazy', { bubbles: true, composed: true, detail: { dtnode: dtnode } }));
       },
     });
   }
 
   onRender(dtnode, nodeSpan) {
-    console.debug('onLoader', dtnode, nodeSpan);
+    console.debug('onRender', dtnode, nodeSpan);
     //
     if (dtnode.data.rbox == 'false') {
       dtnode.data.unselectable = true;

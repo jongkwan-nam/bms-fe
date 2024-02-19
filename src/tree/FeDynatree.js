@@ -40,11 +40,11 @@ export default class FeDynatree extends HTMLElement {
       clickFolderMode: this.clickFolderMode,
       key: ROOT_FOLDER_ID,
       fx: { height: 'toggle', duration: 200 },
-      children: data,
-      onSelect: this.onSelect,
-      onClick: this.onClick,
-      onLazyRead: this.onLazyRead,
-      onRender: this.onRender,
+      children: data, // 트리 데이터
+      onSelect: this.onSelect, // 선택 이벤트 핸들러
+      onClick: this.onClick, // 클릭 이벤트 핸들러
+      onLazyRead: this.onLazyRead, // 폴더 확장시 데이터 로드 핸들러
+      onRender: this.onRender, // 그리기 핸들러
     });
   }
 

@@ -85,7 +85,7 @@ export default class FeRecList extends FeApprovalBox {
    * @param {string} from
    */
   add(dtnode, from) {
-    console.log('add', dtnode, from);
+    console.log('add', from, dtnode.data.scope, dtnode);
     // 기존 목록이 있으면, 삭제 후 추가한다.
     switch (from) {
       case 'org': {
@@ -118,6 +118,7 @@ export default class FeRecList extends FeApprovalBox {
             this.#addGroup(dtnode);
           }
         } else if (dtnode.data.scope === 'subdept') {
+          this.#addDept(dtnode);
           // 하위 부서 구하여, 모두 추가
           this.#addSubDept(dtnode);
         } else if (dtnode.data.scope === 'dept') {

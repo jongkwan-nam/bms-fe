@@ -1,6 +1,7 @@
-import $ from 'jquery';
 import syncFetch from 'sync-fetch';
 import '../lib/dynatree';
+import FeRecGroupTree from '../tree/FeRecGroupTree';
+import FeRecOrgTree from '../tree/FeRecOrgTree';
 import ArrayUtils from '../utils/ArrayUtils';
 import StringUtils from '../utils/StringUtils';
 import TagUI from '../utils/TabUI';
@@ -70,9 +71,6 @@ export default class FeRecipient extends FeApprovalBox {
       </div>
     `;
 
-    this.orgTree = this.shadowRoot.querySelector('#tree');
-    this.groupTree = this.shadowRoot.querySelector('#groupTree');
-
     this.feRecList = this.shadowRoot.querySelector('fe-reclist');
     this.displayCheckbox = this.shadowRoot.querySelector('#displayCheckbox');
     this.displayString = this.shadowRoot.querySelector('#displayString');
@@ -88,13 +86,13 @@ export default class FeRecipient extends FeApprovalBox {
       // 트리에서 선택 해제 시도
       if (type === 'rectype_dept' || type === 'rectype_unifiedgroup') {
         if (StringUtils.isBlank(chargerID)) {
-          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
+          this.feRecOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
         } else {
-          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(chargerID)?._select(false, false);
+          this.feRecOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(chargerID)?._select(false, false);
         }
         //
         try {
-          $(this.groupTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
+          this.feRecGroupTree.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
         } catch (error) {
           // do nothing
         }
@@ -232,165 +230,56 @@ export default class FeRecipient extends FeApprovalBox {
   }
 
   renderOrgTree() {
-    const params = {
-      acton: 'initOrgTree',
-      baseDept: '000010100',
-      startDept: '',
-      notUseDept: '000000101',
-      checkbox: 'both',
-      display: ',userListHeight255px',
-      informalUser: false,
-    };
-    const queryString = new URLSearchParams(params).toString();
-    fetch('/directory-web/org.do?' + queryString)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-
-        const ROOT_FOLDER_ID = '00000000000000000001';
-
-        $(this.orgTree)
-          .dynatree({
-            title: 'orgtree',
-            persist: false,
-            checkbox: true,
-            selectMode: 2,
-            clickFolderMode: 1,
-            key: ROOT_FOLDER_ID,
-            fx: { height: 'toggle', duration: 200 },
-            children: data,
-            /**
-             *
-             * @param {boolean} select 선택/해제 여부
-             * @param {*} dtnode 해당 노드
-             */
-            onSelect: (select, dtnode) => {
-              console.log('[dynatree] onSelect', select, dtnode.data.title, dtnode);
-              if (select) {
-                // 수신목록에 추가
-                this.feRecList.add(dtnode, 'org');
-              } else {
-                // 수신목록에서 제거
-                this.feRecList.delete(dtnode, 'org');
-              }
-            },
-            onClick: (dtnode, event) => {
-              console.debug('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
-
-              if (!dtnode.data.isFolder) {
-                dtnode.parent.childList.forEach((child) => {
-                  console.log('onClick', child.isSelected(), child.data.title);
-                  if (!child.data.isFolder && child.isSelected()) {
-                    child.select(false);
-                  }
-                });
-              }
-
-              if (dtnode.getEventTargetType(event) === 'title') {
-                dtnode.toggleSelect();
-              }
-            },
-            onLazyRead: (dtnode) => {
-              console.log('[dynatree] onLazyRead', dtnode.data.title, dtnode);
-              var params = {
-                acton: 'expandOrgTree',
-                deptID: dtnode.data.key,
-                notUseDept: '000000101',
-                checkbox: 'both',
-                display: ',userListHeight255px',
-                informalUser: false,
-              };
-              dtnode.appendAjax({
-                url: '/directory-web/org.do',
-                type: 'post',
-                data: params,
-                success: (dtnode) => {
-                  console.log('[dynatree] appendAjax', dtnode.data.title, dtnode);
-                  this.#matchTreeAndHox();
-                },
-              });
-            },
-            onRender: (dtnode, nodeSpan) => {
-              console.debug('onLoader', dtnode, nodeSpan);
-              if (!dtnode.data.isFolder) {
-                var res = $(nodeSpan).html().replace('dynatree-checkbox', 'dynatree-radio');
-                $(nodeSpan).html(res);
-              }
-
-              if (dtnode.data.rbox == 'false') {
-                dtnode.data.unselectable = true;
-                $(nodeSpan).addClass('ui-dynatree-notuse');
-              } else {
-                $(nodeSpan).addClass('ui-dynatree-rbox-have');
-              }
-            },
-          })
-          .dynatree('getRoot')
-          .tree.getNodeByKey(rInfo.user.deptID)
-          .activate();
-
+    if (!this.feRecOrgTree) {
+      this.feRecOrgTree = this.shadowRoot.querySelector('#orgTreePanel').appendChild(new FeRecOrgTree());
+      this.feRecOrgTree.addEventListener('select', (e) => {
+        if (e.detail.isSelected) {
+          this.feRecList.add(e.detail.dtnode, 'org');
+        } else {
+          this.feRecList.delete(e.detail.dtnode, 'org');
+        }
+      });
+      this.feRecOrgTree.addEventListener('lazy', (e) => {
         this.#matchTreeAndHox();
       });
+    }
+
+    this.#matchTreeAndHox();
   }
 
   renderGroupTree() {
-    //
-    const params = {
-      acton: 'groupTree',
-      base: '001000001',
-      groupType: 'A',
-      checkbox: 'both',
-      display: 'org, rootdept, group, ldap, doc24, ucorg2, userSingle',
-    };
-    const queryString = new URLSearchParams(params).toString();
-    fetch('/directory-web/org.do?' + queryString)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        //
-        $(this.groupTree).dynatree({
-          checkbox: true,
-          selectMode: 2,
-          clickFolderMode: 1,
-          children: data,
-          onSelect: (select, dtnode) => {
-            console.log('onSelect groupTree', select, dtnode);
-            if (select) {
-              // 수신목록에 추가
-              this.feRecList.add(dtnode, 'group');
-            } else {
-              // 수신목록에서 제거
-              this.feRecList.delete(dtnode, 'group');
-            }
-          },
-        });
+    if (!this.feRecGroupTree) {
+      this.feRecGroupTree = this.shadowRoot.querySelector('#groupTreePanel').appendChild(new FeRecGroupTree());
+      this.feRecGroupTree.addEventListener('select', (e) => {
+        if (e.detail.isSelected) {
+          this.feRecList.add(e.detail.dtnode, 'group');
+        } else {
+          this.feRecList.delete(e.detail.dtnode, 'group');
+        }
       });
+    }
   }
 
   renderManual() {
-    //
+    // TODO
   }
 
   renderLdapTree() {
-    //
+    // TODO
   }
 
   renderDoc24() {
-    //
+    // TODO
   }
 
   #deselectAllTree() {
     try {
-      $(this.orgTree)
-        .dynatree('getRoot')
-        .visit((dtnode) => dtnode._select(false, false));
+      this.feRecOrgTree.dynatree.dynatree('getRoot').visit((dtnode) => dtnode._select(false, false));
     } catch (ignore) {
       console.log(ignore.message);
     }
     try {
-      $(this.groupTree)
-        .dynatree('getRoot')
-        .visit((dtnode) => dtnode._select(false, false));
+      this.feRecGroupTree.dynatree.dynatree('getRoot').visit((dtnode) => dtnode._select(false, false));
     } catch (ignore) {
       console.log(ignore.message);
     }
@@ -437,12 +326,12 @@ export default class FeRecipient extends FeApprovalBox {
       if (type === 'rectype_dept') {
         let chargerID = getText(rec, 'charger ID');
         if (StringUtils.isBlank(chargerID)) {
-          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
+          this.feRecOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
         } else {
-          $(this.orgTree).dynatree('getRoot').tree.getNodeByKey(chargerID)?._select(true, false);
+          this.feRecOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(chargerID)?._select(true, false);
         }
       } else if (type === 'rectype_unifiedgroup') {
-        $(this.groupTree)?.dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
+        this.feRecGroupTree?.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
       } else if (type === 'rectype_ldap') {
         // TODO ldap 트리에 체크박스 선택
       }
