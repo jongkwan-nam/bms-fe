@@ -23,12 +23,6 @@ export default class FeRecipient extends FeApprovalBox {
   connectedCallback() {
     const wrapper = super.init();
 
-    const dynatreeLink = document.createElement('link');
-    dynatreeLink.setAttribute('rel', 'stylesheet');
-    dynatreeLink.setAttribute('href', './css/dynatree.css');
-
-    this.shadowRoot.append(dynatreeLink);
-
     wrapper.classList.add('tree-list');
     wrapper.innerHTML = `
       <div class="tree">
@@ -41,10 +35,8 @@ export default class FeRecipient extends FeApprovalBox {
         </div>
         <div>
           <div class="tab-content" role="tabpanel" id="orgTreePanel">
-            <div id="tree" class="folder"></div>
           </div>
           <div class="tab-content" role="tabpanel" id="groupTreePanel">
-            <div id="groupTree" class="folder"></div>
           </div>
           <div class="tab-content" role="tabpanel" id="manualPanel">
             <div id="manual" class="folder"></div>

@@ -46,7 +46,8 @@ export default class FeApprovalBox extends HTMLElement {
     this.hox = hox;
 
     this.contentCount = getNodes(this.hox, 'docInfo content').length;
-    this.contentNumber = parseInt(document.querySelector('select#contentSelector').value);
+    const contentSelector = document.querySelector('select#contentSelector');
+    this.contentNumber = parseInt(contentSelector ? contentSelector.value : 1);
     this.contentNode = getNode(this.hox, 'docInfo content', this.contentNumber - 1);
 
     // 안 선택 이벤트 수신

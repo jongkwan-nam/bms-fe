@@ -6,12 +6,11 @@ fe-deliverdocdialog {
 .fe-deliverdocdialog {
   background-color: var(--color-bg);
   padding: 1rem;
-  width: 36rem;
-  height: 28rem;
+  width: 46rem;
+  height: 48rem;
 
   display: grid;
   grid-template-rows: 2.5rem 1fr 5rem 2.5rem;
-  align-items: center;
 
   .header {
     font-weight: 700;
@@ -19,11 +18,8 @@ fe-deliverdocdialog {
     line-height: 2.5rem;
   }
 
-  .body {
-    display: flex;
-    height: 100%;
-    padding: 0.5rem 0;
-    overflow: scroll;
+  .recipient-wrap {
+    overflow: hidden;
   }
 
   .comment-write {
