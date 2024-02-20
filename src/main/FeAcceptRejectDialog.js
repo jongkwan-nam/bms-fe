@@ -1,4 +1,7 @@
+import syncFetch from 'sync-fetch';
+import IDUtils from '../utils/IDUtils';
 import StringUtils from '../utils/StringUtils';
+import { getText } from '../utils/xmlUtils';
 import './FeAcceptRejectDialog.scss';
 
 /**
@@ -51,11 +54,52 @@ export default class FeAcceptRejectDialog extends HTMLElement {
 
     this.shadowRoot.querySelector('#btnVerify').addEventListener('click', async () => {
       //
-      if (StringUtils.isBlank(this.shadowRoot.querySelector('textarea').value)) {
+      const opinion = this.shadowRoot.querySelector('textarea').value;
+      if (StringUtils.isBlank(opinion)) {
         alert(GWWEBMessage.cmsg_537);
         return;
       }
-      this.ret = 0;
+
+      /*
+        /bms/com/hs/gwweb/appr/manageDocRetrnProgrs.act
+        - SENDID
+        - UID
+        - DID
+        - USERNAME
+        - opinionWritng
+        - opinionWritngHdn
+        - orgApprID
+        - orgHashCode
+        - WORDTYPE
+        - apprID
+      */
+
+      const orgApprID = getText(feMain.hox, 'docInfo orgApprID');
+      const no = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSynchrnNo.act?FID=${IDUtils.getObjectID(orgApprID, 1)}`).json();
+      if (!no.ok) {
+        throw new Error('fail to get hashcode: ' + orgApprID);
+      }
+      const orgHashCode = no.hashCode;
+
+      const formData = new FormData();
+      formData.append('UID', rInfo.user.ID);
+      formData.append('DID', rInfo.dept.ID);
+      formData.append('SENDID', rInfo.sendID);
+      formData.append('USERNAME', rInfo.user.name);
+      formData.append('WORDTYPE', rInfo.WORDTYPE);
+      formData.append('opinionWritng', opinion);
+      formData.append('opinionWritngHdn', encodeURI(opinion));
+      formData.append('apprID', '');
+      formData.append('orgApprID', orgApprID);
+      formData.append('orgHashCode', orgHashCode);
+
+      const res = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocRetrnProgrs.act`, { method: 'POST', body: formData }).then((res) => res.json());
+      if (res.ok) {
+        this.ret = 0;
+        alert(GWWEBMessage.cmsg_0001); // 문서를 반송하였습니다.
+      } else {
+        alert(GWWEBMessage.cmsg_0002 + ' ' + res.rc); // 반송이 실패하였습니다.
+      }
 
       // TODO 반려 서명처리 전 QDB 연동
       //
