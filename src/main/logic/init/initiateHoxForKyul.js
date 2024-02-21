@@ -1,7 +1,13 @@
 import StringUtils from '../../../utils/StringUtils';
 import { getNodes, getText, setAttr, setText } from '../../../utils/xmlUtils';
+import { doInitContent } from '../do/content';
+import { doInitOpenStartDate } from '../do/openStartDate';
 
 export default (hox) => {
+  doInitOpenStartDate(hox); // OpenStartDate 초기화
+
+  doInitContent(hox); // content 초기화
+
   // 현재 결재자 결정
   let foundCurrentParticipant = false;
   for (const participant of getNodes(hox, 'approvalFlow participant')) {

@@ -15,7 +15,6 @@ import FeContentSplitter from './main/FeContentSplitter';
 import FeEditor from './main/FeEditor';
 import { FeMode, getFeMode } from './main/FeMode';
 import ButtonController from './main/button/ButtonController';
-import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import initiateHoxForAccept from './main/logic/init/initiateHoxForAccept';
 import initiateHoxForControl from './main/logic/init/initiateHoxForControl';
 import initiateHoxForDraft from './main/logic/init/initiateHoxForDraft';
@@ -66,7 +65,6 @@ class FeMain {
           this.feEditor1.foldRibbon(false); // 리본메뉴
           this.feEditor1.setReadMode(false);
 
-          checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
           initiateHoxForDraft(this.hox);
           initiateBodyByHox(this.hox, this.feEditor1); // hox 정보를 기반으로 초기 서식의 내용 채우기
         };
@@ -81,7 +79,6 @@ class FeMain {
         postProcessFunction = () => {
           this.feEditor1.foldRibbon(true);
 
-          checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
           initiateHoxForKyul(this.hox);
           // TODO 현재 participant의 수정권한 여부로 readmode 설정
         };
