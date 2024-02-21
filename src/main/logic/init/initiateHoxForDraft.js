@@ -1,5 +1,5 @@
-import { doInitClientInfo } from './do/clientInfo';
-import { doInitDocNumber } from './do/docNumber';
+import { doInitClientInfo } from '../do/clientInfo';
+import { doInitDocNumber } from '../do/docNumber';
 
 /**
  * @param {XMLDocument} hox

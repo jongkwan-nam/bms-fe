@@ -1,5 +1,5 @@
-import StringUtils from '../../utils/StringUtils';
-import { getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
+import StringUtils from '../../../utils/StringUtils';
+import { getNodes, getText, setAttr, setText } from '../../../utils/xmlUtils';
 
 export default (hox) => {
   // 현재 결재자 결정

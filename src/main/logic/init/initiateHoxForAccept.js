@@ -1,7 +1,7 @@
-import { setParticipantCurrent } from '../../utils/HoxUtils';
-import StringUtils from '../../utils/StringUtils';
-import { addNode, addNodes, existsNode, getNode, getNodes, getText, setText } from '../../utils/xmlUtils';
-import { doInitDocNumber } from './do/docNumber';
+import { setParticipantCurrent } from '../../../utils/HoxUtils';
+import StringUtils from '../../../utils/StringUtils';
+import { addNode, addNodes, existsNode, getNode, getNodes, getText, setText } from '../../../utils/xmlUtils';
+import { doInitDocNumber } from '../do/docNumber';
 
 export default (hox) => {
   // 현재 결재자 결정

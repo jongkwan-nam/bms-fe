@@ -1,11 +1,14 @@
 # submit logic 개요
 
-- process
+- init
+  문서 오픈 후 초기화 로직
+
+- submit
   button으로 부터 호출
   전체 처리를 관장하는 대표 로직.
   case 에 따라 필요한 do류의 서브 로직 호출
 
-- case
+- is
   조건을 체크해 주는 로직.
   기안, 결재, 접수 등  
   최종결재인지

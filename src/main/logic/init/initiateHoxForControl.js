@@ -1,5 +1,5 @@
-import StringUtils from '../../utils/StringUtils';
-import { addNode, addNodes, existsNode, getNode, getNodes, getText, setText } from '../../utils/xmlUtils';
+import StringUtils from '../../../utils/StringUtils';
+import { addNode, addNodes, existsNode, getNode, getNodes, getText, setText } from '../../../utils/xmlUtils';
 
 export default (hox) => {
   // docInfo enforceDate
