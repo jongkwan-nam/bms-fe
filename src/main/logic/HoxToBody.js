@@ -129,7 +129,7 @@ export class HoxToBody {
   }
 
   /**
-   * 결재선
+   * 결재선 적용
    */
   setApprovalFlow() {
     let signCellIndex = 0;
@@ -190,15 +190,19 @@ export class HoxToBody {
     // }
   }
 
-  setApprovalFlowByCellInfo() {
+  /**
+   * 초기 결재선 반영
+   */
+  setApprovalFlowInit() {
     const textColor = ColorUtils.colorNameToHex(doccfg.previewSignerNameFontColor);
     let agreeCellCount = 0;
-    //
+
     getNodes(this.hox, 'clientInfo cellInfo cell').forEach((cell) => {
       //
       const signCellName = getText(cell, 'cellName');
       const posCellName = getPosCellName(signCellName);
       const found = getNodes(this.hox, 'approvalFlow participant').filter((participant) => signCellName === getText(participant, 'mappingCell cellName'));
+      console.log(`[setApprovalFlowInit] [${signCellName}] [${posCellName}]`, found);
       if (found === null || found.length === 0) {
         // 셀명으로 결재자를 찾지 못함. -> 설정되어 있지 않음. -> 본문의 셀 내용 지우기
         this.editor.putFieldText(signCellName, '');
@@ -227,16 +231,11 @@ export class HoxToBody {
     this.editor.putFieldText('assist_signer_caption', agreeCellCount > 0 ? GWWEBMessage.assist_signer_caption : '');
   }
 
-  setSignOfFlow() {
-    // TODO 결재선을 본문 사인셀에 적용
-    // 생산, 협조, 감사 = 서명.1 사용
-    // 수신 = 서명.1.2 사용
-    const approvalType = getText(this.hox, 'docInfo approvalType');
-    if ('apprtype_receipt' === approvalType) {
-      //
-    } else {
-      //
-    }
+  /**
+   * 변경된 결재선 반영
+   */
+  setApprovalFlowUpdate() {
+    this.setApprovalFlowInit();
   }
 
   /**
@@ -364,5 +363,5 @@ function getPosCellName(signCellName) {
   const nameSuffix = signCellName.substring(idx);
   console.log('Cell [%s] [%s]', namePrefix, nameSuffix);
 
-  return signPosMap.get(namePrefix);
+  return signPosMap.get(namePrefix) + nameSuffix;
 }

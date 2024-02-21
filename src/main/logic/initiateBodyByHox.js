@@ -19,7 +19,7 @@ export default (hox, editor) => {
   hoxToBody.setReceive(); // 수신, 수신처캡션, 수신처
   hoxToBody.setSendOrgName(); // 발신기관명
   hoxToBody.setSenderName(); // 발신명의
-  hoxToBody.setApprovalFlow(); // 결재선
+  hoxToBody.setApprovalFlowInit(); // 결재선
   hoxToBody.setDocNumber(); // 문서번호
   hoxToBody.setEnforceDate(); // 시행일자
   hoxToBody.setPublication(); // 공개여부
