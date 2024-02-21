@@ -1,4 +1,3 @@
-import '../lib/dynatree';
 import StringUtils from '../utils/StringUtils';
 import { getNodes, getText, serializeXmlToString } from '../utils/xmlUtils';
 import './FeDeliverDocDialog.scss';

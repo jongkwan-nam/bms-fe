@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import '../lib/dynatree';
+import '../tree/dynatree';
 import { setText } from '../utils/xmlUtils';
 import FeApprovalBox from './FeApprovalBox';
 import './FeSender.scss';

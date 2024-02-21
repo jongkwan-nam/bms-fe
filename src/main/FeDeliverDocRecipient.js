@@ -1,6 +1,5 @@
 import '../approvalBox/recipientInfo/FeRecList';
 import '../css/tree-list.scss';
-import '../lib/dynatree';
 import FeRecGroupTree from '../tree/FeRecGroupTree';
 import FeRecOrgTree from '../tree/FeRecOrgTree';
 import StringUtils from '../utils/StringUtils';

@@ -1,5 +1,4 @@
 import syncFetch from 'sync-fetch';
-import '../lib/dynatree';
 import FeRecGroupTree from '../tree/FeRecGroupTree';
 import FeRecOrgTree from '../tree/FeRecOrgTree';
 import ArrayUtils from '../utils/ArrayUtils';

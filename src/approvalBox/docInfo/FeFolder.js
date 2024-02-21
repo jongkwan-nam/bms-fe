@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import syncFetch from 'sync-fetch';
-import '../../lib/dynatree';
+import '../../tree/dynatree';
 import DateUtils from '../../utils/DateUtils';
 import feStorage from '../../utils/FeStorage';
 import IDUtils from '../../utils/IDUtils';

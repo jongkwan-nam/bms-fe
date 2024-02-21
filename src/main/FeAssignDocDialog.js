@@ -1,4 +1,3 @@
-import '../lib/dynatree';
 import FeAssignOrgTree from '../tree/FeAssignOrgTree';
 import StringUtils from '../utils/StringUtils';
 import './FeAssignDocDialog.scss';

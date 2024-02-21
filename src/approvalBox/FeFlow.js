@@ -1,4 +1,3 @@
-import '../lib/dynatree';
 import FeOrgTree from '../tree/FeOrgTree';
 import { getNodes, getText } from '../utils/xmlUtils';
 import './FeFlow.scss';
