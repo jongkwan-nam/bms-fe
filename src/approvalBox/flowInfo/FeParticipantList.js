@@ -140,7 +140,7 @@ export default class FeParticipantList extends HTMLElement {
     let isAbsent = !dtnode.data.isFolder && dtnode.data.absent;
     let name = isDept ? dtnode.data.title : dtnode.data.name;
     let type = isDept ? 'dept' : 'user';
-    let position = dtnode.data.positionName;
+    let position = isDept ? dtnode.data.title + GWWEBMessage.cmsg_0034 : dtnode.data.positionName;
     let deptId = isDept ? dtnode.data.key : dtnode.data.deptID;
     let deptName = isDept ? dtnode.data.title : dtnode.data.deptName;
     let signerLevel = isDept ? '1' : OrgUtils.getUser(key).sancLevel;
