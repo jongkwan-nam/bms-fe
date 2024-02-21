@@ -1,4 +1,5 @@
 import DateUtils from '../../../utils/DateUtils';
+import StringUtils from '../../../utils/StringUtils';
 import { getText } from '../../../utils/xmlUtils';
 import FeSignDialog from '../../FeSignDialog';
 
@@ -15,6 +16,11 @@ export const dialogSign = async (hox) => {
 
   const participant = feMain.getCurrentParticipant();
   const cellName = getText(participant, 'mappingCell cellName');
+
+  if (StringUtils.isBlank(cellName)) {
+    // 서명 셀명이 없으면, 통과
+    return result;
+  }
 
   // 서명선택
   let feSignDialog = new FeSignDialog();

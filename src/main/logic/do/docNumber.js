@@ -6,7 +6,7 @@ import Cell from '../../CellNames';
 import FeEditor from '../../FeEditor';
 
 /**
- * hox의 내용으로 문서번를 채번하여 docNumber 노드의 내용을 채운다
+ * hox의 내용으로 문서번호를 채번하여 docNumber 노드의 내용을 채운다
  *
  * @param {XMLDocument} hox
  * @param {FeEditor} feEditor
@@ -97,6 +97,99 @@ export const doSetDocNumber = (hox, feEditor) => {
   } else {
     feEditor.putFieldText(Cell.DOC_NUM, displayDocNumber); // 문서번호
   }
+};
+
+/**
+ * apprid, 접수번호 채번
+ *
+ * @param {XMLDocument} hox
+ * @param {FeEditor} feEditor
+ */
+export const doSetReceiptNumber = (hox, feEditor) => {
+  //
+  const draftDeptId = getText(hox, 'docInfo drafter department ID');
+
+  const nodeOfDocNumber = findNodeOfDocNumber(hox);
+  const docNumberFormat = getAttr(nodeOfDocNumber, 'expression', 'format');
+  const nodeOfExpression = getNode(nodeOfDocNumber, 'expression');
+  nodeOfExpression.textContent = null; // expression param 지운후 새로 채우기
+
+  // 채번 기준 부서
+  const [refDeptId, refDeptCode] = findRefDept(draftDeptId, docNumberFormat);
+
+  // 문서번호 채번
+  const newReceiptNumberObj = IDUtils.getReceiptNumber(refDeptId, rInfo.sendID, 3);
+
+  let displayDocNumber = docNumberFormat;
+
+  docNumberFormat.split(/[^@\w]/).forEach((name) => {
+    if (!name.startsWith('@')) {
+      return;
+    }
+    //
+    let value = '';
+    switch (name) {
+      case '@D': {
+        const enforceType = getText(hox, 'docInfo enforceType');
+        const dept = OrgUtils.getDept(draftDeptId);
+        if (doccfg.useDocnumDeptName2 && enforceType == 'enforcetype_external') {
+          value = StringUtils.isBlank(dept.name2) ? dept.name : dept.name2;
+        } else {
+          value = dept.name;
+        }
+        break;
+      }
+      case '@d': {
+        const dept = OrgUtils.getDept(draftDeptId);
+        value = dept.alias;
+        if (StringUtils.isBlank(value)) throw new Error(GWWEBMessage.W1365);
+        break;
+      }
+      case '@R': {
+        const repDept = OrgUtils.getRepDept(draftDeptId);
+        value = repDept.name;
+        break;
+      }
+      case '@r': {
+        const repDept = OrgUtils.getRepDept(draftDeptId);
+        value = repDept.alias;
+        if (StringUtils.isBlank(value)) throw new Error(GWWEBMessage.W1365);
+        break;
+      }
+      case '@Y': {
+        value = doccfg.DocNumYear;
+        break;
+      }
+      case '@y': {
+        value = doccfg.DocNumYear.toString().substring(2);
+        break;
+      }
+      case '@C': {
+        value = getText(nodeOfDocNumber, 'classCode');
+        break;
+      }
+      case '@N': {
+        value = newReceiptNumberObj.receiptNumber;
+        break;
+      }
+      default:
+        break;
+    }
+    displayDocNumber = displayDocNumber.replace(name, value);
+    // add param node
+    const nodeOfParam = addNode(nodeOfExpression, 'param', value);
+    setAttr(nodeOfParam, null, 'name', name);
+  });
+
+  setText(nodeOfDocNumber, 'displayDocNumber', displayDocNumber);
+  setText(nodeOfDocNumber, 'docRegSequence', newReceiptNumberObj.receiptNumber);
+  setText(nodeOfDocNumber, 'regNumber', refDeptCode + StringUtils.unshift(newReceiptNumberObj.receiptNumber, 6, '0'));
+
+  if (StringUtils.isNotBlank(newReceiptNumberObj.apprId)) {
+    setText(hox, 'docInfo apprID', newReceiptNumberObj.apprId);
+  }
+
+  feEditor.putFieldText(Cell.ACCEPT_NUM, displayDocNumber); // 접수번호
 };
 
 /**

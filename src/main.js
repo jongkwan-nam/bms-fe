@@ -18,6 +18,7 @@ import ButtonController from './main/button/ButtonController';
 import checkMissingNodeAndFillNode from './main/logic/checkMissingNodeAndFillNode';
 import initiateBodyByHox from './main/logic/initiateBodyByHox';
 import initiateHoxForAccept from './main/logic/initiateHoxForAccept';
+import initiateHoxForControl from './main/logic/initiateHoxForControl';
 import initiateHoxForDraft from './main/logic/initiateHoxForDraft';
 import initiateHoxForKyul from './main/logic/initiateHoxForKyul';
 import initiateHoxForRequest from './main/logic/initiateHoxForRequest';
@@ -25,9 +26,10 @@ import initiateHoxForView from './main/logic/initiateHoxForView';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
 import FeStorage from './utils/FeStorage';
+import { getCurrentParticipant } from './utils/HoxUtils';
 import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
-import { HoxEventType, dispatchHoxEvent, getAttr, getNodes, loadXml } from './utils/xmlUtils';
+import { HoxEventType, dispatchHoxEvent, getNodes, loadXml } from './utils/xmlUtils';
 
 class FeMain {
   hox = null; // Handy Office Xml
@@ -156,6 +158,7 @@ class FeMain {
         break;
       }
       case FeMode.CONTROL: {
+        initiateHoxForControl(this.hox);
         break;
       }
       default:
@@ -273,8 +276,7 @@ class FeMain {
    * @returns {participant}
    */
   getCurrentParticipant() {
-    //
-    return getNodes(this.hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true')[0];
+    return getCurrentParticipant(this.hox);
   }
 
   /**

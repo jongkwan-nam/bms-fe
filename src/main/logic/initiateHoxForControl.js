@@ -1,12 +1,22 @@
-import { setParticipantCurrent } from '../../utils/HoxUtils';
 import StringUtils from '../../utils/StringUtils';
 import { addNode, addNodes, existsNode, getNode, getNodes, getText, setText } from '../../utils/xmlUtils';
-import { doInitDocNumber } from './do/docNumber';
 
 export default (hox) => {
-  // 현재 결재자 결정
-  setParticipantCurrent(hox);
-
+  // docInfo enforceDate
+  if (!existsNode(hox, 'docInfo enforceDate')) {
+    const nodeOfDocInfo = getNode(hox, 'docInfo');
+    addNode(nodeOfDocInfo, 'enforceDate');
+  }
+  // examRequest exam examDate
+  if (!existsNode(hox, 'examRequest exam examDate')) {
+    const node = getNode(hox, 'examRequest exam');
+    addNode(node, 'examDate');
+  }
+  // examRequest exam examiner dutyName
+  if (!existsNode(hox, 'examRequest exam examiner dutyName')) {
+    const node = getNode(hox, 'examRequest exam examiner');
+    addNode(node, 'dutyName');
+  }
   // 단일안 일때 content 내용 채우기
   const contentLength = getNodes(hox, 'docInfo content').length;
   if (contentLength === 1) {
@@ -27,10 +37,4 @@ export default (hox) => {
       setText(hox, 'docInfo content title', getText(hox, 'docInfo title'));
     }
   }
-
-  // approvalStatus
-  setText(hox, 'docInfo approvalStatus', 'apprstatus_ing');
-
-  // 문서번호(접수번호) 초기 설정
-  doInitDocNumber(hox);
 };

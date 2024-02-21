@@ -23,7 +23,7 @@ export const isDocCompleted = (hox) => {
       // 결재하는 타입
       const approvalType = getText(participant, 'approvalType');
       const approvalSubType = getText(participant, 'approvalSubTye');
-      if (['user_nosign', 'user_refer', 'user_noapproval'].includes(approvalType)) {
+      if (['user_refer', 'user_noapproval'].includes(approvalType)) {
         return false;
       }
       return true;

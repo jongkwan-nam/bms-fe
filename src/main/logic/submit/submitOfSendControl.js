@@ -59,6 +59,9 @@ export default async () => {
       return;
     }
 
+    if (!existsNode(content, 'enforceMethod')) {
+      addNode(content, 'enforceMethod');
+    }
     setText(content, 'enforceMethod', 'enforcemethod_direct');
 
     // enforce 노드가 없다면 초기값으로 추가

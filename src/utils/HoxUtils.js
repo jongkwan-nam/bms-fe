@@ -1,4 +1,4 @@
-import { getNodes, getText } from './xmlUtils';
+import { getAttr, getNodes, getText, setAttr } from './xmlUtils';
 
 /**
  * 안번호에 맞는 셀명 반환
@@ -41,4 +41,57 @@ export const getLastSignParticipant = (hox) => {
     }
   }
   throw new Error('최종결재자를 찾을수 없음');
+};
+
+/**
+ * 현재 결재자의 participant 노드
+ *
+ * @param {XMLDocument} hox
+ * @returns
+ */
+export const getCurrentParticipant = (hox) => {
+  let participantList = getNodes(hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true');
+  if (participantList.length === 0) {
+    // current=true 가 없으면, 설정하려고 시도
+    setParticipantCurrent(hox);
+  }
+
+  participantList = getNodes(hox, 'approvalFlow participant').filter((participant) => getAttr(participant, null, 'current') === 'true');
+  if (participantList.length === 0) {
+    // 그래도 없으면 에러!
+    throw new Error('현재 결재자를 알수 없다');
+  }
+  return participantList[0];
+};
+
+/**
+ * 현재 결재자를 결정해 current 속성을 true 로 설정한다.
+ *
+ * @param {XMLDocument} hox
+ */
+export const setParticipantCurrent = (hox) => {
+  for (const participant of getNodes(hox, 'approvalFlow participant')) {
+    const participantID = getText(participant, 'participantID');
+    const id = getText(participant, 'ID');
+    const name = getText(participant, 'name');
+    const type = getText(participant, 'type');
+    const approvalType = getText(participant, 'approvalType');
+    const approvalStatus = getText(participant, 'approvalStatus');
+    const validStatus = getText(participant, 'validStatus');
+    const chargerID = getText(participant, 'charger ID');
+    console.log(`participant: ${participantID} ${name} id=${id}, type=${type}, approvalType=${approvalType}, approvalStatus=${approvalStatus}, validStatus=${validStatus}, chargerID=${chargerID}`);
+    if (validStatus !== 'valid') {
+      continue;
+    }
+    if (type !== 'user') {
+      continue;
+    }
+
+    if (['partapprstatus_draft', 'partapprstatus_now', 'partapprstatus_will', 'partapprstatus_postpone'].includes(approvalStatus) && (id === rInfo.user.ID || chargerID === rInfo.user.ID)) {
+      console.log('이게 현재 사용자의 participant이다');
+      setAttr(participant, null, 'current', 'true');
+    } else {
+      setAttr(participant, null, 'current', 'false');
+    }
+  }
 };

@@ -57,11 +57,35 @@ export default class IDUtils {
     throw new Error('getParticipantIDs: n=' + n);
   }
 
+  /**
+   * 문서번호 채번
+   *
+   * @param {string} repDeptId 채번 기준부서
+   * @param {*} apprId
+   * @returns {number} 문서번호
+   */
   static getDocNumber(repDeptId, apprId) {
     const ret = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveNewDocNo.act?numtype=${1}&msgtype=${0}&UID=${rInfo.user.ID}&DID=${repDeptId}&apprID=${apprId}&orgApprID=${this.NULL_APPRID}`).json();
     if (ret.ok) {
       return ret.number;
     }
     throw new Error('getDocNumber: repDeptId=' + repDeptId + ' apprId=' + apprId);
+  }
+
+  /**
+   * 접수번호 및 apprid 채번
+   *
+   * @param {string} repDeptId 채번 기준부서
+   * @param {string} sendId
+   * @param {number} flag 0: apprId + 접수번호, 1: apprId, 2: 접수번호, 3: apprId + 접수번호, 4: manual?
+   * @returns
+   */
+  static getReceiptNumber(repDeptId, sendId, flag) {
+    const ret = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveNewRceptNo.act?UID=${rInfo.user.ID}&DID=${rInfo.dept.ID}&BASEDID=${repDeptId}&sendID=${sendId}&flag=${flag}`).json();
+    // {"rc":0,"msgid":"JHOMS240510000377000","ok":true,"receiptNumber":89}
+    if (ret.ok) {
+      return { apprId: ret.msgid, receiptNumber: ret.receiptNumber };
+    }
+    throw new Error('getReceiptNumber: repDeptId=' + repDeptId + ' sendId=' + sendId + ' flag=' + flag);
   }
 }
