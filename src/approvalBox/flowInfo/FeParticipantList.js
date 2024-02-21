@@ -149,7 +149,7 @@ export default class FeParticipantList extends HTMLElement {
     let cellName = '';
 
     let xmlText = `
-      <participant xmlns="http://www.handysoft.com/xsd/2002/04/HOX/1.0" IPAddress="" absent="${isAbsent}" current="false" mandatory="false" opinion="false" serverID="0" signStyle="text">
+      <participant IPAddress="" absent="${isAbsent}" current="false" mandatory="false" opinion="false" serverID="0" signStyle="text">
         <participantID />
         <position>${position}</position>
         <dutyName />
