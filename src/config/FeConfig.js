@@ -1,4 +1,5 @@
 import SVG from '../svg/SVG';
+import FeStorage from '../utils/FeStorage';
 import './FeConfig.scss';
 import StyleController from './styleController';
 
@@ -35,6 +36,10 @@ export default class FeConfig extends HTMLElement {
           <input type="radio" name="theme" id="themelight" value="light" /><label for="themelight">${SVG.theme.light}</label>
           <input type="radio" name="theme" id="themedark" value="dark" /><label for="themedark">${SVG.theme.dark}</label>
         </div>
+        <label>🪟창크기</label>
+        <div>
+          <input type="checkbox" id="popupSizeRemember" /><label for="popupSizeRemember">기억</label>
+        </div>
       </div>
     `;
 
@@ -63,6 +68,14 @@ export default class FeConfig extends HTMLElement {
         styleController.applyTheme(theme.value);
       });
     });
+
+    // 창크기 기억
+    const popupSizeRemember = this.shadowRoot.querySelector('#popupSizeRemember');
+    popupSizeRemember.addEventListener('change', (e) => {
+      console.log('popupSizeRemember', e.target.checked);
+      FeStorage.local.set('feMain.window.remember', e.target.checked);
+    });
+    popupSizeRemember.checked = FeStorage.local.get('feMain.window.remember', false);
   }
 }
 

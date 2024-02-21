@@ -13,21 +13,29 @@ let timeoutId = null;
 export default (popupName, minWidth = 800, minHeight = 600) => {
   console.debug('popupSizeRestorer', popupName, minWidth, minHeight);
   //
-  const feMainWindow = FeStorage.local.get(popupName);
-  if (feMainWindow !== null) {
-    const [width, height] = feMainWindow.split(',');
-    window.resizeTo(width, height);
-    console.debug('window.resizeTo', popupName, width, height);
+  if (isWindowRemember()) {
+    const feMainWindow = FeStorage.local.get(popupName);
+    if (feMainWindow !== null) {
+      const [width, height] = feMainWindow.split(',');
+      window.resizeTo(width, height);
+      console.debug('window.resizeTo', popupName, width, height);
+    }
   }
 
   // 창크기 변경 기억
   window.addEventListener('resize', () => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      const width = Math.max(minWidth, window.outerWidth);
-      const height = Math.max(minHeight, window.outerHeight);
-      FeStorage.local.set(popupName, width + ',' + height);
-      console.log('window resize event. set Storage', popupName, width, height);
-    }, DELAY);
+    if (isWindowRemember()) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const width = Math.max(minWidth, window.outerWidth);
+        const height = Math.max(minHeight, window.outerHeight);
+        FeStorage.local.set(popupName, width + ',' + height);
+        console.log('window resize event. set Storage', popupName, width, height);
+      }, DELAY);
+    }
   });
 };
+
+function isWindowRemember() {
+  return FeStorage.local.getBoolean('feMain.window.remember', false);
+}
