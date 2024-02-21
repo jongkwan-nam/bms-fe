@@ -33,36 +33,43 @@ import { HoxEventType, dispatchHoxEvent, getNodes, loadXml } from './utils/xmlUt
 
 class FeMain {
   hox = null; // Handy Office Xml
-  draftHox = null;
+  orgHox = null;
   feEditor1 = null;
   feEditor2 = null;
   feEditor4Extra = null;
   feContent = null;
   feAttachBox = null;
-  summary = { filePath: null, TRID: null };
+  summary = { filePath: null, TRID: null }; // 요약전 정보
   feMode = null;
-  splitedExamDocMap = null;
-
-  constructor() {
-    //
-  }
+  splitedExamDocMap = null; // 분리한 시행문 모음
 
   async start() {
     console.time('main');
 
     const hoxTRID = rInfo.hoxFileTRID;
-    let wordType = rInfo.WORDTYPE;
-    let hoxURL;
-    let draftHoxURL;
-    let docURL = null;
+    const wordType = rInfo.WORDTYPE;
+    const feMode = getFeMode();
 
-    this.feMode = getFeMode();
-    switch (this.feMode) {
+    let hoxURL;
+    let orgHoxURL;
+    let docURL = null;
+    let postProcessFunction;
+
+    switch (feMode) {
       case FeMode.DRAFT: {
         document.title = 'FE 기안';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}`;
+
+        postProcessFunction = () => {
+          this.feEditor1.foldRibbon(false); // 리본메뉴
+          this.feEditor1.setReadMode(false);
+
+          checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
+          initiateHoxForDraft(this.hox);
+          initiateBodyByHox(this.hox, this.feEditor1); // hox 정보를 기반으로 초기 서식의 내용 채우기
+        };
         break;
       }
       case FeMode.KYUL: {
@@ -70,6 +77,14 @@ class FeMain {
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
+
+        postProcessFunction = () => {
+          this.feEditor1.foldRibbon(true);
+
+          checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
+          initiateHoxForKyul(this.hox);
+          // TODO 현재 participant의 수정권한 여부로 readmode 설정
+        };
         break;
       }
       case FeMode.VIEW: {
@@ -77,14 +92,28 @@ class FeMain {
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
+
+        postProcessFunction = () => {
+          this.feEditor1.setReadMode(true); // 읽기 전용
+
+          initiateHoxForView(this.hox);
+        };
         break;
       }
       case FeMode.ACCEPT: {
         document.title = 'FE 접수';
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
-        draftHoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=sanckyul&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}&_NOARG=${Date.now()}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
+
+        orgHoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=sanckyul&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}&_NOARG=${Date.now()}`;
+
+        postProcessFunction = () => {
+          this.feEditor1.foldRibbon(true);
+          this.feEditor1.setReadMode(true);
+
+          initiateHoxForAccept(this.hox);
+        };
         break;
       }
       case FeMode.REQUEST: {
@@ -92,6 +121,10 @@ class FeMain {
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
+
+        postProcessFunction = () => {
+          initiateHoxForRequest(this.hox);
+        };
         break;
       }
       case FeMode.CONTROL: {
@@ -99,19 +132,23 @@ class FeMain {
 
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
+
+        postProcessFunction = () => {
+          initiateHoxForControl(this.hox);
+        };
         break;
       }
       default:
-        throw new Error('undefiend FeMode: ' + this.feMode);
+        throw new Error('undefiend FeMode: ' + feMode);
     }
 
-    /* ************************************************************************
+    /* ------------------------------------------------------------------------
       hox 로딩
      */
     this.hox = await loadXml(hoxURL);
 
-    /* ************************************************************************
-      editor 로딩, 문서 open
+    /* ------------------------------------------------------------------------
+        editor 로딩, 문서 open
      */
     this.feEditor1 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor1'));
     this.feEditor1.show();
@@ -119,97 +156,55 @@ class FeMain {
     this.feEditor1.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
     await this.feEditor1.open(docURL); // 문서 열기
 
-    /* ************************************************************************
+    /* ------------------------------------------------------------------------
       문서 오픈 후 할 것들
      */
-    switch (this.feMode) {
-      case FeMode.DRAFT: {
-        this.feEditor1.foldRibbon(false); // 리본메뉴
-        this.feEditor1.setReadMode(false);
-
-        checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
-        initiateHoxForDraft(this.hox);
-        initiateBodyByHox(this.hox, this.feEditor1); // hox 정보를 기반으로 초기 서식의 내용 채우기
-        break;
-      }
-      case FeMode.KYUL: {
-        this.feEditor1.foldRibbon(true);
-
-        checkMissingNodeAndFillNode(this.hox); // 서버에서 받은 기본 hox에 누락된 부분이 있는지 검사해서 채운다
-        initiateHoxForKyul(this.hox);
-        // TODO 현재 participant의 수정권한 여부로 readmode 설정
-        break;
-      }
-      case FeMode.VIEW: {
-        this.feEditor1.setReadMode(true); // 읽기 전용
-
-        initiateHoxForView(this.hox);
-        break;
-      }
-      case FeMode.ACCEPT: {
-        this.feEditor1.foldRibbon(true);
-        this.feEditor1.setReadMode(true);
-
-        initiateHoxForAccept(this.hox);
-        break;
-      }
-      case FeMode.REQUEST: {
-        initiateHoxForRequest(this.hox);
-        break;
-      }
-      case FeMode.CONTROL: {
-        initiateHoxForControl(this.hox);
-        break;
-      }
-      default:
-        throw new Error('undefiend FeMode: ' + this.feMode);
-    }
-
+    postProcessFunction();
     this.feEditor1.setEditMode(2); // 편집모드 0: 읽기, 1: 편집, 2: 양식
     this.feEditor1.selectContent(1); // 첫 페이지 이동
     this.feEditor1.start(); // 에디터의 이벤트 시작. 제목변경, hox 이벤트(안 관련)
 
-    /* ************************************************************************
-      첨부박스 생성, 초기화
+    /* ------------------------------------------------------------------------
+      첨부박스
      */
     this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
 
-    /* ************************************************************************
+    /* ------------------------------------------------------------------------
       버튼 컨트롤러
      */
     const buttonController = new ButtonController('.menu-wrap');
     buttonController.start();
 
-    /* ************************************************************************
+    /* ------------------------------------------------------------------------
       결재, 보기: 안 바로가기
      */
     this.feContent = document.querySelector('main').appendChild(new FeContent());
-    if ([FeMode.KYUL, FeMode.VIEW].includes(this.feMode)) {
+    if ([FeMode.KYUL, FeMode.VIEW].includes(feMode)) {
       if (getNodes(this.hox, 'docInfo content').length > 1) {
         this.feContent.classList.add('show');
       }
     }
 
-    /* ************************************************************************
+    /* ------------------------------------------------------------------------
       발송의뢰: 안 분리기, editor2 로딩
      */
-    if (this.feMode === FeMode.REQUEST) {
-      // 발송대기: 안 분리기 표시
-      this.feContentSplitter = document.querySelector('main').appendChild(new FeContentSplitter());
-      this.feContentSplitter.classList.add('show');
-
+    if (feMode === FeMode.REQUEST) {
       // 1st 에디터
       this.feEditor1.setReadMode(true);
       // 2nd 에티터
       this.feEditor2 = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor2'));
       await this.feEditor2.init(); // 에디터 로딩
       this.feEditor2.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
+
+      // 발송대기: 안 분리기 표시
+      this.feContentSplitter = document.querySelector('main').appendChild(new FeContentSplitter());
+      this.feContentSplitter.classList.add('show');
     }
 
-    /* ************************************************************************
+    /* ------------------------------------------------------------------------
       발송처리: 안 분리기, editor2 로딩
      */
-    if (this.feMode === FeMode.CONTROL) {
+    if (feMode === FeMode.CONTROL) {
       // 1st 에디터
       this.feEditor1.setReadMode(true);
       // 2nd 에티터
@@ -223,19 +218,12 @@ class FeMain {
       this.feContentNavigator.classList.add('show');
     }
 
-    /* ************************************************************************
+    /* ------------------------------------------------------------------------
       설정 UI
      */
     document.querySelector('main').appendChild(new FeConfig());
 
     console.timeEnd('main');
-  }
-
-  /**
-   * 현재 안 번호
-   */
-  getCurrentContentNumber() {
-    return this.feContent.currentContentNumber;
   }
 
   /**
@@ -272,6 +260,14 @@ class FeMain {
   }
 
   /**
+   * 현재 안 번호
+   * @returns {number} 안번호
+   */
+  getCurrentContentNumber() {
+    return this.feContent.currentContentNumber;
+  }
+
+  /**
    * 현재 참여자
    * @returns {participant}
    */
@@ -280,11 +276,10 @@ class FeMain {
   }
 
   /**
-   *
-   * @returns PC저장용 에디터
+   * PC저장용 에디터 로딩
+   * @returns {FeEditor}
    */
   async getEditor4Extra() {
-    //
     if (this.feEditor4Extra === null) {
       this.feEditor4Extra = document.querySelector('.editor-wrap').appendChild(new FeEditor('editor4extra'));
       await this.feEditor4Extra.init(); // 에디터 로딩
