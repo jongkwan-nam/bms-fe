@@ -1,6 +1,6 @@
 import DateUtils from '../../../utils/DateUtils';
 import IDUtils from '../../../utils/IDUtils';
-import { addNode, existsNode, getNode, getNodes, getText, serializeXmlToString, setAttr, setText } from '../../../utils/xmlUtils';
+import { addNode, existsNode, getAttr, getNode, getNodes, getText, serializeXmlToString, setAttr, setText } from '../../../utils/xmlUtils';
 import Cell from '../../CellNames';
 import { makeEnforceHox4MultiDoc } from '../makeEnforceHox';
 
@@ -42,52 +42,60 @@ export default async () => {
   setAttr(feMain.hox, 'examRequest exam examiner reportEtcType', 'typeID', '0');
   setAttr(feMain.hox, 'examRequest exam examiner examNum', 'sequence', '0');
 
-  // content 처리
-  getNodes(feMain.hox, 'docInfo content').forEach((content, i) => {
-    //
-    const enforceType = getText(content, 'enforceType');
-    const contentNumber = i + 1;
+  const hoxType = getAttr(feMain.hox, 'hox', 'type'); // draft or multiDraft
+  const isMultiDraft = 'multiDraft' === hoxType;
+  if (isMultiDraft) {
+    // content 처리
+    getNodes(feMain.hox, 'docInfo content').forEach((content, i) => {
+      //
+      const enforceType = getText(content, 'enforceType');
+      const contentNumber = i + 1;
 
-    if ('enforcetype_not' === enforceType) {
-      console.log('content', contentNumber, 'enforceType = enforcetype_not');
-      return;
-    }
+      if ('enforcetype_not' === enforceType) {
+        console.log('content', contentNumber, 'enforceType = enforcetype_not');
+        return;
+      }
 
-    // 발송 완료된 안 제외
-    if ('apprstatus_finish' === getText(content, 'enforce sendStatus')) {
-      console.log('content', contentNumber, 'enforce sendStatus = apprstatus_finish');
-      return;
-    }
+      // 발송 완료된 안 제외
+      if ('apprstatus_finish' === getText(content, 'enforce sendStatus')) {
+        console.log('content', contentNumber, 'enforce sendStatus = apprstatus_finish');
+        return;
+      }
 
-    if (!existsNode(content, 'enforceMethod')) {
-      addNode(content, 'enforceMethod');
-    }
-    setText(content, 'enforceMethod', 'enforcemethod_direct');
+      if (!existsNode(content, 'enforceMethod')) {
+        addNode(content, 'enforceMethod');
+      }
+      setText(content, 'enforceMethod', 'enforcemethod_direct');
 
-    // enforce 노드가 없다면 초기값으로 추가
-    if (!existsNode(content, 'enforce')) {
-      const enforceNode = addNode(content, 'enforce');
-      addNode(enforceNode, 'docID', IDUtils.NULL_APPRID);
-      addNode(enforceNode, 'sendStatus', 'apprstatus_ing');
-      enforceNode.append(nodeFormInfo.cloneNode(true));
-    }
+      // enforce 노드가 없다면 초기값으로 추가
+      if (!existsNode(content, 'enforce')) {
+        const enforceNode = addNode(content, 'enforce');
+        addNode(enforceNode, 'docID', IDUtils.NULL_APPRID);
+        addNode(enforceNode, 'sendStatus', 'apprstatus_ing');
+        enforceNode.append(nodeFormInfo.cloneNode(true));
+      }
 
-    const enforceHox = makeEnforceHox4MultiDoc(feMain.hox, contentNumber);
-    const enforceApprID = getText(enforceHox, 'docInfo apprID');
+      const enforceHox = makeEnforceHox4MultiDoc(feMain.hox, contentNumber);
+      const enforceApprID = getText(enforceHox, 'docInfo apprID');
 
-    // 시행문 apprID를 content enforce docID에 설정
-    setText(content, 'enforce docID', enforceApprID);
-    setText(content, 'enforce sendStatus', 'apprstatus_finish');
-    // 시행문의 docNumber를 enforce노드에 추가
-    const nodeOfEngforceDocNumber = getNode(enforceHox, 'docNumber');
-    getNode(content, 'enforce').append(nodeOfEngforceDocNumber.cloneNode(true));
+      // 시행문 apprID를 content enforce docID에 설정
+      setText(content, 'enforce docID', enforceApprID);
+      setText(content, 'enforce sendStatus', 'apprstatus_finish');
+      // 시행문의 docNumber를 enforce노드에 추가
+      const nodeOfEngforceDocNumber = getNode(enforceHox, 'docNumber');
+      getNode(content, 'enforce').append(nodeOfEngforceDocNumber.cloneNode(true));
 
-    enforceDocInfos.push({
-      apprID: enforceApprID,
-      contentNumber: contentNumber,
-      hox: enforceHox,
+      enforceDocInfos.push({
+        apprID: enforceApprID,
+        contentNumber: contentNumber,
+        hox: enforceHox,
+      });
     });
-  });
+  } else {
+    // 단일안 발송
+    setText(feMain.hox, 'docInfo content receiptInfo senderID', rInfo.user.ID);
+    setText(feMain.hox, 'docInfo content receiptInfo senderDeptID', rInfo.dept.ID);
+  }
 
   // submit
 
@@ -98,34 +106,49 @@ export default async () => {
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
 
-  // 원문 hox
-  formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeXmlToString(feMain.hox));
+  if (isMultiDraft) {
+    const sendApprIDs = [];
 
-  const sendApprIDs = [];
+    for (const enforceDocInfo of enforceDocInfos) {
+      //
+      const splitedExamDoc = feMain.splitedExamDocMap.get('content' + enforceDocInfo.contentNumber);
+      await feMain.feEditor2.openByJSON(splitedExamDoc.hwpJson);
 
-  for (const enforceDocInfo of enforceDocInfos) {
-    //
-    const splitedExamDoc = feMain.splitedExamDocMap.get('content' + enforceDocInfo.contentNumber);
-    await feMain.feEditor2.openByJSON(splitedExamDoc.hwpJson);
+      // submit전에 문서에 표시할 내용들
+      feMain.feEditor2.putFieldText(Cell.DOC_NUM, getText(enforceDocInfo.hox, 'docInfo docNumber displayDocNumber')); // 문서번호
+      feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(enforceDocInfo.hox, 'docInfo enforceDate')); // 시행일자
 
-    // submit전에 문서에 표시할 내용들
-    feMain.feEditor2.putFieldText(Cell.DOC_NUM, getText(enforceDocInfo.hox, 'docInfo docNumber displayDocNumber')); // 문서번호
-    feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(enforceDocInfo.hox, 'docInfo enforceDate')); // 시행일자
+      const downloadURL = await feMain.feEditor2.saveServer(enforceDocInfo.apprID);
+      const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
+      if (!bodyFileInfo.ok) {
+        console.error('downloadURL=%s, bodyFileInfo=%s', downloadURL, bodyFileInfo);
+        throw new Error('웹한글 파일 저장 오류.');
+      }
 
-    const downloadURL = await feMain.feEditor2.saveServer(enforceDocInfo.apprID);
+      formData.append('ref_' + IDUtils.getObjectID(enforceDocInfo.apprID, 1), bodyFileInfo.TRID);
+      formData.append('block_' + IDUtils.getObjectID(enforceDocInfo.apprID, 2), serializeXmlToString(enforceDocInfo.hox));
+
+      sendApprIDs.push(enforceDocInfo.apprID);
+    }
+    if (sendApprIDs.length > 0) {
+      formData.append('sendApprID', sendApprIDs.join(','));
+    }
+  } else {
+    // 단일안
+    feMain.feEditor2.putFieldText(Cell.DOC_NUM, getText(feMain.hox, 'docInfo docNumber displayDocNumber')); // 문서번호
+    feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(feMain.hox, 'docInfo enforceDate')); // 시행일자
+
+    const downloadURL = await feMain.feEditor2.saveServer(apprID);
     const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
     if (!bodyFileInfo.ok) {
       console.error('downloadURL=%s, bodyFileInfo=%s', downloadURL, bodyFileInfo);
       throw new Error('웹한글 파일 저장 오류.');
     }
 
-    formData.append('ref_' + IDUtils.getObjectID(enforceDocInfo.apprID, 1), bodyFileInfo.TRID);
-    formData.append('block_' + IDUtils.getObjectID(enforceDocInfo.apprID, 2), serializeXmlToString(enforceDocInfo.hox));
-
-    sendApprIDs.push(enforceDocInfo.apprID);
-  }
-  if (sendApprIDs.length > 0) {
-    formData.append('sendApprID', sendApprIDs.join(','));
+    // 원문 hox
+    formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyFileInfo.TRID);
+    formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeXmlToString(feMain.hox));
+    formData.append('sendApprID', apprID);
   }
 
   let url = `${PROJECT_CODE}/com/hs/gwweb/appr/manageDocSndngEnfoce.act`;
