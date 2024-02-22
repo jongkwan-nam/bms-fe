@@ -1,4 +1,4 @@
-import FeOrgTree from '../tree/FeOrgTree';
+import FeSancOrgTree from '../tree/FeSancOrgTree';
 import { getNodes, getText } from '../utils/xmlUtils';
 import './FeFlow.scss';
 import './flowInfo/FeParticipantList';
@@ -32,8 +32,8 @@ export default class FeFlow extends HTMLElement {
     this.shadowRoot.append(link, wrapper);
 
     // 트리 생성
-    this.feOrgTree = this.shadowRoot.querySelector('.tree').appendChild(new FeOrgTree());
-    this.feOrgTree.addEventListener('select', (e) => {
+    this.feSancOrgTree = this.shadowRoot.querySelector('.tree').appendChild(new FeSancOrgTree());
+    this.feSancOrgTree.addEventListener('select', (e) => {
       // TODO 중복 사용자를 추가할 방법!
       if (e.detail.isSelected) {
         this.feParticipantlist.add(e.detail.dtnode);
@@ -41,7 +41,7 @@ export default class FeFlow extends HTMLElement {
         this.feParticipantlist.delete(e.detail.dtnode);
       }
     });
-    this.feOrgTree.addEventListener('lazy', (e) => {
+    this.feSancOrgTree.addEventListener('lazy', (e) => {
       this.#matchTreeAndHox();
     });
 
@@ -50,7 +50,7 @@ export default class FeFlow extends HTMLElement {
     this.feParticipantlist.addEventListener('delete', (e) => {
       console.log('Event', e.type, e.target, e);
       let id = e.detail.id;
-      this.feOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
+      this.feSancOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(false, false);
     });
   }
 
@@ -73,7 +73,7 @@ export default class FeFlow extends HTMLElement {
   #matchTreeAndHox() {
     getNodes(this.hox, 'approvalFlow participant').forEach((participant) => {
       let id = getText(participant, 'ID');
-      this.feOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
+      this.feSancOrgTree.dynatree.dynatree('getRoot').tree.getNodeByKey(id)?._select(true, false);
     });
   }
 }

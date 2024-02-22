@@ -1,0 +1,53 @@
+fe-pubshowlist {
+  position: relative;
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.fe-pubshowlist {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 3rem 1fr;
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    line-height: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+
+    label {
+      margin: 0;
+    }
+
+    div {
+      display: flex;
+
+      button {
+        border: 1px solid var(--color-border);
+        padding-bottom: 4px;
+
+        &#downBtn {
+          margin-left: -1px;
+        }
+      }
+    }
+  }
+
+  ul {
+    overflow: auto;
+    li {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+
+      fe-rec:not(:defined) {
+        display: none;
+      }
+      fe-rec:defined {
+        display: block;
+      }
+    }
+  }
+}

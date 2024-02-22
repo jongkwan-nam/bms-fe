@@ -1,0 +1,31 @@
+fe-pubshowdialog {
+  position: relative;
+  display: block;
+}
+
+.fe-pubshowdialog {
+  background-color: var(--color-bg);
+  padding: 1rem;
+  width: 46rem;
+  height: 48rem;
+
+  display: grid;
+  grid-template-rows: 2.5rem 1fr 2.5rem;
+
+  .header {
+    font-weight: 700;
+    border-bottom: 1px solid var(--color-border);
+    line-height: 2.5rem;
+  }
+
+  .body {
+    overflow: hidden;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-border);
+    padding: 0.5rem 0 0;
+  }
+}

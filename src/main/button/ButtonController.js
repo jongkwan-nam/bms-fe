@@ -9,6 +9,7 @@ import DraftButton from './DraftButton';
 import HoldButton from './HoldButton';
 import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
+import PubshowButton from './PubshowButton';
 import RejectButton from './RejectButton';
 import SaveHwpButton from './SaveHwpButton';
 import SaveHwpDistButton from './SaveHwpDistButton';
@@ -40,6 +41,8 @@ export default class ButtonController {
         this.#append(new SummaryButton());
         // 의견
         this.#append(new CommentButton());
+        // 공람
+        this.#append(new PubshowButton());
         // 임시저장
         // 안추가
         this.#append(new MultiContentButton());

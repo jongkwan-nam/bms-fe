@@ -1,0 +1,44 @@
+fe-pubshow {
+  position: relative;
+  display: block;
+}
+
+.fe-pubshow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+
+  .info {
+    flex: 1 1 auto;
+
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .img-profile {
+      display: inline-block;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      background-size: contain;
+      background-position: 50% 15%;
+    }
+    .name {
+      font-weight: bold;
+    }
+    .rank {
+      font-weight: normal;
+      font-size: 0.75rem;
+    }
+    .team {
+      font-weight: normal;
+      font-size: 0.75rem;
+    }
+  }
+
+  .close {
+    width: 2.5rem;
+  }
+}

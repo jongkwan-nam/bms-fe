@@ -1,11 +1,11 @@
 import FeDynatree from './FeDynaTree';
-import './FeOrgTree.scss';
+import './FeSancOrgTree.scss';
 
 /**
- * 조직도 트리 - 일반용
+ * 조직도 트리 - 결재용
  */
-export default class FeOrgTree extends FeDynatree {
-  title = 'orgTree';
+export default class FeSancOrgTree extends FeDynatree {
+  title = 'sancOrgTree';
   checkbox = true;
   selectMode = 2;
   clickFolderMode = 1;
@@ -68,7 +68,18 @@ export default class FeOrgTree extends FeDynatree {
 
   onRender(dtnode, nodeSpan) {
     console.debug('onRender', dtnode, nodeSpan);
+    //
+    if (dtnode.data.rbox == 'false') {
+      dtnode.data.unselectable = true;
+      nodeSpan.classList.add('ui-dynatree-notuse');
+    } else {
+      nodeSpan.classList.add('ui-dynatree-rbox-have');
+    }
+    // 부재
+    if (!dtnode.data.isFolder && dtnode.data.absent) {
+      nodeSpan.innerHTML += `<a onclick="orgPopup.viewUserAbsent('${dtnode.data.key}')" class='usr_attnd'>${GWWEBMessage.W3156}</a>`;
+    }
   }
 }
 
-customElements.define('fe-orgtree', FeOrgTree);
+customElements.define('fe-sancorgtree', FeSancOrgTree);
