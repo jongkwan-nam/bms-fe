@@ -1,5 +1,5 @@
 import { existsFlag } from '../../utils/xmlUtils';
-import { FeMode } from '../FeMode';
+import { FeMode, getFeMode } from '../FeMode';
 
 export default class SummaryButton extends HTMLButtonElement {
   constructor() {
@@ -18,7 +18,7 @@ export default class SummaryButton extends HTMLButtonElement {
         - false 미면 요약이 있을때만 보이기
       보기는 요약이 있을때만 보이기
      */
-    switch (feMain.feMode) {
+    switch (getFeMode()) {
       case FeMode.KYUL: {
         if (!doccfg.summaryAddableApprover) {
           // 요약이 없으면

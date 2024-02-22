@@ -1,7 +1,7 @@
 import StyleController from './config/styleController';
 import Cell from './main/CellNames';
 import './main/FeEditor';
-import { FeMode } from './main/FeMode';
+import { FeMode, getFeMode } from './main/FeMode';
 import './summaryBox.scss';
 import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
@@ -32,7 +32,7 @@ let nodeObjectIDOfSummary = null; // 요약의 objectID 노드
   feEditor.show();
 
   let summaryURL = null;
-  switch (feMain.feMode) {
+  switch (getFeMode()) {
     case FeMode.DRAFT: {
       // 작성하던 요약이 있으면, feMain으로부터 open url 구하기
       if (feMain.summary.filePath !== null) {
