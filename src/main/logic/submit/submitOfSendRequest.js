@@ -127,10 +127,10 @@ export default async () => {
     feMain.feEditor2.putFieldText(Cell.DOC_NUM, getText(enforceDocInfo.hox, 'docInfo docNumber displayDocNumber')); // 문서번호
     feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(enforceDocInfo.hox, 'docInfo enforceDate')); // 시행일자
 
-    const downloadURL = await feMain.feEditor2.saveServer(enforceDocInfo.apprID);
-    const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
+    const saveRet = await feMain.feEditor2.saveServer(enforceDocInfo.apprID);
+    const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
     if (!bodyFileInfo.ok) {
-      console.error('downloadURL=%s, bodyFileInfo=%s', downloadURL, bodyFileInfo);
+      console.error('downloadURL=%s, bodyFileInfo=%s', saveRet.downloadURL, bodyFileInfo);
       throw new Error('웹한글 파일 저장 오류.');
     }
 

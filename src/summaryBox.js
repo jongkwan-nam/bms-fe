@@ -105,8 +105,8 @@ window.onerror = (error) => {
 
 document.querySelector('#btnSave').addEventListener('click', async () => {
   // 저장
-  const downloadURL = await feEditor.saveServer(apprID + '_summary');
-  const { ok, location, TRID, size } = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
+  const saveRet = await feEditor.saveServer(apprID + '_summary');
+  const { ok, location, TRID, size } = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
   console.log('summaryFileInfo', ok, location, TRID, size);
   if (!ok) {
     throw new Error('요약전 저장 실패');

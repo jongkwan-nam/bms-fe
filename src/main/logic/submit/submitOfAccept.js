@@ -58,10 +58,10 @@ export default async () => {
 
   const apprID = getText(hox, 'apprID');
   const orgApprID = getText(hox, 'orgApprID');
-  const downloadURL = await feEditor1.saveServer(apprID);
-  const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${downloadURL}`).then((res) => res.json());
+  const saveRet = await feEditor1.saveServer(apprID);
+  const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
   if (!bodyFileInfo.ok) {
-    console.error('downloadURL=%d, bodyFileInfo=%d', downloadURL, bodyFileInfo);
+    console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, bodyFileInfo);
     throw new Error('웹한글 파일 저장 오류.');
   }
   const bodyTRID = bodyFileInfo.TRID;

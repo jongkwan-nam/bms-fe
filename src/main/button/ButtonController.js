@@ -42,12 +42,16 @@ export default class ButtonController {
         this.#append(new SummaryButton());
         // 의견
         this.#append(new CommentButton());
+        // 관련문서
         // 공람
         this.#append(new PubshowButton());
         // 임시저장
         // 안추가
         this.#append(new MultiContentButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
+        this.#append(new SaveHwpDistButton());
+        this.#append(new SaveHwpxButton());
+        this.#append(new SaveHwpButton());
         // 인쇄
         break;
       }
@@ -68,6 +72,9 @@ export default class ButtonController {
         this.#append(new CommentButton());
         // 메일쓰기
         // PC저장, PC저장(배포용), PC저장(hwpx)
+        this.#append(new SaveHwpDistButton());
+        this.#append(new SaveHwpxButton());
+        this.#append(new SaveHwpButton());
         // 인쇄
         break;
       }
@@ -106,6 +113,7 @@ export default class ButtonController {
         // 요약
         this.#append(new SummaryButton());
         // PC저장
+        this.#append(new SaveHwpDistButton());
         // 인쇄
         break;
       }
@@ -128,6 +136,7 @@ export default class ButtonController {
         // 결재정보
         this.#append(new ApprovalBoxButton());
         // PC저장
+        this.#append(new SaveHwpDistButton());
         // 인쇄
         break;
       }

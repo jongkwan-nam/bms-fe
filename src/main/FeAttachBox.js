@@ -13,9 +13,12 @@
  * 첨부 순서 및 안 이동 기능
  */
 
+import syncFetch from 'sync-fetch';
 import FileUtils from '../utils/FileUtils';
+import IDUtils from '../utils/IDUtils';
 import StringUtils from '../utils/StringUtils';
-import { HoxEventType, getAttr, getNodes, getNumber } from '../utils/xmlUtils';
+import { HoxEventType, getAttr, getNodes, getNumber, getText } from '../utils/xmlUtils';
+import Cell from './CellNames';
 import './FeAttachBox.scss';
 import { FeMode, getFeMode } from './FeMode';
 import FeAttach from './attach/FeAttach';
@@ -201,7 +204,79 @@ export default class FeAttachBox extends HTMLElement {
     // 문서함
     this.cabinetSelector.addEventListener('click', (e) => {
       // 문서함 선택 화면 팝업
+      const url = `${PROJECT_CODE}/com/hs/gwweb/list/retrievePopDocMainList.act?APPLID=8010&applId=8010&APPLTYPE=3&USS=1&userId=${rInfo.user.ID}&deptId=${rInfo.dept.ID}&userDeptId=${rInfo.user.deptID}&folderEndYear=${new Date().getFullYear()}&docAttach=Y&callbackFn=feMain.feAttachBox.cabinetSelectCallback`;
+      const windowProxy = window.open(url, 'docAttachBox', 'width=1000px,height=735px');
+      if (windowProxy === null) {
+        alert(GWWEBMessage.cmsg_1255); // 팝업이 차단되었습니다. 현재 사이트의 팝업을 허용하십시오.
+      }
     });
+  }
+
+  async cabinetSelectCallback(apprIds) {
+    console.log('cabinetSelectCallback', apprIds);
+    const idList = apprIds.split(',').filter((id) => StringUtils.isNotBlank(id));
+    /*
+      문서정보 조회 /bms/com/hs/gwweb/appr/retrieveDocInfo.act?apprID=
+      > 한글 문서: extraEditor에 본문 오픈 > 사인,관인 제거 > 서버 업로드 > trid
+      > html 문서: 본문TRID
+    */
+    for (const apprId of idList) {
+      const docInfo = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveDocInfo.act?apprID=${apprId}`).json();
+      console.log('docInfo', docInfo);
+      if (!docInfo.ok) {
+        throw new Error('문서함 문서 정보 구하기 오류');
+      }
+
+      const fileObj = {
+        orgFileName: docInfo.title,
+        attachFileSize: 0,
+        fileID: null,
+      };
+
+      if ('3' === docInfo.wordtype || '5' === docInfo.wordtype) {
+        // 클라, 웹한글
+
+        // 문서 열기
+        const editor = await feMain.getEditor4Extra();
+        const docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(apprId, 1)}&sancApprID=${apprId}&APPLID=${rInfo.applID}&WORDTYPE=${docInfo.wordtype}&K=${szKEY}&_NOARG=${Date.now()}`;
+        await editor.open(docURL);
+
+        // 서명셀 제거
+        getNodes(feMain.hox, 'clientInfo cellInfo cell').forEach((cell) => {
+          const signCellName = getText(cell, 'cellName');
+          editor.putFieldText(signCellName, '');
+        });
+
+        // 관인셀 제거
+        editor.putFieldText(Cell.SEAL_STAMP, '');
+        editor.putFieldText(Cell.SEAL_OMISSION, '');
+
+        // 서버로 저장
+        const saveRet = await editor.saveServer(apprId);
+        const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
+        if (!bodyFileInfo.ok) {
+          console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, bodyFileInfo);
+          throw new Error('웹한글 파일 저장 오류.');
+        }
+
+        fileObj.orgFileName += '.hwp';
+        fileObj.attachFileSize = saveRet.size;
+        fileObj.fileID = bodyFileInfo.TRID;
+
+        this.uploadSuccessCallback({ files: [fileObj] });
+      } else {
+        // 그외, html
+        const signClearedSancFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSignClearedSancFile.act?UID=${rInfo.user.ID}&DID=${rInfo.dept.ID}&FID=${IDUtils.getObjectID(apprId, 1)}`).then((res) => res.json());
+        if (!signClearedSancFileInfo.ok) {
+          throw new Error('html 사인 제거 오류');
+        }
+        fileObj.orgFileName += '.mht';
+        fileObj.attachFileSize = signClearedSancFileInfo.size;
+        fileObj.fileID = signClearedSancFileInfo.TRID;
+
+        this.uploadSuccessCallback({ files: [fileObj] });
+      }
+    }
   }
 
   /**

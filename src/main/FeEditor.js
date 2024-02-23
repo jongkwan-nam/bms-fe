@@ -703,11 +703,20 @@ export default class FeEditor extends FeHwpCtrl {
    * @returns 다운로드 URL
    */
   async saveServer(fileName = '', format = 'HWP', arg = 'lock:FALSE;prvimage:0;prvtext:0;code:acp;') {
-    //
-    const ret = await super.saveAs(fileName, format, arg);
-
+    /*
+      {
+        "result": true,
+        "fileName": "346c4437-ba71-4927-a001-a8862dbe44f9.hwp",
+        "size": 12800,
+        "uniqueId": "245cdd98-aaab-4a57-ae48-128068ddfe26",
+        "resultCode": 0
+      }    
+    */
     // this.hwpServerUrl: 'https://fewebhwp.handysoft.co.kr/webhwpctrl/'
-    return `${this.hwpServerUrl}get/${ret.uniqueId}/${ret.fileName}`;
+    const ret = await super.saveAs(fileName, format, arg);
+    ret['downloadURL'] = `${this.hwpServerUrl}get/${ret.uniqueId}/${ret.fileName}`;
+
+    return ret;
   }
 
   /**
