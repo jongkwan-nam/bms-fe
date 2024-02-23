@@ -11,6 +11,7 @@ import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
 import PubshowButton from './PubshowButton';
 import RejectButton from './RejectButton';
+import RelationDocButton from './RelationDocButton';
 import SaveHwpButton from './SaveHwpButton';
 import SaveHwpDistButton from './SaveHwpDistButton';
 import SaveHwpxButton from './SaveHwpxButton';
@@ -43,6 +44,7 @@ export default class ButtonController {
         // 의견
         this.#append(new CommentButton());
         // 관련문서
+        this.#append(new RelationDocButton());
         // 공람
         this.#append(new PubshowButton());
         // 임시저장
