@@ -20,6 +20,11 @@ fe-relationdocdialog {
 
   .body {
     overflow: hidden;
+
+    .item {
+      display: grid;
+      grid-template-columns: 7rem 1fr 6rem 6rem 6rem;
+    }
   }
 
   .footer {
