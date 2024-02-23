@@ -15,6 +15,7 @@ import SaveHwpButton from './SaveHwpButton';
 import SaveHwpDistButton from './SaveHwpDistButton';
 import SaveHwpxButton from './SaveHwpxButton';
 import SendControlButton from './SendControlButton';
+import SendRejectButton from './SendRejectButton';
 import SendRequestButton from './SendRequestButton';
 import StampSealButton from './StampSealButton';
 import StopButton from './StopButton';
@@ -123,6 +124,7 @@ export default class ButtonController {
         // 발송처리
         this.#append(new SendControlButton());
         // 반송
+        this.#append(new SendRejectButton());
         // 결재정보
         this.#append(new ApprovalBoxButton());
         // PC저장

@@ -212,7 +212,9 @@ class FeMain {
 
       // 발송처리: 안 선택기 표시
       this.feContentNavigator = document.querySelector('main').appendChild(new FeContentNavigator());
-      this.feContentNavigator.classList.add('show');
+      if (getNodes(this.hox, 'content').length > 1) {
+        this.feContentNavigator.classList.add('show');
+      }
     }
 
     /* ------------------------------------------------------------------------
