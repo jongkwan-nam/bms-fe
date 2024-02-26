@@ -324,10 +324,10 @@ export default class FeEditor extends FeHwpCtrl {
    * 편집 모드를 변경한다.
    *
    * @param {number} mode 편집모드
-   * - 0: 읽기 전용
-   * - 1: 일반 편집 모드
-   * - 2: 양식 모드. Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진것만 편집 가능
-   * - 16: 배포용 문서(SetEditMode로 지정 불가능)
+   * -  0: EDITMODE_READONLY   읽기 전용
+   * -  1: EDITMODE_NORMAL     일반 편집 모드
+   * -  2: EDITMODE_USEFORM    양식 모드. Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진것만 편집 가능
+   * - 16: EDITMODE_DISTRIBUTE 배포용 문서(SetEditMode로 지정 불가능)
    */
   setEditMode(mode) {
     this.hwpCtrl.EditMode = mode;
@@ -837,7 +837,11 @@ export default class FeEditor extends FeHwpCtrl {
     this.hwpCtrl.MoveToField(Cell.CBODY, true, true, true);
     await super.run('Erase');
 
+    super.toggleViewOptionCtrkMark(true);
+    this.setEditMode(1);
     await super.setTextFile(jsonData, 'JSON', 'insertfile');
+    this.setEditMode(2);
+    super.toggleViewOptionCtrkMark(false);
   }
 
   focusToField(cellName) {
