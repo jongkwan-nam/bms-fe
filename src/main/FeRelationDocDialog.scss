@@ -16,14 +16,25 @@ fe-relationdocdialog {
     font-weight: 700;
     border-bottom: 1px solid var(--color-border);
     line-height: 2.5rem;
+
+    display: flex;
+    justify-content: space-between;
   }
 
   .body {
-    overflow: hidden;
+    overflow: scroll;
 
     .item {
       display: grid;
-      grid-template-columns: 7rem 1fr 6rem 6rem 6rem;
+      grid-template-columns: 7rem 1fr 6rem 6rem 6rem 2rem;
+      padding: 0.25rem;
+
+      &.head {
+        position: sticky;
+        top: 0;
+        background-color: var(--color-bg);
+        font-weight: 600;
+      }
     }
   }
 

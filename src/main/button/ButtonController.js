@@ -72,6 +72,8 @@ export default class ButtonController {
         this.#append(new SummaryButton());
         // 의견
         this.#append(new CommentButton());
+        // 관련문서
+        this.#append(new RelationDocButton());
         // 메일쓰기
         // PC저장, PC저장(배포용), PC저장(hwpx)
         this.#append(new SaveHwpDistButton());
@@ -94,6 +96,8 @@ export default class ButtonController {
         this.#append(new SummaryButton());
         // 의견
         this.#append(new CommentButton());
+        // 관련문서
+        this.#append(new RelationDocButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
         this.#append(new SaveHwpDistButton());
         this.#append(new SaveHwpxButton());
@@ -114,6 +118,8 @@ export default class ButtonController {
         this.#append(new ApprovalBoxButton());
         // 요약
         this.#append(new SummaryButton());
+        // 관련문서
+        this.#append(new RelationDocButton());
         // PC저장
         this.#append(new SaveHwpDistButton());
         // 인쇄

@@ -35,3 +35,4 @@
   <article class="attach-wrap"></article>
 </main>
 <aside id="approvalBox" class="modal-container"></aside>
+<div id="hiddenContainer" style="display: none !important"></div>
