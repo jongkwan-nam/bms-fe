@@ -9,6 +9,7 @@ import DraftButton from './DraftButton';
 import HoldButton from './HoldButton';
 import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
+import PCFileLoadButton from './PCFileLoadButton';
 import PubshowButton from './PubshowButton';
 import RejectButton from './RejectButton';
 import RelationDocButton from './RelationDocButton';
@@ -37,6 +38,7 @@ export default class ButtonController {
         // 결재올림
         this.#append(new DraftButton());
         // 읽어오기
+        this.#append(new PCFileLoadButton());
         // 결재정보
         this.#append(new ApprovalBoxButton());
         // 요약

@@ -820,6 +820,26 @@ export default class FeEditor extends FeHwpCtrl {
     return this.hwpCtrl.GetFieldText(`${Cell.CBODY}{{${contentNumber - 1}}}`);
   }
 
+  /**
+   * 본문셀의 내용을 json 형식으로 구한다
+   * @returns
+   */
+  async getCellBodyAsJSON() {
+    this.hwpCtrl.MoveToField(Cell.CBODY, true, true, true);
+    return await super.getTextFile('JSON', 'saveblock');
+  }
+
+  /**
+   * json 형식 내용을 본문셀에 설정. 기존 내용 삭제함
+   * @param {string} jsonData
+   */
+  async setCellBodyAsJSON(jsonData) {
+    this.hwpCtrl.MoveToField(Cell.CBODY, true, true, true);
+    await super.run('Erase');
+
+    await super.setTextFile(jsonData, 'JSON', 'insertfile');
+  }
+
   focusToField(cellName) {
     this.hwpCtrl.MoveToFieldEx(cellName, true, true, false);
   }
@@ -857,6 +877,10 @@ export default class FeEditor extends FeHwpCtrl {
   }
   get title() {
     return this.hwpCtrl.GetFieldText(Cell.DOC_TITLE);
+  }
+
+  get cbody() {
+    return this.hwpCtrl.GetFieldText(Cell.CBODY);
   }
 
   set modified(val) {

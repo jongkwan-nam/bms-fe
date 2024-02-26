@@ -146,7 +146,7 @@ export default class FeHwpCtrl extends HTMLElement {
    *
    * @param {string} data 문자열로 변경된 text
    * @param {*} format 형식
-   * @param {*} option [insertfile: 현재 커서 이루에 삽입]
+   * @param {*} option [insertfile: 현재 커서 이후에 삽입]
    * @returns
    */
   async setTextFile(data, format, option) {

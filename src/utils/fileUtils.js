@@ -76,4 +76,13 @@ export default class FileUtils {
         return 'file-o';
     }
   }
+
+  /**
+   * 확장자
+   * @param {string} name
+   * @returns
+   */
+  static getExtension(name) {
+    return name.substring(name.lastIndexOf('.') + 1);
+  }
 }
