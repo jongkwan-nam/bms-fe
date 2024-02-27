@@ -38,126 +38,82 @@ export default class ButtonController {
     const feMode = getFeMode();
     switch (feMode) {
       case FeMode.DRAFT: {
-        // 결재올림
-        this.#append(new DraftButton());
-        // 읽어오기
-        this.#append(new PCFileLoadButton());
-        // 결재정보
-        this.#append(new ApprovalBoxButton());
-        // 요약
-        this.#append(new SummaryButton());
-        // 의견
-        this.#append(new CommentButton());
-        // 관련문서
-        this.#append(new RelationDocButton());
-        // 공람
-        this.#append(new PubshowButton());
-        // 임시저장
-        this.#append(new TmprDocSaveButton());
-        // 안추가
-        this.#append(new MultiContentButton());
-        // PC저장, PC저장(배포용), PC저장(hwpx)
-        this.#append(new SaveHwpDistButton());
-        this.#append(new SaveHwpxButton());
-        this.#append(new SaveHwpButton());
+        this.#append(new DraftButton()); // 결재올림
+        this.#append(new PCFileLoadButton()); // 읽어오기
+        this.#append(new ApprovalBoxButton()); // 결재정보
+        this.#append(new SummaryButton()); // 요약
+        this.#append(new CommentButton()); // 의견
+        this.#append(new RelationDocButton()); // 관련문서
+        this.#append(new PubshowButton()); // 공람
+        this.#append(new TmprDocSaveButton()); // 임시저장
+        this.#append(new MultiContentButton()); // 안추가
+        this.#append(new SaveHwpDistButton()); // PC저장(배포용)
+        this.#append(new SaveHwpxButton()); // PC저장(hwpx)
+        this.#append(new SaveHwpButton()); // PC저장
         // 인쇄
         break;
       }
       case FeMode.KYUL: {
-        // 결재
-        this.#append(new KyulButton());
-        // 반려
-        this.#append(new RejectButton());
-        // 중단
-        this.#append(new StopButton());
-        // 보류
-        this.#append(new HoldButton());
-        // 결재정보
-        this.#append(new ApprovalBoxButton());
-        // 요약
-        this.#append(new SummaryButton());
-        // 의견
-        this.#append(new CommentButton());
-        // 관련문서
-        this.#append(new RelationDocButton());
-        // 메일쓰기
-        this.#append(new SendMainButton());
-        // PC저장, PC저장(배포용), PC저장(hwpx)
-        this.#append(new SaveHwpDistButton());
-        this.#append(new SaveHwpxButton());
-        this.#append(new SaveHwpButton());
+        this.#append(new KyulButton()); // 결재
+        this.#append(new RejectButton()); // 반려
+        this.#append(new StopButton()); // 중단
+        this.#append(new HoldButton()); // 보류
+        this.#append(new ApprovalBoxButton()); // 결재정보
+        this.#append(new SummaryButton()); // 요약
+        this.#append(new CommentButton()); // 의견
+        this.#append(new RelationDocButton()); // 관련문서
+        this.#append(new SendMainButton()); // 메일쓰기
+        this.#append(new SaveHwpDistButton()); // PC저장(배포용)
+        this.#append(new SaveHwpxButton()); // PC저장(hwpx)
+        this.#append(new SaveHwpButton()); // PC저장
         // 인쇄
         break;
       }
       case FeMode.VIEW: {
         // 재작성: 문서함에서 열었을때
         // 재발송
-        // 공람지정
-        this.#append(new PubshowButton());
+        this.#append(new PubshowButton()); // 공람지정
         // 본문복사
-        // 메일쓰기
-        this.#append(new SendMainButton());
-        // 게시하기
-        this.#append(new SendBbsButton());
+        this.#append(new SendMainButton()); // 메일쓰기
+        this.#append(new SendBbsButton()); // 게시하기
         // 회수
-        // 결재정보
-        this.#append(new ApprovalBoxButton());
-        // 요약
-        this.#append(new SummaryButton());
-        // 의견
-        this.#append(new CommentButton());
-        // 관련문서
-        this.#append(new RelationDocButton());
-        // PC저장, PC저장(배포용), PC저장(hwpx)
-        this.#append(new SaveHwpDistButton());
-        this.#append(new SaveHwpxButton());
-        this.#append(new SaveHwpButton());
+        this.#append(new ApprovalBoxButton()); // 결재정보
+        this.#append(new SummaryButton()); // 요약
+        this.#append(new CommentButton()); // 의견
+        this.#append(new RelationDocButton()); // 관련문서
+        this.#append(new SaveHwpDistButton()); // PC저장(배포용)
+        this.#append(new SaveHwpxButton()); // PC저장(hwpx)
+        this.#append(new SaveHwpButton()); // PC저장
         // 인쇄
         break;
       }
       case FeMode.ACCEPT: {
-        // 접수
-        this.#append(new AcceptButton());
-        // 지정
-        this.#append(new AssignDocButton());
-        // 배부
-        this.#append(new DeliverDocButton());
-        // 반송
-        this.#append(new AcceptRejectButton());
-        // 결재정보
-        this.#append(new ApprovalBoxButton());
-        // 요약
-        this.#append(new SummaryButton());
-        // 관련문서
-        this.#append(new RelationDocButton());
-        // PC저장
-        this.#append(new SaveHwpDistButton());
+        this.#append(new AcceptButton()); // 접수
+        this.#append(new AssignDocButton()); // 지정
+        this.#append(new DeliverDocButton()); // 배부
+        this.#append(new AcceptRejectButton()); // 반송
+        this.#append(new ApprovalBoxButton()); // 결재정보
+        this.#append(new SummaryButton()); // 요약
+        this.#append(new RelationDocButton()); // 관련문서
+        this.#append(new SaveHwpDistButton()); // PC저장(배포용)
         // 인쇄
         break;
       }
       case FeMode.REQUEST: {
-        // 발송의뢰
-        this.#append(new SendRequestButton());
-        // 결재정보
-        this.#append(new ApprovalBoxButton());
-        // PC저장, PC저장(배포용), PC저장(hwpx)
-        this.#append(new SaveHwpDistButton());
-        this.#append(new SaveHwpxButton());
-        this.#append(new SaveHwpButton());
+        this.#append(new SendRequestButton()); // 발송의뢰
+        this.#append(new ApprovalBoxButton()); // 결재정보
+        this.#append(new SaveHwpDistButton()); // PC저장(배포용)
+        this.#append(new SaveHwpxButton()); // PC저장(hwpx)
+        this.#append(new SaveHwpButton()); // PC저장
         // 인쇄
         break;
       }
       case FeMode.CONTROL: {
-        // 관인
-        this.#append(new StampSealButton());
-        // 발송처리
-        this.#append(new SendControlButton());
-        // 반송
-        this.#append(new SendRejectButton());
-        // 결재정보
-        this.#append(new ApprovalBoxButton());
-        // PC저장
-        this.#append(new SaveHwpDistButton());
+        this.#append(new StampSealButton()); // 관인
+        this.#append(new SendControlButton()); // 발송처리
+        this.#append(new SendRejectButton()); // 반송
+        this.#append(new ApprovalBoxButton()); // 결재정보
+        this.#append(new SaveHwpDistButton()); // PC저장
         // 인쇄
         break;
       }
