@@ -16,7 +16,9 @@ import RelationDocButton from './RelationDocButton';
 import SaveHwpButton from './SaveHwpButton';
 import SaveHwpDistButton from './SaveHwpDistButton';
 import SaveHwpxButton from './SaveHwpxButton';
+import SendBbsButton from './SendBbsButton';
 import SendControlButton from './SendControlButton';
+import SendMainButton from './SendMainButton';
 import SendRejectButton from './SendRejectButton';
 import SendRequestButton from './SendRequestButton';
 import StampSealButton from './StampSealButton';
@@ -79,6 +81,7 @@ export default class ButtonController {
         // 관련문서
         this.#append(new RelationDocButton());
         // 메일쓰기
+        this.#append(new SendMainButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
         this.#append(new SaveHwpDistButton());
         this.#append(new SaveHwpxButton());
@@ -90,9 +93,12 @@ export default class ButtonController {
         // 재작성: 문서함에서 열었을때
         // 재발송
         // 공람지정
+        this.#append(new PubshowButton());
         // 본문복사
         // 메일쓰기
+        this.#append(new SendMainButton());
         // 게시하기
+        this.#append(new SendBbsButton());
         // 회수
         // 결재정보
         this.#append(new ApprovalBoxButton());
@@ -135,6 +141,9 @@ export default class ButtonController {
         // 결재정보
         this.#append(new ApprovalBoxButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)
+        this.#append(new SaveHwpDistButton());
+        this.#append(new SaveHwpxButton());
+        this.#append(new SaveHwpButton());
         // 인쇄
         break;
       }

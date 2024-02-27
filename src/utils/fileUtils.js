@@ -85,4 +85,14 @@ export default class FileUtils {
   static getExtension(name) {
     return name.substring(name.lastIndexOf('.') + 1);
   }
+
+  /**
+   * PC저장이 가능한 이름으로 변경한다
+   * @param {string} name
+   * @returns
+   */
+  static getValidFilename(name) {
+    const forbiddenChars = new RegExp('[\\\\/:*?"\'<>|#]', 'g');
+    return name.replace(forbiddenChars, '_').trim();
+  }
 }
