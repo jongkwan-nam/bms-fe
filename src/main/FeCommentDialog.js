@@ -29,7 +29,7 @@ export default class FeCommentDialog extends HTMLElement {
         <ul></ul>
       </div>
       <div class="comment-write">
-        <textarea></textarea>
+        <textarea placeholder="${GWWEBMessage.cmsg_0069}"></textarea>
         <label><span class="comment-length">0</span>/${window.commentLengthMaxSize}</label>
         <button type="button" class="btn" id="btnWrite">${GWWEBMessage.W3215}
       </div>

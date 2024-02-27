@@ -6,6 +6,7 @@ import { getText, setText } from '../../../utils/xmlUtils';
  * - 기존 값이 있으면, Error
  *
  * @param {XMLDocument} hox
+ * @returns apprid
  */
 export const doNewApprID = (hox) => {
   const currApprId = getText(hox, 'docInfo apprID');
@@ -15,6 +16,7 @@ export const doNewApprID = (hox) => {
   const newApprId = IDUtils.getSancMsgID();
   console.debug('new apprID', newApprId);
   setText(hox, 'docInfo apprID', newApprId);
+  return newApprId;
 };
 
 /**

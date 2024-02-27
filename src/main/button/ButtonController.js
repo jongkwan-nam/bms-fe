@@ -22,6 +22,7 @@ import SendRequestButton from './SendRequestButton';
 import StampSealButton from './StampSealButton';
 import StopButton from './StopButton';
 import SummaryButton from './SummaryButton';
+import TmprDocSaveButton from './TmprDocSaveButton';
 
 /**
  * 상황에 맞쳐 버튼의 노출을 관리
@@ -50,6 +51,7 @@ export default class ButtonController {
         // 공람
         this.#append(new PubshowButton());
         // 임시저장
+        this.#append(new TmprDocSaveButton());
         // 안추가
         this.#append(new MultiContentButton());
         // PC저장, PC저장(배포용), PC저장(hwpx)

@@ -113,4 +113,14 @@ export default class StringUtils {
     }
     return str;
   }
+
+  static formatMessage(message, ...args) {
+    if (args.length === 0) {
+      return message;
+    }
+    for (let i = 0; i < args.length; i++) {
+      message = message.replace(new RegExp('\\{' + i + '\\}', 'gi'), args[i]);
+    }
+    return message;
+  }
 }
