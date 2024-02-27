@@ -1,7 +1,6 @@
 <%@ page language="java" pageEncoding="utf-8" contentType="text/html; charset=utf-8" %>
 
 <link rel="stylesheet" type="text/css" href="/bms/fe/main.css" />
-<script type="text/javascript" src="/bms/js/com/hs/gwweb/appr/retrieveMessage.act"></script>
 <script defer type="text/javascript" src="/bms/fe/main.js"></script>
 <script>
   // 신규 메시지 추가
