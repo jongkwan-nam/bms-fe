@@ -8,6 +8,7 @@
 
 import FeConfig from './config/FeConfig';
 import './main.scss';
+import { addActionLogView } from './main/ActionLog';
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
 import FeContentNavigator from './main/FeContentNavigator';
@@ -28,7 +29,7 @@ import FeStorage from './utils/FeStorage';
 import { getCurrentParticipant } from './utils/HoxUtils';
 import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
-import { HoxEventType, dispatchHoxEvent, getNodes, loadXml } from './utils/xmlUtils';
+import { HoxEventType, dispatchHoxEvent, getNodes, getText, loadXml } from './utils/xmlUtils';
 
 class FeMain {
   hox = null; // Handy Office Xml
@@ -85,6 +86,8 @@ class FeMain {
 
           initiateHoxForKyul(this.hox);
           // TODO 현재 participant의 수정권한 여부로 readmode 설정
+
+          addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
         };
         break;
       }
@@ -98,6 +101,8 @@ class FeMain {
           this.feEditor1.setReadMode(true); // 읽기 전용
 
           initiateHoxForView(this.hox);
+
+          addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
         };
         break;
       }
@@ -125,6 +130,8 @@ class FeMain {
 
         postProcessFunction = () => {
           initiateHoxForRequest(this.hox);
+
+          addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
         };
         break;
       }
@@ -136,6 +143,8 @@ class FeMain {
 
         postProcessFunction = () => {
           initiateHoxForControl(this.hox);
+
+          addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
         };
         break;
       }

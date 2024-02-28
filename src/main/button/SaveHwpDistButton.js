@@ -1,3 +1,6 @@
+import { getText } from '../../utils/xmlUtils';
+import { addActionLogSave } from '../ActionLog';
+
 /**
  * PC저장(배포용)
  */
@@ -16,6 +19,8 @@ export default class SaveHwpDistButton extends HTMLButtonElement {
   async #doAction() {
     //
     feMain.feEditor1.saveDistributeHwp();
+
+    addActionLogSave(getText(feMain.hox, 'docInfo apprID'), getText(feMain.hox, 'docInfo title'));
   }
 }
 

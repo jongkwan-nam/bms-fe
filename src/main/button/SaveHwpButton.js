@@ -1,4 +1,5 @@
 import { getNodes, getText } from '../../utils/xmlUtils';
+import { addActionLogSave } from '../ActionLog';
 import Cell from '../CellNames';
 
 /**
@@ -34,6 +35,8 @@ export default class SaveHwpButton extends HTMLButtonElement {
 
     // hwpx로 다운로드
     editor.saveHwp();
+
+    addActionLogSave(getText(feMain.hox, 'docInfo apprID'), getText(feMain.hox, 'docInfo title'));
   }
 }
 

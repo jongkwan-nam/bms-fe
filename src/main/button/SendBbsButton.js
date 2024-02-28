@@ -1,4 +1,5 @@
 import { getNumber, getText } from '../../utils/xmlUtils';
+import { addActionLogSave } from '../ActionLog';
 
 /**
  * 게시하기 버튼
@@ -52,6 +53,8 @@ export default class SendBbsButton extends HTMLButtonElement {
     if (windowProxy === null) {
       alert(GWWEBMessage.cmsg_1255); // 팝업이 차단되었습니다. 현재 사이트의 팝업을 허용하십시오.
     }
+
+    addActionLogSave(apprID, title);
   }
 }
 

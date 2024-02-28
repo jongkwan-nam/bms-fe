@@ -1,4 +1,5 @@
 import { getText } from '../../utils/xmlUtils';
+import { addActionLogSave } from '../ActionLog';
 
 /**
  * 재작성 버튼
@@ -20,7 +21,10 @@ export default class ReWriteButton extends HTMLButtonElement {
   }
 
   async #doAction() {
-    let formID = getText(feMain.hox, 'docInfo formInfo formID');
+    const formID = getText(feMain.hox, 'docInfo formInfo formID');
+    const title = getText(feMain.hox, 'docInfo title');
+
+    addActionLogSave(rInfo.apprMsgID, title);
 
     const formRet = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveFormatInfo.act?formID=${formID}`).then((res) => res.json());
     if (formRet.ok) {
