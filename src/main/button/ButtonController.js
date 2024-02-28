@@ -12,6 +12,7 @@ import MultiContentButton from './MultiContentButton';
 import PCFileLoadButton from './PCFileLoadButton';
 import PubshowButton from './PubshowButton';
 import ReCallButton from './ReCallButton';
+import ReWriteButton from './ReWriteButton';
 import RejectButton from './RejectButton';
 import RelationDocButton from './RelationDocButton';
 import SaveHwpButton from './SaveHwpButton';
@@ -71,7 +72,7 @@ export default class ButtonController {
         break;
       }
       case FeMode.VIEW: {
-        // 재작성: 문서함에서 열었을때
+        this.#append(new ReWriteButton()); // 재작성: 문서함에서 열었을때
         // 재발송
         this.#append(new PubshowButton()); // 공람지정
         // 본문복사

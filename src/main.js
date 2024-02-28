@@ -61,6 +61,10 @@ class FeMain {
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}`;
 
+        if (IDUtils.isNotNullID(rInfo.apprMsgID)) {
+          docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&K=${szKEY}&WORDTYPE=${rInfo.WORDTYPE}`;
+        }
+
         postProcessFunction = () => {
           this.feEditor1.foldRibbon(false); // 리본메뉴
           this.feEditor1.setReadMode(false);

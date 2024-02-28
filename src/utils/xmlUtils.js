@@ -148,8 +148,8 @@ export const getNumber = (element, selectors, def) => {
  * @returns
  */
 export const getText = (element, selectors, unescapeXml = false) => {
-  let text = element.querySelector(selectors)?.textContent;
-  if (unescapeXml) {
+  let text = element.querySelector(selectors)?.textContent.trim();
+  if (text && unescapeXml) {
     return StringUtils.unescapeXml(text);
   }
   return text;
