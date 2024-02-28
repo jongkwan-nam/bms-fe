@@ -18,6 +18,7 @@
 
   // 신규 옵션 추가
   doccfg.summaryAddableApprover = true; // 결재자 요약전 추가 여부 설정 <대법원> [ false: 결재자가 요약전 새로 추가할 수 없음(default), true: 결재자가 요약전 새로 추가할 수 있음 ]
+  doccfg.disableViewerCancel = <c:out value="${disableViewerCancel}" default="true" />;
 
   // 테스트용 옵션값 수정
   doccfg.docViewRatio = 2;
@@ -26,6 +27,7 @@
 
   //
   rInfo.sendID = '<c:out value="${param.SENDIDLIST}"/>';
+  rInfo.docattr = '<c:out value="${param.DOCATTRLIST}"/>';
 </script>
 <main>
   <header class="menu-wrap"></header>

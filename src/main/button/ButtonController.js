@@ -11,6 +11,7 @@ import KyulButton from './KyulButton';
 import MultiContentButton from './MultiContentButton';
 import PCFileLoadButton from './PCFileLoadButton';
 import PubshowButton from './PubshowButton';
+import ReCallButton from './ReCallButton';
 import RejectButton from './RejectButton';
 import RelationDocButton from './RelationDocButton';
 import SaveHwpButton from './SaveHwpButton';
@@ -76,7 +77,7 @@ export default class ButtonController {
         // 본문복사
         this.#append(new SendMainButton()); // 메일쓰기
         this.#append(new SendBbsButton()); // 게시하기
-        // 회수
+        this.#append(new ReCallButton()); // 회수
         this.#append(new ApprovalBoxButton()); // 결재정보
         this.#append(new SummaryButton()); // 요약
         this.#append(new CommentButton()); // 의견
