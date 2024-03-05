@@ -95,3 +95,14 @@ export const setParticipantCurrent = (hox) => {
     }
   }
 };
+
+/**
+ * objectID 중 감사의견서 노드 반환
+ * @param {XMLDocument} hox
+ * @returns
+ */
+export const getObjectIDOfAuditComment = (hox) => {
+  const found = getNodes(hox, 'docInfo objectIDList objectID').filter((objectID) => objectID.getAttribute('type') === 'objectidtype_auditcomment');
+  if (found.length > 0) return found[0];
+  return null;
+};

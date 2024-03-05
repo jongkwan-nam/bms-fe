@@ -2,10 +2,9 @@ import DateUtils from '../../../utils/DateUtils';
 import IDUtils from '../../../utils/IDUtils';
 import { addNode, existsNode, getAttr, getNode, getNodes, getText, serializeXmlToString, setAttr, setText } from '../../../utils/xmlUtils';
 import Cell from '../../CellNames';
+import { HCLTAPP_RESIMSA } from '../../const/CommonConst';
+import { FD_APPLID_SENDING } from '../../const/FldrConst';
 import { makeEnforceHox4MultiDoc } from '../makeEnforceHox';
-
-const FD_APPLID_SENDING = 4020;
-const HCLTAPP_RESIMSA = 7;
 
 /**
  * 발송의뢰

@@ -25,6 +25,7 @@
   // 신규 옵션 추가
   doccfg.summaryAddableApprover = true; // 결재자 요약전 추가 여부 설정 <대법원> [ false: 결재자가 요약전 새로 추가할 수 없음(default), true: 결재자가 요약전 새로 추가할 수 있음 ]
   doccfg.disableViewerCancel = <c:out value="${disableViewerCancel}" default="true" />;
+  doccfg.qdbTemporarySaveFormId = '<c:out value="${qdbTemporarySaveFormId}" default="" />'; // 결재연동 임시저장 서식ID [설정된 서식ID는 결재연동시 '임시저장' 버튼이 활성화 된다. 2개 이상 설정시 콤마(,)로 구분한다.] from globals.properties
 
   // 테스트용 옵션값 수정
   doccfg.docViewRatio = 2;

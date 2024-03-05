@@ -1,11 +1,10 @@
 import DateUtils from '../../utils/DateUtils';
 import IDUtils from '../../utils/IDUtils';
 import { addNode, existsNode, getAttr, getNode, getNodes, getText, setAttr, setText } from '../../utils/xmlUtils';
+import { HCLTAPP_RESIMSA } from '../const/CommonConst';
+import { FD_APPLID_SENDING } from '../const/FldrConst';
 import { makeEnforceHox4MultiDoc } from '../logic/makeEnforceHox';
 import submitOfSendRequest from '../logic/submit/submitOfSendRequest';
-
-const FD_APPLID_SENDING = 4020;
-const HCLTAPP_RESIMSA = 7;
 
 /**
  * 발송의뢰

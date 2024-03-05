@@ -1,4 +1,7 @@
 import syncFetch from 'sync-fetch';
+import { WORDTYPE_HWPWEB } from '../main/const/CommonConst';
+import { FD_APPLID_APPRING } from '../main/const/FldrConst';
+import { getObjectIDOfAuditComment } from '../utils/HoxUtils';
 import { getText, setText } from '../utils/xmlUtils';
 import { sanc0_ini } from './sanc0_ini';
 import { isNowStatusDeptAgreeP } from './sanc0_support';
@@ -236,54 +239,54 @@ export function QDBTimingAfterLogic() {
   });
 }
 
-export function checkServerResultPromise(ret) {
-  return new Promise(function (resolve, reject) {
-    if (window.console) console.log('[checkServerResultPromise] START.');
-    ApprProcess.checkServerResult(ret);
-    resolve(ret);
-  });
-}
+// export function checkServerResultPromise(ret) {
+//   return new Promise(function (resolve, reject) {
+//     if (window.console) console.log('[checkServerResultPromise] START.');
+//     ApprProcess.checkServerResult(ret);
+//     resolve(ret);
+//   });
+// }
 
-export function processSubmitLogic() {
-  var that = this;
-  return new Promise(function (resolve, reject) {
-    if (window.console) console.log('[processSubmitLogic] START.');
-    try {
-      var ret = false;
-      var params = Form.serialize(D$('frmClient'));
-      new Ajax.Request(hsattach.action, {
-        asynchronous: false,
-        parameters: params,
-        onSuccess: function (xmlHttp, xjson) {
-          //alert("xmlHttp.responseText");
-          ret = xmlHttp.responseText;
-          if (window.console) console.log('[processSubmitLogic] END.', ret);
-          resolve(ret);
-          //apprProcess.checkServerResult(ret);
-        },
-        onFailure: function () {
-          alert(GWWEBMessage.cmsg_err_common_msg);
-          rInfo.hasError = true;
-          if (that.cmd == 'batchDraftDoc') {
-            if (rInfo.WORDTYPE == WORDTYPE_HWPWEB || rInfo.WORDTYPE == WORDTYPE_HWP2002) {
-              //TODO:메시지 처리
-              that.checkServerResult('{RESULT:ERROR,MSG:일괄접수오류}');
-            }
-          }
-          if (window.console) console.log('[processSubmitLogic] END.');
-          reject('{RESULT:ERROR}');
-        },
-      });
-    } catch (e) {
-      if (window.console) {
-        console.log('[processSubmitLogic] ERROR.', e);
-        console.log('[processSubmitLogic] END.');
-      }
+// export function processSubmitLogic() {
+//   var that = this;
+//   return new Promise(function (resolve, reject) {
+//     if (window.console) console.log('[processSubmitLogic] START.');
+//     try {
+//       var ret = false;
+//       var params = Form.serialize(D$('frmClient'));
+//       new Ajax.Request(hsattach.action, {
+//         asynchronous: false,
+//         parameters: params,
+//         onSuccess: function (xmlHttp, xjson) {
+//           //alert("xmlHttp.responseText");
+//           ret = xmlHttp.responseText;
+//           if (window.console) console.log('[processSubmitLogic] END.', ret);
+//           resolve(ret);
+//           //apprProcess.checkServerResult(ret);
+//         },
+//         onFailure: function () {
+//           alert(GWWEBMessage.cmsg_err_common_msg);
+//           rInfo.hasError = true;
+//           if (that.cmd == 'batchDraftDoc') {
+//             if (rInfo.WORDTYPE == WORDTYPE_HWPWEB || rInfo.WORDTYPE == WORDTYPE_HWP2002) {
+//               //TODO:메시지 처리
+//               that.checkServerResult('{RESULT:ERROR,MSG:일괄접수오류}');
+//             }
+//           }
+//           if (window.console) console.log('[processSubmitLogic] END.');
+//           reject('{RESULT:ERROR}');
+//         },
+//       });
+//     } catch (e) {
+//       if (window.console) {
+//         console.log('[processSubmitLogic] ERROR.', e);
+//         console.log('[processSubmitLogic] END.');
+//       }
 
-      reject('{RESULT:ERROR}');
-    }
-  });
-}
+//       reject('{RESULT:ERROR}');
+//     }
+//   });
+// }
 
 export function QDBTimingSuccessOrFailLogic(ret) {
   const domHox1 = feMain.hox;
@@ -358,20 +361,21 @@ export function LastLogic(ret) {
     // jhoms.approval.emove_userdocument_after_draft=true인 경우 임시보관함에서 상신 후 임시저장문서 삭제
     try {
       if (ret.indexOf('{RESULT:OK}') != -1) {
-        if (doccfg.removeUserdocumentAfterDraft || (typeof sanc0_ini != 'undefined' && sanc0_ini.IsSancDocument(domHox1) && qdbTemporarySaveFormId.indexOf(sanc0_ini.getFormID(domHox1)) != -1)) {
+        if (doccfg.removeUserdocumentAfterDraft || (typeof sanc0_ini != 'undefined' && sanc0_ini.IsSancDocument(domHox1) && doccfg.qdbTemporarySaveFormId.indexOf(sanc0_ini.getFormID(domHox1)) != -1)) {
+          let userDocumentApprID; // TODO 어디에선 저장되어야 하는데
           if (!pInfo.isAccept()) {
-            if (userDocumentApprID == '' && !(D$('tempdocid').value == '' || D$('tempdocid').value == '00000000000000000000')) {
-              userDocumentApprID = D$('tempdocid').value;
+            if (userDocumentApprID == '' && !(document.getElementById('tempdocid').value == '' || document.getElementById('tempdocid').value == '00000000000000000000')) {
+              userDocumentApprID = document.getElementById('tempdocid').value;
             }
             if (rInfo.applID == '6010' && rInfo.apprMsgID != '') {
               userDocumentApprID = rInfo.apprMsgID;
             }
             if ('draftDoc' == that.cmd && userDocumentApprID != '') {
-              var ret2 = Capi.deleteUserDocument(userDocumentApprID);
-              if (ret2.ok) {
-                refresh_opener();
+              var ret = Capi.deleteUserDocument(userDocumentApprID);
+              if (ret.ok) {
+                // refresh_opener();
               } else {
-                alert(lang_flow_W1602 + ' ERROR CODE:' + ret2.rc);
+                alert(GWWEBMessage.W1602 + ' ERROR CODE:' + ret.rc);
               }
             }
           }
@@ -384,9 +388,9 @@ export function LastLogic(ret) {
       if (rInfo.cltType == 're-draft' && rInfo.applID == FD_APPLID_APPRING) {
         //결재진행 재작성 중 임시저장시 임시저장한 감사의견서의 감사인은 제거하지만
         //원래 반송 재작성중인 문서의 감사의견서는 유지하기 위해
-        var e = domHox1.selectSingleNode("/hox/docInfo/objectIDList/objectID[@type='objectidtype_auditcomment']");
-        if (e) {
-          pInfo.auditCommentID = get_text(e, 'ID');
+        const nodeObjectIDOfAuditComment = getObjectIDOfAuditComment(domHox1);
+        if (nodeObjectIDOfAuditComment) {
+          pInfo.auditCommentID = getText(nodeObjectIDOfAuditComment, 'ID');
 
           var obj2 = Capi.getSancFileClone(rInfo.user.ID, rInfo.user.deptID, pInfo.auditCommentID);
           if (obj2 && obj2.ok) {
@@ -397,7 +401,7 @@ export function LastLogic(ret) {
           }
         }
       }
-      setTimeout('fncEditMode();', 500);
+      // setTimeout('fncEditMode();', 500);
     } else if (that.cmd == 'modifyFlowOnRevoke') {
       if (ret.indexOf('{RESULT:OK}') != -1) {
         alert(GWWEBMessage.cmsg_89 + '\n' + GWWEBMessage.W1835); // '처리되었습니다.\n현재창을 닫습니다.'
@@ -413,10 +417,8 @@ export function LastLogic(ret) {
       }
     }
     //결재완료된 문서를 담는다.
-    if (typeof apprComptList != 'undefined') {
-      if (window.console) console.log('submit apprComptList push apprComptList.length=' + apprComptList.length + ' statusList.length= ' + statusList.length);
-      apprComptList.push(that.msgID);
-    }
+    feMain.apprComptList.push(that.msgID);
+
     if (window.console) console.log('LastLogic END.');
     resolve(ret);
   });
@@ -598,6 +600,12 @@ const Capi = {
   getQdbLinkageID: (userID) => {
     return syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveQdbLinkageId.act`, { method: 'POST', body: 'UID=' + userID }).json();
   },
+  deleteUserDocument: (apprID) => {
+    return syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/deleteDoc.act`, { method: 'POST', body: 'APPRIDLIST=' + apprID + '&APPLID=6010&APPLTYPE=2' }).json();
+  },
+  getSancFileClone: (userID, deptID, fileID) => {
+    return syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveDocFileClone.act`, { method: 'POST', body: 'UID=' + userID + '&DID=' + deptID + '&FID=' + fileID }).json();
+  },
 };
 
 const hoxutil = {
@@ -623,3 +631,26 @@ const QDB_CMD_REJECTDOCFORAGREE = 'rejectDocForAgree'; // 합의부서 접수기
 const QDB_CMD_REJECTDOCFORAUDIT = 'rejectDocForAudit'; // 감사부서 접수기 반송
 const QDB_CMD_REJECTDOCFORCOMPLIANCE = 'rejectDocForCompliance'; // 준법감시부서 접수기 반송
 const QDB_CMD_DELETEDOC = 'deleteDoc'; // 반송,회수 문서 삭제
+
+function transfile_url(TRID, fileName, convertHtm, useWasDRM) {
+  let url;
+  if (convertHtm == true) {
+    url = PROJECT_CODE + '/com/hs/gwweb/appr/retrieveTRIDFile.act?TRID=' + TRID + '&ConvertHTM=true';
+    if (fileName) {
+      url += '&fileName=' + encodeURIComponent(fileName);
+    }
+  } else {
+    url = PROJECT_CODE + '/com/hs/gwweb/appr/manageFileDwld.act?TRID=' + TRID;
+    if (fileName) {
+      url += '&fileName=' + encodeURIComponent(fileName);
+    }
+  }
+  if (szKEY) {
+    url += '&K=' + szKEY;
+  }
+  if (useWasDRM) {
+    url += '&useWasDRM=' + useWasDRM;
+  }
+  url += '&_NOARG=' + new Date().getTime();
+  return url;
+}

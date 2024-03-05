@@ -5,12 +5,14 @@ export default class DocInfo {
   apprStatus;
   isAbsentOrgUser;
   auditCommentID;
-  auditCommentFilePath;
+  auditCommentFilePath; // TODO 담겨있으면 submit시 포함되어야 한다
   isDirtyDoc;
+  currentParticipant;
 
   constructor() {
     this.docApprType = getText(feMain.hox, 'docInfo approvalType');
     this.apprStatus = getText(feMain.hox, 'docInfo approvalStatus');
+
     // set current participant
     const participantNodes = getNodes(feMain.hox, 'approvalFlow participant');
     for (let i = 0; i < participantNodes.length; i++) {
@@ -35,6 +37,7 @@ export default class DocInfo {
           continue;
         }
 
+        this.currentParticipant = participant;
         this.myPos = i;
         this.myApprType = getText(participant, 'approvalType');
         this.myApprSubType = getText(participant, 'approvalSubType');
