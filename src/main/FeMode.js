@@ -19,7 +19,7 @@ let feMode = FeMode.DRAFT;
  * 발송의뢰   ctrlmana        request
  * 발송처리   ctrlmana        control
  */
-if (rInfo.appType === 'sancgian' && rInfo.cltType === 'draft') {
+if (rInfo.appType === 'sancgian' && ['draft', 'att-draft', 'pc-draft'].includes(rInfo.cltType)) {
   // 기안
   feMode = FeMode.DRAFT;
 } else if (rInfo.appType === 'sancgian' && rInfo.cltType === 'accept') {

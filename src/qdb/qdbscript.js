@@ -1,6 +1,7 @@
 import syncFetch from 'sync-fetch';
 import { getText, setText } from '../utils/xmlUtils';
 import { sanc0_ini } from './sanc0_ini';
+import { isNowStatusDeptAgreeP } from './sanc0_support';
 
 const sanc0 = window.sanc0;
 
@@ -8,7 +9,7 @@ const sanc0 = window.sanc0;
 export function QDBTimingInitializeLogic() {
   const domHox1 = feMain.hox;
   return new Promise(function (resolve, reject) {
-    if (window.console) console.log('[getQDBParamPromise] START.');
+    if (window.console) console.log('[QDBTimingInitializeLogic] START.');
     var param = {};
     try {
       if (sanc0_ini.IsSancDocument(domHox1)) {
@@ -21,7 +22,7 @@ export function QDBTimingInitializeLogic() {
           var qdbLinkageId = '';
           var obj = Capi.getQdbLinkageID(rInfo.user.ID);
           if (obj && obj.ok) {
-            qdbLinkageId = obj.msgid; //qdbLinkageId는 DoccrdMainRP.jsp에 정의
+            qdbLinkageId = obj.msgid;
           } else {
             alert('qdbLinkageId 채번시 오류');
             reject();
@@ -33,20 +34,20 @@ export function QDBTimingInitializeLogic() {
         }
 
         if (window.console) {
-          console.log('[getQDBParamPromise] status:0 qdbLinkageId = ' + qdbLinkageId);
+          console.log('[QDBTimingInitializeLogic] status:0 qdbLinkageId = ' + qdbLinkageId);
         }
 
         param = {
           qdbLinkageId: qdbLinkageId,
           domHox: domHox1,
           employNo: rInfo.user.empCode,
-          deptCode: Capi.getDept(rInfo.user.deptID).dept.deptCode || rInfo.dept.deptCode,
+          deptCode: rInfo.dept.deptCode,
           sanction: sanc0.getSanction({
             status: Sanc0Const.SACTION_TIMING_INITIALIZE, // INITIALIZE
             rInfo: rInfo,
           }), // SANC_GIANINITIALIZE, SANC_REGIANINITIALIZE
         };
-        if (window.console) console.log('[getQDBParamPromise] END.', param);
+        if (window.console) console.log('[QDBTimingInitializeLogic] END.', param);
 
         Promise.resolve(param)
           .catch(function (e) {
@@ -81,14 +82,36 @@ export function QDBTimingInitializeLogic() {
             console.log('sanc0.SanctionAPIPromise error', e);
           });
       } else {
-        if (window.console) console.log('[getQDBParamPromise] END.');
+        if (window.console) console.log('[QDBTimingInitializeLogic] END.');
         resolve(param);
       }
     } catch (e) {
-      if (window.console) console.log('[getQDBParamPromise] END. error', e);
+      if (window.console) console.log('[QDBTimingInitializeLogic] END. error', e);
       reject(e);
     }
   });
+}
+
+export function QDBTimingLoadLogic() {
+  const domHox1 = feMain.hox;
+  const draftHox = feMain.orgHox;
+
+  if (typeof sanc0_ini != 'undefined' && sanc0_ini.IsSancDocument(domHox1)) {
+    if (!sanc0_ini.ExistSancServer()) return false;
+    var param = {
+      domHox: domHox1,
+      employNo: rInfo.user.empCode,
+      qdbLinkageId: hoxutil.getQdbLinkageId(domHox1),
+      isDeptAgreeP: isNowStatusDeptAgreeP(draftHox, rInfo.dept.ID),
+      deptCode: rInfo.dept.deptCode,
+      sanction: sanc0.getSanction({
+        status: 0, // INITIALIZE
+        rInfo: rInfo,
+      }),
+      // SANC_KYULINITIALIZE
+    };
+    if (!sanc0.SanctionAPI(param)) return false;
+  }
 }
 
 //문서처리 서명처리전
@@ -113,11 +136,11 @@ export function QDBTimingBeforeLogic() {
         qdbLinkageId: qdbLinkageId,
         domHox: that.finalDeptApprComplete == 'true' ? that.domOrg1 : domHox1,
         employNo: rInfo.user.empCode,
-        deptCode: Capi.getDept(rInfo.user.deptID).dept.deptCode || rInfo.dept.deptCode,
+        deptCode: rInfo.dept.deptCode,
         sanction: sanc0.getSanction({
           status: Sanc0Const.SACTION_TIMING_BEFORE, // BEFORE
-          cmd: ApprProcess.cmd,
-          finished: ApprProcess.finished,
+          cmd: feMain.cmd,
+          finished: feMain.finished,
         }),
         finalDeptApprComplete: that.finalDeptApprComplete,
       };
@@ -138,7 +161,7 @@ export function QDBTimingBeforeLogic() {
             console.log('sanc0.SanctionAPIPromise error', e);
           }
           if (!pInfo.isAccept()) {
-            if ('draftDoc' == ApprProcess.cmd) {
+            if ('draftDoc' == feMain.cmd) {
               rInfo.QDBError = true;
               alert(GWWEBMessage.cmsg_2689); //'기안서명전 QDB연동시 오류가 발생하였습니다.'
             }
@@ -177,11 +200,11 @@ export function QDBTimingAfterLogic() {
           qdbLinkageId: qdbLinkageId,
           domHox: that.finalDeptApprComplete == 'true' ? that.domOrg1 : domHox1,
           employNo: rInfo.user.empCode,
-          deptCode: Capi.getDept(rInfo.user.deptID).dept.deptCode || rInfo.dept.deptCode,
+          deptCode: rInfo.dept.deptCode,
           sanction: sanc0.getSanction({
             status: Sanc0Const.SACTION_TIMING_AFTER, // 2 AFTER
-            cmd: ApprProcess.cmd,
-            finished: ApprProcess.finished,
+            cmd: feMain.cmd,
+            finished: feMain.finished,
           }),
           finalDeptApprComplete: that.finalDeptApprComplete,
         };
@@ -264,6 +287,8 @@ export function processSubmitLogic() {
 
 export function QDBTimingSuccessOrFailLogic(ret) {
   const domHox1 = feMain.hox;
+  const draftHox = feMain.orgHox;
+
   var that = this;
   return new Promise(function (resolve, reject) {
     if (window.console) console.log('[QDBTimingSuccessOrFailLogic] START. ret=' + ret);
@@ -284,7 +309,7 @@ export function QDBTimingSuccessOrFailLogic(ret) {
           qdbLinkageId: qdbLinkageId,
           domHox: that.finalDeptApprComplete == 'true' ? that.domOrg1 : domHox1,
           employNo: rInfo.user.empCode,
-          deptCode: Capi.getDept(rInfo.user.deptID).dept.deptCode || rInfo.dept.deptCode,
+          deptCode: rInfo.dept.deptCode,
           isDeptAgreeP: isNowStatusDeptAgreeP(draftHox, rInfo.dept.ID),
           sanction: sanc0.getSanction({
             status: status, // SUCCESS or FAIL
@@ -418,11 +443,11 @@ export function QDBCancelLogic() {
         qdbLinkageId: qdbLinkageId,
         domHox: domHox1,
         employNo: rInfo.user.empCode,
-        deptCode: Capi.getDept(rInfo.user.deptID).dept.deptCode || rInfo.dept.deptCode,
+        deptCode: rInfo.dept.deptCode,
         sanction: sanc0.getSanction({
           status: Sanc0Const.SACTION_TIMING_BEFORE, // BEFORE
-          cmd: ApprProcess.cmd,
-          finished: ApprProcess.finished,
+          cmd: feMain.cmd,
+          finished: feMain.finished,
         }),
       };
       if (window.console) {
@@ -442,7 +467,7 @@ export function QDBCancelLogic() {
             console.log('sanc0.SanctionAPIPromise error', e);
           }
           if (!pInfo.isAccept()) {
-            if ('draftDoc' == ApprProcess.cmd) {
+            if ('draftDoc' == feMain.cmd) {
               rInfo.QDBError = true;
               alert(GWWEBMessage.cmsg_2689); //'기안서명전 QDB연동시 오류가 발생하였습니다.'
             }
@@ -593,8 +618,8 @@ const Sanc0Const = {
   SACTION_TIMING_FAIL: 0x0004, // 기안시 서버 처리 실패
 };
 
-var QDB_CMD_REJECTDOCFORRECEIPT = 'rejectDocForReceipt'; // 수신부서 접수기 반송
-var QDB_CMD_REJECTDOCFORAGREE = 'rejectDocForAgree'; // 합의부서 접수기 반송
-var QDB_CMD_REJECTDOCFORAUDIT = 'rejectDocForAudit'; // 감사부서 접수기 반송
-var QDB_CMD_REJECTDOCFORCOMPLIANCE = 'rejectDocForCompliance'; // 준법감시부서 접수기 반송
-var QDB_CMD_DELETEDOC = 'deleteDoc'; // 반송,회수 문서 삭제
+const QDB_CMD_REJECTDOCFORRECEIPT = 'rejectDocForReceipt'; // 수신부서 접수기 반송
+const QDB_CMD_REJECTDOCFORAGREE = 'rejectDocForAgree'; // 합의부서 접수기 반송
+const QDB_CMD_REJECTDOCFORAUDIT = 'rejectDocForAudit'; // 감사부서 접수기 반송
+const QDB_CMD_REJECTDOCFORCOMPLIANCE = 'rejectDocForCompliance'; // 준법감시부서 접수기 반송
+const QDB_CMD_DELETEDOC = 'deleteDoc'; // 반송,회수 문서 삭제

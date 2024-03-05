@@ -17,6 +17,8 @@ export default class RejectButton extends HTMLButtonElement {
   }
 
   async #doAction() {
+    feMain.cmd = 'rejectDoc';
+
     const hox = feMain.hox;
     const nodeParticipant = feMain.getCurrentParticipant();
     const apprId = getText(hox, 'docInfo apprID');

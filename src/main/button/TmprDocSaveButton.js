@@ -18,6 +18,7 @@ export default class TmprDocSaveButton extends HTMLButtonElement {
   }
 
   async #doAction() {
+    feMain.cmd = 'saveTemp';
     //
     const feTmprDocSaveDialog = new FeTmprDocSaveDialog();
     const modalContainer = document.querySelector('.modal-container');

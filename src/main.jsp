@@ -2,6 +2,12 @@
 
 <link rel="stylesheet" type="text/css" href="/bms/fe/main.css" />
 <script defer type="text/javascript" src="/bms/fe/main.js"></script>
+<c:if test="${use_qdb_context}">
+  <link type="text/css" href="<c:out value='${qdb_context}' />/js/lib/jquery.simplemodal/confirm.css" rel="stylesheet" />
+  <script type="text/javascript" src="/js/lib/jQuery/jquery-1.12.3.js"></script>
+  <script type="text/javascript" src="<c:out value='${qdb_context}' />/js/lib/jquery.simplemodal/jquery.simplemodal.js"></script>
+  <script type="text/javascript" src="<c:out value='${qdb_context}' />/js/sanc0.js"></script>
+</c:if>
 <script>
   // 신규 메시지 추가
   GWWEBMessage['st_jeonhooyul_nosign'] = '전결(후열)';
@@ -28,6 +34,18 @@
   //
   rInfo.sendID = '<c:out value="${param.SENDIDLIST}"/>';
   rInfo.docattr = '<c:out value="${param.DOCATTRLIST}"/>';
+
+  // param EXTERNALATTACHINFOPATH 외부 첨부
+  const externalBodyFileID = '<c:out value="${EXTERNALBODYFILEID}" />';
+  const externalAttchInfos = [];
+  <c:forEach var="att" items="${EXTERNALATTACHINFOS}">
+    /* hsattach.AddItemByGroup(mk_FileTransURL("${att.TRID}", "${att.fileName}", "${att.size}", 'attachtype_normal'), "${att.fileName}", "${att.size}", 0); */
+    externalAttchInfos.push({
+      trid: '<c:out value="${att.TRID}" />',
+      fileName: '<c:out value="${att.fileName}" />',
+      size: <c:out value="${att.size}" default="0" />
+    });
+  </c:forEach>;
 </script>
 <main>
   <header class="menu-wrap"></header>

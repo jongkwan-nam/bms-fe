@@ -876,6 +876,10 @@ export default class FeEditor extends FeHwpCtrl {
     this.saveLocal(title, 'HWP');
   }
 
+  setDocumentUpdated(isModified) {
+    this.hwpCtrl.IsModified = isModified ? 1 : 0;
+  }
+
   set title(title) {
     this.hwpCtrl.PutFieldText(Cell.DOC_TITLE, title);
   }

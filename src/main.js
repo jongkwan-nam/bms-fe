@@ -9,6 +9,7 @@
 import FeConfig from './config/FeConfig';
 import './main.scss';
 import { addActionLogView } from './main/ActionLog';
+import DocInfo from './main/DocInfo';
 import FeAttachBox from './main/FeAttachBox';
 import FeContent from './main/FeContent';
 import FeContentNavigator from './main/FeContentNavigator';
@@ -25,6 +26,7 @@ import initiateHoxForView from './main/logic/init/initiateHoxForView';
 import initiateBodyByHox from './main/logic/initiateBodyByHox';
 import reflectHoxInBody from './main/logic/reflectHoxInBody';
 import validateReceivedHox from './main/logic/validateReceivedHox';
+import { QDBTimingInitializeLogic, QDBTimingLoadLogic } from './qdb/qdbscript';
 import FeStorage from './utils/FeStorage';
 import { getCurrentParticipant } from './utils/HoxUtils';
 import IDUtils from './utils/IDUtils';
@@ -42,6 +44,7 @@ class FeMain {
   summary = { filePath: null, TRID: null }; // 요약전 정보
   feMode = null;
   splitedExamDocMap = null; // 분리한 시행문 모음
+  cmd = null;
 
   async start() {
     console.time('main');
@@ -66,6 +69,8 @@ class FeMain {
           docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&K=${szKEY}&WORDTYPE=${rInfo.WORDTYPE}`;
         }
 
+        this.cmd = 'draftDoc';
+
         postProcessFunction = () => {
           this.feEditor1.foldRibbon(false); // 리본메뉴
           this.feEditor1.setReadMode(false);
@@ -81,6 +86,8 @@ class FeMain {
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
 
+        this.cmd = 'procDoc';
+
         postProcessFunction = () => {
           this.feEditor1.foldRibbon(true);
 
@@ -88,6 +95,8 @@ class FeMain {
           // TODO 현재 participant의 수정권한 여부로 readmode 설정
 
           addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
+
+          QDBTimingLoadLogic();
         };
         break;
       }
@@ -119,6 +128,8 @@ class FeMain {
           this.feEditor1.setReadMode(true);
 
           initiateHoxForAccept(this.hox);
+
+          QDBTimingLoadLogic();
         };
         break;
       }
@@ -132,6 +143,8 @@ class FeMain {
           initiateHoxForRequest(this.hox);
 
           addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
+
+          QDBTimingLoadLogic();
         };
         break;
       }
@@ -145,6 +158,8 @@ class FeMain {
           initiateHoxForControl(this.hox);
 
           addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
+
+          QDBTimingLoadLogic();
         };
         break;
       }
@@ -156,6 +171,9 @@ class FeMain {
       hox 로딩
      */
     this.hox = await loadXml(hoxURL);
+    if (orgHoxURL) {
+      this.orgHox = await loadXml(orgHoxURL);
+    }
 
     /* ------------------------------------------------------------------------
         editor 로딩, 문서 open
@@ -298,18 +316,28 @@ class FeMain {
     }
     return this.feEditor4Extra;
   }
+
+  get finished() {
+    return getText(this.hox, 'approvalStatus') === 'apprstatus_finish';
+  }
 }
 
 window.onerror = (error) => {
   alert(error.toString());
 };
 
-popupSizeRestorer('feMain.window.size', 1270, 900);
+(async () => {
+  popupSizeRestorer('feMain.window.size', 1270, 900);
 
-window.feMain = new FeMain();
-window.feMain.start();
+  window.feMain = new FeMain();
+  await window.feMain.start();
 
-resizableGrid();
+  window.pInfo = new DocInfo();
+
+  QDBTimingInitializeLogic();
+
+  resizableGrid();
+})();
 
 /**
  * 본문과 첨부박스 크기 조정

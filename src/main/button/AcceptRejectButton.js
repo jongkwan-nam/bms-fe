@@ -16,6 +16,8 @@ export default class AcceptRejectButton extends HTMLButtonElement {
   }
 
   async #doAction() {
+    feMain.cmd = 'rejectDocForReceipt'; // TODO 합의부서, 감사부서, 준법감시부서 구분 필요
+
     const feAcceptRejectDialog = new FeAcceptRejectDialog();
     const modalContainer = document.querySelector('.modal-container');
     modalContainer.textContent = null;

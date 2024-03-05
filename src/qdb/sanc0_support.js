@@ -1,3 +1,6 @@
+import StringUtils from '../utils/StringUtils';
+import { getNodes, getText } from '../utils/xmlUtils';
+
 export function one_by_one(objects_array, iterator, callback) {
   var start_promise = objects_array.reduce(function (prom, object, index) {
     return prom.then(function () {
@@ -242,7 +245,7 @@ function IMPL_IsDocumentUpdated(word_id) {
   return bRet;
 }
 
-function IMPL_SetDocumentUpdated(word_id, isModified) {
+export function IMPL_SetDocumentUpdated(word_id, isModified) {
   var pADHelper = editor(word_id);
   var hwpCtrl = pADHelper.GetControl();
   if (isModified) hwpCtrl.IsModified = 1;
@@ -473,4 +476,35 @@ function HWP__GetCurPageNo(pADHelper) {
 // HWP 단위(1/100 포인트)를 포인트 단위로 변환
 function CONV_HWP_POINT(val) {
   return parseInt(val / 100);
+}
+
+export function toHash(text) {
+  const hash = new Map();
+  text
+    .split(' ')
+    .filter((t) => StringUtils.isNotBlank(t))
+    .forEach((t) => hash.set(t, true));
+  return hash;
+}
+
+//같은부서로 여러번 병렬협조 보낼 수도 있으니 상태도 체크
+export function isNowStatusDeptAgreeP(draftHox, deptID) {
+  if (!draftHox) {
+    return false;
+  }
+
+  const participantNodes = getNodes(draftHox, 'approvalFlow participant');
+  for (let i = 0; i < participantNodes.length; i++) {
+    const participant = participantNodes[i];
+
+    if (getText(participant, 'validStatus') === 'revoked') continue;
+
+    const at = getText(participant, 'approvalType');
+    const as = getText(participant, 'approvalStatus');
+    const id = getText(participant, 'ID');
+    if (at === 'dept_agree_p' && id === deptID && as === 'partapprstatus_now') {
+      return true;
+    }
+  }
+  return false;
 }

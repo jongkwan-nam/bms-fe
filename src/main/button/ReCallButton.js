@@ -19,6 +19,8 @@ export default class ReCallButton extends HTMLButtonElement {
   }
 
   async #doAction() {
+    feMain.cmd = 'cancelDoc';
+
     const feReCallDialog = new FeReCallDialog();
     // 회수 가능한지 판단
     if (feReCallDialog.isPossible()) {

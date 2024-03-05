@@ -30,6 +30,7 @@
   "globals": {
     "feMain": true,
     "rInfo": true,
+    "pInfo": true,
     "szKEY": true,
     "doccfg": true,
     "GWWEBMessage": true,
