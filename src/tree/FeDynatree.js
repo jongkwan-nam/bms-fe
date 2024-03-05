@@ -43,6 +43,7 @@ export default class FeDynatree extends HTMLElement {
       children: data, // 트리 데이터
       onSelect: this.onSelect, // 선택 이벤트 핸들러
       onClick: this.onClick, // 클릭 이벤트 핸들러
+      onDblClick: this.onDblClick, // 더블클릭 이벤트 핸들러
       onLazyRead: this.onLazyRead, // 폴더 확장시 데이터 로드 핸들러
       onRender: this.onRender, // 그리기 핸들러
     });

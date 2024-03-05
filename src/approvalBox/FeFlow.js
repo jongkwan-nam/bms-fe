@@ -34,7 +34,7 @@ export default class FeFlow extends HTMLElement {
     // 트리 생성
     this.feSancOrgTree = this.shadowRoot.querySelector('.tree').appendChild(new FeSancOrgTree());
     this.feSancOrgTree.addEventListener('select', (e) => {
-      // TODO 중복 사용자를 추가할 방법!
+      // 중복 사용자를 추가: 이름 더블클릭
       if (e.detail.isSelected) {
         this.feParticipantlist.add(e.detail.dtnode);
       } else {

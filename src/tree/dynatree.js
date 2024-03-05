@@ -1189,7 +1189,7 @@ var DTNodeStatus_Ok = 0;
     },
 
     _onClick: function (event) {
-      //      console.debug("dtnode.onClick(" + event.type + "): dtnode:" + this + ", button:" + event.button + ", which: " + event.which);
+      console.debug('dtnode.onClick(' + event.type + '): dtnode:' + this + ', button:' + event.button + ', which: ' + event.which);
       var targetType = this.getEventTargetType(event);
       if (targetType === 'expander') {
         // Clicking the expander icon always expands/collapses
@@ -1218,7 +1218,7 @@ var DTNodeStatus_Ok = 0;
     },
 
     _onDblClick: function (event) {
-      //      console.debug("dtnode.onDblClick(" + event.type + "): dtnode:" + this + ", button:" + event.button + ", which: " + event.which);
+      console.debug('dtnode.onDblClick(' + event.type + '): dtnode:' + this + ', button:' + event.button + ', which: ' + event.which);
     },
 
     _onKeydown: function (event) {

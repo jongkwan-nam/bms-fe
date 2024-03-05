@@ -27,26 +27,32 @@ export default class FeSancOrgTree extends FeDynatree {
         informalUser: false,
       })
     );
-    console.log('dynatree', this.dynatree);
+    console.debug('[FeSancOrgTree]', this.dynatree);
 
     this.dynatree.dynatree('getRoot').tree.getNodeByKey(rInfo.user.ID).activate();
   }
 
   onSelect(isSelected, dtnode) {
-    console.debug('[dynatree] onSelect', dtnode.data.title, isSelected);
+    console.debug('[FeSancOrgTree] onSelect', dtnode.data.title, isSelected);
     this.divTree.dispatchEvent(new CustomEvent('select', { bubbles: true, composed: true, detail: { isSelected: isSelected, dtnode: dtnode } }));
   }
 
   onClick(dtnode, event) {
-    console.debug('[dynatree] onClick', dtnode.data.title, dtnode.getEventTargetType(event), dtnode, event);
-    //
-    if (dtnode.getEventTargetType(event) === 'title') {
-      dtnode.toggleSelect();
-    }
+    const targetType = dtnode.getEventTargetType(event); // expander, checkbox, else
+    console.debug('[FeSancOrgTree] onClick', dtnode.data.title, targetType, dtnode, event);
+  }
+
+  onDblClick(dtnode, event) {
+    const targetType = dtnode.getEventTargetType(event);
+    console.debug('[FeSancOrgTree] onDblClick', dtnode.data.title, targetType, dtnode, event);
+    dtnode.select(true);
+    dtnode.focus();
+
+    this.divTree.dispatchEvent(new CustomEvent('select', { bubbles: true, composed: true, detail: { isSelected: true, dtnode: dtnode } }));
   }
 
   onLazyRead(dtnode) {
-    console.debug('[dynatree] onLazyRead', dtnode.data.title, dtnode);
+    console.debug('[FeSancOrgTree] onLazyRead', dtnode.data.title, dtnode);
     //
     dtnode.appendAjax({
       url: '/directory-web/org.do',
@@ -60,14 +66,14 @@ export default class FeSancOrgTree extends FeDynatree {
         informalUser: false,
       },
       success: (dtnode) => {
-        console.log('[dynatree] appendAjax', dtnode.data.title, dtnode);
+        console.log('[FeSancOrgTree] appendAjax', dtnode.data.title, dtnode);
         this.divTree.dispatchEvent(new CustomEvent('lazy', { bubbles: true, composed: true, detail: { dtnode: dtnode } }));
       },
     });
   }
 
   onRender(dtnode, nodeSpan) {
-    console.debug('onRender', dtnode, nodeSpan);
+    console.debug('[FeSancOrgTree] onRender', dtnode, nodeSpan);
     //
     if (dtnode.data.rbox == 'false') {
       dtnode.data.unselectable = true;
