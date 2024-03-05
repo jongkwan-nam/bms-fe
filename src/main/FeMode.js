@@ -7,8 +7,6 @@ export const FeMode = {
   CONTROL: 'control',
 };
 
-console.log(rInfo.appType, rInfo.cltType, rInfo.applID);
-
 let feMode = FeMode.DRAFT;
 /*
  *            rInfo.appType   rInfo.cltType   rInfo.applID
@@ -37,7 +35,11 @@ if (rInfo.appType === 'sancgian' && ['draft', 'att-draft', 'pc-draft'].includes(
 } else if (rInfo.appType === 'ctrlmana' && rInfo.cltType === 'control') {
   // 발송처리
   feMode = FeMode.CONTROL;
+} else {
+  alert('Error unknown mode');
 }
+
+console.log(`rInfo appType: ${rInfo.appType}, cltType: ${rInfo.cltType}, applID: ${rInfo.applID} = ${feMode}`);
 
 export const getFeMode = () => {
   return feMode;
