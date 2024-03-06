@@ -28,10 +28,8 @@ export default class FeSancPasswordDialog extends HTMLElement {
         <input type="password" placeholder="${GWWEBMessage.hsappr_0353}">
       </div>
       <div class="footer">
-        <div>
-          <button type="button" id="btnVerify" class="btn btn-primary">${GWWEBMessage.cmsg_0006}</button>
-          <button type="button" id="btnCancel" class="btn">${GWWEBMessage.cmsg_663}</button>
-        </div>
+        <button type="button" id="btnVerify" class="btn btn-primary">${GWWEBMessage.cmsg_0006}</button>
+        <button type="button" id="btnCancel" class="btn">${GWWEBMessage.cmsg_663}</button>
       </div>
     `;
 

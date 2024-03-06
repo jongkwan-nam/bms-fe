@@ -25,7 +25,7 @@ export default class FeStampDialog extends HTMLElement {
     link.setAttribute('href', './main.css');
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add(this.tagName.toLocaleLowerCase());
+    wrapper.classList.add(this.tagName.toLocaleLowerCase(), 'dialog');
     wrapper.innerHTML = `
       <div class="header">
         <label>${GWWEBMessage.cmsg_534}</label>

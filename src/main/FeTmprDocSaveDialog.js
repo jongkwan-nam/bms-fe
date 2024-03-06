@@ -25,7 +25,7 @@ export default class FeTmprDocSaveDialog extends HTMLElement {
     link.setAttribute('href', './main.css');
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add(this.tagName.toLocaleLowerCase());
+    wrapper.classList.add(this.tagName.toLocaleLowerCase(), 'dialog');
     wrapper.innerHTML = `
       <div class="header">
         <label>${GWWEBMessage.cmsg_787}</label>
@@ -35,10 +35,8 @@ export default class FeTmprDocSaveDialog extends HTMLElement {
         <pre></pre>
       </div>
       <div class="footer">
-        <div>
-          <button type="button" id="btnVerify" class="btn btn-primary" disabled>${GWWEBMessage.cmsg_0006}</button>
-          <button type="button" id="btnCancel" class="btn">${GWWEBMessage.cmsg_663}</button>
-        </div>
+        <button type="button" id="btnVerify" class="btn btn-primary" disabled>${GWWEBMessage.cmsg_0006}</button>
+        <button type="button" id="btnCancel" class="btn">${GWWEBMessage.cmsg_663}</button>
       </div>
     `;
 

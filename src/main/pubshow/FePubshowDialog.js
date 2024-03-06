@@ -20,7 +20,7 @@ export default class FePubshowDialog extends HTMLElement {
     link.setAttribute('href', './main.css');
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add(this.tagName.toLocaleLowerCase());
+    wrapper.classList.add(this.tagName.toLocaleLowerCase(), 'dialog');
     wrapper.innerHTML = `
       <div class="header">
         <label>${GWWEBMessage.cmsg_1807}</label>
@@ -28,10 +28,8 @@ export default class FePubshowDialog extends HTMLElement {
       <div class="body">
       </div>
       <div class="footer">
-        <div>
-          <button type="button" id="btnVerify" class="btn btn-primary">${GWWEBMessage.cmsg_0006}</button>
-          <button type="button" id="btnCancel" class="btn">${GWWEBMessage.cmsg_663}</button>
-        </div>
+        <button type="button" id="btnVerify" class="btn btn-primary">${GWWEBMessage.cmsg_0006}</button>
+        <button type="button" id="btnCancel" class="btn">${GWWEBMessage.cmsg_663}</button>
       </div>
     `;
 

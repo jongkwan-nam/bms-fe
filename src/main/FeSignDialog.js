@@ -28,18 +28,18 @@ export default class FeSignDialog extends HTMLElement {
     link.setAttribute('href', './main.css');
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add(this.tagName.toLocaleLowerCase());
+    wrapper.classList.add(this.tagName.toLocaleLowerCase(), 'dialog');
     wrapper.style.width = W + 28 + 'px';
     wrapper.innerHTML = `
       <div class="header">
         <label>${GWWEBMessage.cmsg_351}</label>
       </div>
-      <div class="method-select tab-group" role="tablist">
-        <button type="button" class="tab-button" role="tab" target="#stampPanel" value="1">${GWWEBMessage.cmsg_1193}</button>
-        <button type="button" class="tab-button" role="tab" target="#textPanel" value="3">${GWWEBMessage.cmsg_1194}</button>
-        <button type="button" class="tab-button" role="tab" target="#penPanel" value="2">${GWWEBMessage.pen_sign}</button>
-      </div>
       <div class="body">
+        <div class="method-select tab-group" role="tablist">
+          <button type="button" class="tab-button" role="tab" target="#stampPanel" value="1">${GWWEBMessage.cmsg_1193}</button>
+          <button type="button" class="tab-button" role="tab" target="#textPanel" value="3">${GWWEBMessage.cmsg_1194}</button>
+          <button type="button" class="tab-button" role="tab" target="#penPanel" value="2">${GWWEBMessage.pen_sign}</button>
+        </div>
         <div id="stampPanel" role="tabpanel">
           <canvas width="${W}px" height="${H}px"></canvas>
           <div class="stamp-list"></div>

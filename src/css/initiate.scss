@@ -40,6 +40,7 @@ input {
   font-size: 1rem;
   line-height: 1.25rem;
 }
+input[type="password"],
 input[type="text"],
 input[type="search"],
 input[type="number"],
@@ -49,6 +50,7 @@ input[type="date"] {
   color: var(--color-text);
   padding: 0.25rem 0.5rem;
 }
+input[type="password"]:disabled,
 input[type="text"]:disabled,
 input[type="search"]:disabled,
 input[type="number"]:disabled,
