@@ -11,7 +11,6 @@ import { doNewObjectIDofAttach, doNewObjectIDofSummary } from '../do/objectIDLis
 import { doDoneParticipant, doNewParticipantID } from '../do/participant';
 import { doSetPreview } from '../do/preview';
 import { isDocCompleted } from '../is/complete';
-import { validateForDraft } from '../validator/forDraft';
 
 /**
  * 기안 상신을 진행한다.
@@ -37,12 +36,6 @@ export default async () => {
   const hox = feMain.hox;
   const feEditor1 = feMain.feEditor1;
   const feAttachBox = feMain.feAttachBox;
-
-  const validationResult = validateForDraft(hox);
-  if (!validationResult.ok) {
-    alert(validationResult.message);
-    return false;
-  }
 
   const signResult = await dialogSign(hox);
   if (!signResult.ok) {

@@ -31,6 +31,8 @@
   doccfg.docViewRatio = 2;
   doccfg.baseBodyContent = 1;
   doccfg.usePreviewSignerName = true;
+  doccfg.useSancPasswd = true;
+  doccfg.passwordCheckWhenDraft = true;
 
   //
   rInfo.sendID = '<c:out value="${param.SENDIDLIST}"/>';
