@@ -33,6 +33,7 @@
   doccfg.usePreviewSignerName = true;
   doccfg.useSancPasswd = true;
   doccfg.passwordCheckWhenDraft = true;
+  doccfg.sancPasswordOnlyFirst = false;
 
   //
   rInfo.sendID = '<c:out value="${param.SENDIDLIST}"/>';

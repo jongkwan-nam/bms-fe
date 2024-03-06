@@ -9,7 +9,6 @@ import { doExamRequest, doInitExamRequest } from '../do/examRequest';
 import { doNewObjectIDofAttach } from '../do/objectIDList';
 import { doDoneParticipant, doNewParticipantID } from '../do/participant';
 import { isDocCompleted } from '../is/complete';
-import { validateForKyul } from '../validator/forKyul';
 
 export default async () => {
   // validation check
@@ -32,12 +31,6 @@ export default async () => {
   const hox = feMain.hox;
   const feEditor1 = feMain.feEditor1;
   const feAttachBox = feMain.feAttachBox;
-
-  const validationResult = validateForKyul(hox);
-  if (!validationResult.ok) {
-    alert(validationResult.message);
-    return;
-  }
 
   const signResult = await dialogSign(hox);
   if (!signResult.ok) {
