@@ -59,6 +59,7 @@ export default class PrevNextButton extends HTMLButtonElement {
 
     const form = document.querySelector('body').appendChild(document.createElement('form'));
     form.method = 'POST';
+    form.action = location.pathname;
 
     rInfo.parameterMap.forEach((value, key) => {
       const input = form.appendChild(document.createElement('input'));
