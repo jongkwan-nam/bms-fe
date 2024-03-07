@@ -1,8 +1,9 @@
 import $ from 'jquery';
 import syncFetch from 'sync-fetch';
+import { FeMode, getFeMode } from '../../main/FeMode';
 import '../../tree/dynatree';
 import DateUtils from '../../utils/DateUtils';
-import feStorage from '../../utils/FeStorage';
+import FeStorage from '../../utils/FeStorage';
 import IDUtils from '../../utils/IDUtils';
 import StringUtils from '../../utils/StringUtils';
 import { HoxEventType, dispatchHoxEvent, getText, setText } from '../../utils/xmlUtils';
@@ -30,7 +31,6 @@ export default class FeFolder extends FeApprovalBox {
     wrapper.innerHTML = `
       <div>
         <select>
-          <option>${GWWEBMessage.cmsg_2500}</option>
         </select>
         <button type="button" id="btnFolderContainer">${GWWEBMessage.W3143}</button>
       </div>
@@ -53,8 +53,11 @@ export default class FeFolder extends FeApprovalBox {
   set(hox) {
     super.setHox(hox);
 
+    this.formID = getText(this.hox, 'docInfo formInfo formID');
     this.fldrId = getText(this.hox, 'docInfo folderInfo ID');
     this.fldrName = getText(this.hox, 'docInfo folderInfo name');
+    this.STORAGE_FOLDER_HISTORY_KEY = `folder_history_${this.formID}`;
+    this.fldrMap = new Map();
 
     let draftDate = getText(this.hox, 'docInfo draftDate');
     if (StringUtils.isBlank(draftDate)) {
@@ -62,29 +65,28 @@ export default class FeFolder extends FeApprovalBox {
       setText(hox, 'docInfo draftDate', draftDate);
     }
 
-    const STORAGE_FOLDER_HISTORY_KEY = `folder_history_${rInfo.objForm1.formID}`;
-
-    const fldrMap = new Map();
+    this.#addEvent();
 
     /* local storage의 해당 서식의 폴더 히스토리를 select > option 에 추가 */
-    const folderIdList = feStorage.local.getArray(STORAGE_FOLDER_HISTORY_KEY);
+    const folderHistoryIdList = FeStorage.local.getArray(this.STORAGE_FOLDER_HISTORY_KEY);
 
     if (IDUtils.isNotNullID(this.fldrId)) {
-      if (!folderIdList.includes(this.fldrId)) {
-        folderIdList.push(this.fldrId);
+      if (folderHistoryIdList.includes(this.fldrId)) {
+        folderHistoryIdList.splice(folderHistoryIdList.indexOf(this.fldrId), 1);
       }
+      folderHistoryIdList.unshift(this.fldrId);
     }
 
-    for (let folderId of folderIdList) {
-      if (folderId.trim().length === 0) {
+    // 히스토리의 폴더 검증
+    for (const folderId of folderHistoryIdList) {
+      if (StringUtils.isBlank(folderId)) {
         continue;
       }
       // folderId 검증 후 option 추가
       const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveValidFldr.act?fldrID=${folderId}&deptID=${rInfo.user.deptID}&draftDate=${draftDate.substring(0, 10)}`).json();
       if (data.ok) {
-        //
         const data = syncFetch(`/bms/com/hs/gwweb/appr/retrieveFldrInfo.act?fldrID=${folderId}&applID=${7010}`).json();
-        fldrMap.set(data.fldrId, data);
+        this.fldrMap.set(data.fldrId, data);
 
         const option = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
         option.value = data.fldrId;
@@ -93,15 +95,37 @@ export default class FeFolder extends FeApprovalBox {
     }
 
     // 값 설정
-    if (IDUtils.isNotNullID(this.fldrId)) {
-      this.shadowRoot.querySelector('select').value = this.fldrId;
+    if ([FeMode.DRAFT, FeMode.ACCEPT].includes(getFeMode())) {
+      const options = this.shadowRoot.querySelectorAll('select option');
+      if (options.length === 0) {
+        // 옵션이 하나도 없으면, 선택 옵션 추가
+        const option = document.createElement('option');
+        option.innerHTML = GWWEBMessage.cmsg_2500;
+      }
+      // 제일 최근(최상위) 옵션 선택
+      this.shadowRoot.querySelector('select').dispatchEvent(new Event('change'));
+    } else {
+      if (IDUtils.isNotNullID(this.fldrId)) {
+        this.shadowRoot.querySelector('select').value = this.fldrId;
+      }
     }
+  }
 
+  changeContentNumberCallback() {
+    this.shadowRoot.querySelectorAll('select, button').forEach((input) => (input.disabled = this.contentNumber > 1));
+  }
+
+  #addEvent() {
     // 기록물철 select 선택
-    this.shadowRoot.querySelector('select').addEventListener('change', (e) => {
+    const SELECT = this.shadowRoot.querySelector('select');
+    SELECT.addEventListener('change', () => {
+      console.log('select change', SELECT.value);
       //
-      console.log('select change', e.target.value, e.target.innerHTML);
-      let fldrInfo = fldrMap.get(e.target.value);
+      if (StringUtils.isBlank(SELECT.value)) {
+        return;
+      }
+
+      const fldrInfo = this.fldrMap.get(SELECT.value);
 
       setText(this.hox, 'docInfo folderInfo ID', fldrInfo.fldrId);
       setText(this.hox, 'docInfo folderInfo name', fldrInfo.fldrName);
@@ -113,7 +137,6 @@ export default class FeFolder extends FeApprovalBox {
 
     // 선택 버튼: 기록물철 트리 호출
     this.shadowRoot.querySelector('button#btnFolderContainer').addEventListener('click', (e) => {
-      //
       this.shadowRoot.querySelector('.modal-container').classList.add('open');
 
       const params = {
@@ -144,7 +167,7 @@ export default class FeFolder extends FeApprovalBox {
             fx: { height: 'toggle', duration: 200 },
             children: JSON.parse(data.treeValue),
             onCustomRender: function (dtnode) {
-              console.log('[dynatree] onCustomRender', dtnode.data?.title, dtnode.data?.noLink);
+              console.log('[dynatree] onCustomRender', dtnode.data);
 
               const deptData = dtnode.data;
               let title = deptData.title.replace(/\\/g, '');
@@ -164,23 +187,18 @@ export default class FeFolder extends FeApprovalBox {
               return dynatreeTitle;
             },
             onClick: (dtnode, event) => {
-              console.log('[dynatree] onClick', 'event.target.className=', event.target.className, 'dtnode.data.noLink=', dtnode.data.noLink, 'dtnode.data.title=', dtnode.data.title);
+              console.log('[dynatree] onClick', dtnode);
 
-              if (event.target.className != 'dynatree-expander' && !dtnode.data.noLink) {
+              if (event.target.className !== 'dynatree-expander' && !dtnode.data.noLink) {
                 this.fldrId = dtnode.data.fldrId;
                 this.fldrName = dtnode.data.fldrName;
                 console.log(`[dynatree] selected fldrId: ${this.fldrId}, fldrName: ${this.fldrName}`);
-                // PopApprTree.selectFldr(dtnode.data, event);
               } else {
-                if (event.target.className != 'dynatree-expander') {
+                if (event.target.className !== 'dynatree-expander') {
                   dtnode.deactivate();
                   return false;
                 }
               }
-            },
-            onQueryActivate: (activate, node) => {
-              console.log('[dynatree] onQueryActivate', activate, 'node.data.fldrApplId=', node.data.fldrApplId);
-              return true;
             },
           });
 
@@ -192,34 +210,38 @@ export default class FeFolder extends FeApprovalBox {
 
     // 기록물철 트리에서 선택 버튼
     this.shadowRoot.querySelector('button#btnFolderSelect').addEventListener('click', (e) => {
-      //
-      /* 기존 option에 있는 기록물철이면, 선택만 하고, 없으면 option 추가 및 선택, storage 저장 */
-      let existsOption = this.shadowRoot.querySelector(`select option[value="${this.fldrId}"`);
-      console.log('option is', existsOption);
+      // 기존 option에 있는 기록물철이면, 선택만 하고, 없으면 option 추가 및 선택, storage 저장
+      const existsOption = SELECT.querySelector(`option[value="${this.fldrId}"`);
       if (existsOption !== null) {
         existsOption.selected = true;
       } else {
-        let newOption = this.shadowRoot.querySelector('select').appendChild(document.createElement('option'));
+        const newOption = document.createElement('option');
         newOption.value = this.fldrId;
         newOption.innerHTML = this.fldrName;
         newOption.selected = true;
+        SELECT.prepend(newOption);
 
-        let historyValue = feStorage.local.get(STORAGE_FOLDER_HISTORY_KEY);
-        feStorage.local.set(STORAGE_FOLDER_HISTORY_KEY, `${historyValue},${this.fldrId}`);
+        // not has
+        if (!this.fldrMap.has(this.fldrId)) {
+          this.fldrMap.set(this.fldrId, { fkdrId: this.fldrId, fldrName: this.fldrName });
+        }
+
+        FeStorage.local.set(
+          this.STORAGE_FOLDER_HISTORY_KEY,
+          Array.from(SELECT.querySelectorAll('option'))
+            .map((option) => option.value)
+            .join(',')
+        );
       }
+      SELECT.dispatchEvent(new Event('change'));
 
       this.shadowRoot.querySelector('.modal-container').classList.remove('open');
     });
 
     // 기록물철 트리에서 취소. do nothing
     this.shadowRoot.querySelector('button#btnFolderCancel').addEventListener('click', (e) => {
-      //
       this.shadowRoot.querySelector('.modal-container').classList.remove('open');
     });
-  }
-
-  changeContentNumberCallback() {
-    this.shadowRoot.querySelectorAll('select, button').forEach((input) => (input.disabled = this.contentNumber > 1));
   }
 }
 
