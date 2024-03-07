@@ -53,7 +53,7 @@
         const parentComponent = window.parent.document.querySelector('#' + id);
         console.log(`BuildWebHwpCtrl completed. ${id} parentComponent`, parentComponent);
 
-        parentComponent.buildWebHwpCtrlCallback(hwpCtrl, WEBHWP_SERVER_URL);
+        parentComponent?.buildWebHwpCtrlCallback(hwpCtrl, WEBHWP_SERVER_URL);
 
         resize();
       });
