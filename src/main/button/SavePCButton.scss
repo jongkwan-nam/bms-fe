@@ -1,0 +1,42 @@
+.save-btn {
+  width: 6.5rem;
+
+  &:hover {
+    background-color: var(--color-bg) !important;
+  }
+
+  #saveHwp {
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+
+  #saveMore {
+    float: right;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+
+  #saveBtnWrap {
+    display: none;
+    border: 1px solid var(--color-border);
+    border-top: 0;
+    background-color: var(--color-bg);
+
+    &.show {
+      display: block;
+      position: absolute;
+      z-index: 1;
+    }
+
+    button {
+      width: 100%;
+      text-align: start;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+}
