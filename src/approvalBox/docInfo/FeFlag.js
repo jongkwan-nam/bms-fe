@@ -1,4 +1,4 @@
-import { toggleFlag } from '../../utils/xmlUtils';
+import { existsFlag, toggleFlag } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFlag.scss';
 
@@ -44,6 +44,12 @@ export default class FeFlag extends FeApprovalBox {
    */
   set(hox) {
     super.setHox(hox);
+
+    data.forEach((item) => {
+      if (existsFlag(hox, 'docInfo approvalFlag', item.flag)) {
+        this.shadowRoot.getElementById(item.flag).checked = true;
+      }
+    });
   }
 
   changeContentNumberCallback() {

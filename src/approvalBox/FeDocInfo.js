@@ -36,7 +36,7 @@ export default class FeDocInfo extends HTMLElement {
     wrapper.innerHTML = `
       <label>발송종류</label>   <fe-enforcetype></fe-enforcetype>
       <label>제목</label>       <fe-title></fe-title>
-      <label>flag</label>       <fe-flag></fe-flag>
+      <label>&nbsp;</label>     <fe-flag></fe-flag>
       <label>문서번호</label>   <fe-docnumber></fe-docnumber>
       <label>문서종류</label>   <fe-approvaltype></fe-approvaltype>
       <label>기록물철</label>   <fe-folder></fe-folder>
