@@ -295,4 +295,5 @@ export const HoxEventType = {
   OBJECTIDLIST: 'objectIDList',
   CONTENT: 'content',
   TITLE: 'title',
+  FLAG: 'flag',
 };

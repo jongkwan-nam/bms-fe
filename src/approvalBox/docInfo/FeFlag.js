@@ -1,4 +1,4 @@
-import { existsFlag, toggleFlag } from '../../utils/xmlUtils';
+import { HoxEventType, dispatchHoxEvent, existsFlag, toggleFlag } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeFlag.scss';
 
@@ -8,6 +8,10 @@ const data = [
   { flag: 'apprflag_express', msgCode: 'cmsg_1814' }, // 긴급
   { flag: 'apprflag_password', msgCode: 'cmsg_639' }, // 열람시 암호 확인
 ];
+
+if (doccfg.useAutoSend) {
+  data.push({ flag: 'apprflag_auto_send', msgCode: 'cmsg_2777' }); // 자동발송
+}
 
 /**
  * 결재 플래그
@@ -30,6 +34,8 @@ export default class FeFlag extends FeApprovalBox {
         console.log(e.target.id, e.type, e.target.value);
 
         toggleFlag(this.hox, 'docInfo approvalFlag', e.target.value, e.target.checked);
+
+        dispatchHoxEvent(this.hox, 'docInfo approvalFlag', HoxEventType.FLAG, 'change', e.target.value);
       });
 
       let label = wrapper.appendChild(document.createElement('label'));

@@ -1,5 +1,6 @@
 import syncFetch from 'sync-fetch';
-import { addNodes, createNode, existsNode, getAttr, getNode, getNodes, getText } from '../../utils/xmlUtils';
+import { getLastSignParticipant } from '../../utils/HoxUtils';
+import { HoxEventType, addNodes, createNode, existsFlag, existsNode, getAttr, getNode, getNodes, getText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import FeRec from './FeRec';
 import './FeRecList.scss';
@@ -14,14 +15,18 @@ import './FeRecList.scss';
  * - 수신부서 표기명 제공
  */
 export default class FeRecList extends FeApprovalBox {
+  stampInfoMap = new Map();
+  skipStampURL = null;
+  skipChiefStampURL = null;
+
   constructor() {
     super();
   }
 
   connectedCallback() {
-    const wrapper = super.init();
+    this.wrapper = super.init();
 
-    wrapper.innerHTML = `
+    this.wrapper.innerHTML = `
       <header>
         <label>${GWWEBMessage.recvdept}</label>
         <div>
@@ -30,6 +35,14 @@ export default class FeRecList extends FeApprovalBox {
         </div>
       </header>
       <ul id="list" class="list"></ul>
+      <div class="stamp-wrap">
+        <div>
+          <ul class="stamp-list"></ul>
+        </div>
+        <div>
+          <img class="preview"/>
+        </div>
+      </div>
     `;
 
     this.LIST = this.shadowRoot.querySelector('#list');
@@ -70,11 +83,25 @@ export default class FeRecList extends FeApprovalBox {
   set(hox) {
     super.setHox(hox);
 
+    hox.addEventListener(HoxEventType.FLAG, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      if (e.detail.type === 'apprflag_auto_send') {
+        this.#initAutoSend();
+      }
+    });
+
+    hox.addEventListener(HoxEventType.ENFORCETYPE, (e) => {
+      console.info('hoxEvent listen', e.type, e.detail);
+      this.#initAutoSend();
+    });
+
+    this.#initAutoSend();
     this.#renderRecList();
   }
 
   changeContentNumberCallback() {
     console.log('FeRecList changeContentNumberCallback');
+    this.#initAutoSend();
     this.#renderRecList();
     this.dispatchEvent(new Event('change')); // 수신부서 표기명, 발신명의 업데이트를 위해
   }
@@ -295,6 +322,78 @@ export default class FeRecList extends FeApprovalBox {
     }
   }
 
+  #initAutoSend() {
+    if (!doccfg.useAutoSend) {
+      return;
+    }
+    if (!existsFlag(this.hox, 'docInfo approvalFlag', 'apprflag_auto_send')) {
+      // 자동발송이 해제됬을 경우
+      getNodes(this.hox, 'docInfo content').forEach((content) => {
+        getNode(content, 'stamp')?.remove();
+      });
+      return;
+    }
+    this.enforceType = getText(this.contentNode, 'enforceType');
+    this.wrapper.classList.toggle('auto-send', 'enforcetype_not' !== this.enforceType);
+    if ('enforcetype_not' === this.enforceType) {
+      getNode(this.contentNode, 'stamp')?.remove();
+      return;
+    }
+
+    const drafterId = getText(this.hox, 'docInfo drafter ID');
+    const draftDeptId = getText(this.hox, 'docInfo drafter department ID');
+    const senderDeptId = draftDeptId;
+    const lastSignDeptId = getText(getLastSignParticipant(this.hox), 'department ID');
+    const type = 'enforcetype_external' === this.enforceType ? 0 : 3;
+
+    const key = `${type}_${draftDeptId}_${lastSignDeptId}_${senderDeptId}`;
+    if (!this.stampInfoMap.has(key)) {
+      const stampInfos = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveStampInfos.act?type=${type}&draftDeptId=${draftDeptId}&lastSignDeptId=${lastSignDeptId}&senderDeptId=${senderDeptId}`).json();
+      this.stampInfoMap.set(key, stampInfos);
+
+      stampInfos.stamps.push(this.#getSkipStampInfo(type));
+    }
+    console.debug('stampInfoMap', this.stampInfoMap);
+    const stampInfos = this.stampInfoMap.get(key);
+
+    const list = this.shadowRoot.querySelector('.stamp-list');
+    list.textContent = null;
+
+    Array.from(stampInfos.stamps).forEach((stamp, i) => {
+      const li = list.appendChild(document.createElement('li'));
+      li.innerHTML = stamp.stampName;
+      li.dataset.key = `${stamp.ID}_${stamp.fno}_${stamp.type}`;
+      li.addEventListener('click', (e) => {
+        list.querySelectorAll('li').forEach((li) => li.classList.remove('selected'));
+        li.classList.add('selected');
+        if (!stamp.url) {
+          const sealBlob = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageFileDwld.act?TRID=${stampInfos.TRIDs[i]}`).blob();
+          stamp.url = URL.createObjectURL(sealBlob);
+        }
+
+        const preview = this.shadowRoot.querySelector('.preview');
+        preview.src = stamp.url;
+        preview.dataset.fno = stamp.fno;
+
+        console.debug('stamp', stamp);
+
+        getNode(this.contentNode, 'stamp')?.remove();
+        this.contentNode.appendChild(createNode(`<stamp id="${stamp.ID}" fno="${stamp.fno}" type="${stamp.type}" userid="${drafterId}" deptid="${draftDeptId}"/>`));
+      });
+    });
+    //
+    const stampNode = getNode(this.contentNode, 'stamp');
+    if (stampNode !== null) {
+      const id = getAttr(stampNode, null, 'id');
+      const fno = getAttr(stampNode, null, 'fno');
+      const type = getAttr(stampNode, null, 'type');
+
+      list.querySelector(`li[data-key="${id}_${fno}_${type}"]`)?.click();
+    } else {
+      list.querySelector(':first-child').click();
+    }
+  }
+
   #renderRecList() {
     if (!existsNode(this.contentNode, 'receiptInfo recipient')) {
       addNodes(this.contentNode, 'receiptInfo', 'recipient');
@@ -326,6 +425,26 @@ export default class FeRecList extends FeApprovalBox {
     return Array.from(this.LIST.querySelectorAll('fe-rec'))
       .map((feRec) => feRec.displayString)
       .join(',');
+  }
+
+  /**
+   * 관인/부서장인 생략 정보(name, url)
+   * @param {number} type 0: 대외, 3: 대내
+   * @returns
+   */
+  #getSkipStampInfo(type) {
+    if (type === 0 && this.skipStampURL === null) {
+      this.skipStampURL = URL.createObjectURL(syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveServerFile.act?UID=${rInfo.user.ID}&res=skipstamp.bmp&fileType=attach`).blob());
+    } else if (type === 3 && this.skipChiefStampURL === null) {
+      this.skipChiefStampURL = URL.createObjectURL(syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveServerFile.act?UID=${rInfo.user.ID}&res=skipchiefstamp.bmp&fileType=attach`).blob());
+    }
+    return {
+      ID: '000000000',
+      fno: -1,
+      type: type,
+      stampName: type === 0 ? '관인생략' : '서명인생략',
+      url: type === 0 ? this.skipStampURL : this.skipChiefStampURL,
+    };
   }
 }
 
