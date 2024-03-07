@@ -49,7 +49,14 @@
       fileName: '<c:out value="${att.fileName}" />',
       size: <c:out value="${att.size}" default="0" />
     });
-  </c:forEach>;
+  </c:forEach>
+
+  // for 연속 결재
+  rInfo.parameterMap = new Map();
+  <% for (java.util.Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+  	String name = entry.getKey();
+  	String value = entry.getValue()[0]; %>rInfo.parameterMap.set('<%=name%>', '<%=value%>');
+  <% } %>
 </script>
 <main>
   <header class="menu-wrap"></header>
