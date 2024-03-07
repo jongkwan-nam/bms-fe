@@ -48,9 +48,6 @@ export default class ButtonController {
         this.#append(new PubshowButton()); // 공람
         this.#append(new TmprDocSaveButton()); // 임시저장
         this.#append(new MultiContentButton()); // 안추가
-        // this.#append(new SaveHwpDistButton()); // PC저장(배포용)
-        // this.#append(new SaveHwpxButton()); // PC저장(hwpx)
-        // this.#append(new SaveHwpButton()); // PC저장
         this.#append(new SavePCButton()); // PC저장
         // 인쇄
         break;
@@ -65,9 +62,6 @@ export default class ButtonController {
         this.#append(new CommentButton()); // 의견
         this.#append(new RelationDocButton()); // 관련문서
         this.#append(new SendMainButton()); // 메일쓰기
-        // this.#append(new SaveHwpDistButton()); // PC저장(배포용)
-        // this.#append(new SaveHwpxButton()); // PC저장(hwpx)
-        // this.#append(new SaveHwpButton()); // PC저장
         this.#append(new SavePCButton()); // PC저장
         this.#append(new PrevNextButton()); // 이전/다음 문서
         // 인쇄
@@ -85,9 +79,6 @@ export default class ButtonController {
         this.#append(new SummaryButton()); // 요약
         this.#append(new CommentButton()); // 의견
         this.#append(new RelationDocButton()); // 관련문서
-        // this.#append(new SaveHwpDistButton()); // PC저장(배포용)
-        // this.#append(new SaveHwpxButton()); // PC저장(hwpx)
-        // this.#append(new SaveHwpButton()); // PC저장
         this.#append(new SavePCButton()); // PC저장
         this.#append(new PrevNextButton()); // 이전/다음 문서
         // 인쇄
@@ -101,7 +92,6 @@ export default class ButtonController {
         this.#append(new ApprovalBoxButton()); // 결재정보
         this.#append(new SummaryButton()); // 요약
         this.#append(new RelationDocButton()); // 관련문서
-        // this.#append(new SaveHwpDistButton()); // PC저장(배포용)
         this.#append(new SavePCButton()); // PC저장
         this.#append(new PrevNextButton()); // 이전/다음 문서
         // 인쇄
@@ -110,9 +100,6 @@ export default class ButtonController {
       case FeMode.REQUEST: {
         this.#append(new SendRequestButton()); // 발송의뢰
         this.#append(new ApprovalBoxButton()); // 결재정보
-        // this.#append(new SaveHwpDistButton()); // PC저장(배포용)
-        // this.#append(new SaveHwpxButton()); // PC저장(hwpx)
-        // this.#append(new SaveHwpButton()); // PC저장
         this.#append(new SavePCButton()); // PC저장
         this.#append(new PrevNextButton()); // 이전/다음 문서
         // 인쇄
@@ -123,7 +110,6 @@ export default class ButtonController {
         this.#append(new SendControlButton()); // 발송처리
         this.#append(new SendRejectButton()); // 반송
         this.#append(new ApprovalBoxButton()); // 결재정보
-        // this.#append(new SaveHwpDistButton()); // PC저장
         this.#append(new SavePCButton()); // PC저장
         this.#append(new PrevNextButton()); // 이전/다음 문서
         // 인쇄
