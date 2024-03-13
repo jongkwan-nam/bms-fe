@@ -1,9 +1,11 @@
+import ColorUtils from '../utils/ColorUtils';
 import { getContentCellName } from '../utils/HoxUtils';
 import StringUtils from '../utils/StringUtils';
 import { HoxEventType, dispatchHoxEvent, getNode, getNodes, setText } from '../utils/xmlUtils';
 import Cell from './CellNames';
 import './FeEditor.scss';
 import { FeMode, getFeMode } from './FeMode';
+import { HWPFIELDALL, HWPFIELDCELL, HWPFIELDCLICKHERE, HWPFIELDCOUNT, HWPFIELDNUMBER, HWPFIELDPLAIN } from './const/CommonConst';
 import FeHwpCtrl from './hwp/FeHwpCtrl';
 
 const TIME_LABEL_INIT = 'Editor-init-';
@@ -251,34 +253,73 @@ export default class FeEditor extends FeHwpCtrl {
    * @param {string} faceNameHangul 폰트
    * @param {number} underlineType 밑줄. 0: none, 1: bottom, 2: center, 3: top
    */
-  putFieldText(name, text, textColor = null, height = null, faceNameHangul = null, underlineType = null) {
+  putFieldText(name, text, textColor = null, height = null, faceNameHangul = null, underlineType = null, bold = false) {
+    console.debug('putFieldText', name, text, textColor, height, faceNameHangul, underlineType, bold);
     if (StringUtils.isBlank(text)) {
       this.hwpCtrl.PutFieldText(name, String.fromCharCode(2));
+      return;
     } else {
       this.hwpCtrl.PutFieldText(name, text);
     }
 
-    if (height !== null || textColor !== null || faceNameHangul !== null || underlineType !== null) {
-      this.hwpCtrl.MoveToField(name, true, true, true);
-      const hwpAction = this.hwpCtrl.CreateAction('CharShape');
-      const hwpActionSet = hwpAction.CreateSet();
-      hwpAction.GetDefault(hwpActionSet);
-      if (height !== null) {
-        hwpActionSet.SetItem('Height', height);
-      }
-      if (textColor !== null) {
-        hwpActionSet.SetItem('TextColor', textColor);
-      }
-      if (faceNameHangul !== null) {
-        hwpActionSet.SetItem('FaceNameHangul', faceNameHangul);
-      }
-      if (underlineType !== null) {
-        hwpActionSet.SetItem('UnderlineType', underlineType);
-      }
-
-      hwpAction.Execute(hwpActionSet);
-      super.run('Cancel');
+    if (textColor !== null || height !== null || faceNameHangul !== null || underlineType !== null || bold) {
+      this.moveToField(name, true, true, true);
+      this.actionCharShape(textColor, height, faceNameHangul, underlineType, bold);
     }
+  }
+
+  appendFieldText(name, text, textColor = null, height = null, faceNameHangul = null, underlineType = null, bold = null) {
+    console.debug('appendFielldText', name, text, textColor, height, faceNameHangul, underlineType, bold);
+    // 필드의 끝으로 이동
+    this.moveToField(name, true, false, false);
+    // 삽입될 시작 위치 기억
+    const startInfo = this.getDocumentInfo(false);
+    // 텍스트 삽입
+    const insertAction = this.hwpCtrl.CreateAction('InsertText');
+    const set = insertAction.CreateSet();
+    insertAction.GetDefault(set);
+    set.SetItem('Text', text);
+    insertAction.Execute(set);
+    // 삽입된 끝 위치 기억
+    const endInfo = this.getDocumentInfo(false);
+    // shape 정보가 있으면
+    if (textColor !== null || height !== null || faceNameHangul !== null || underlineType !== null || bold !== null) {
+      // 삽입된 텍스트 블럭 설정
+      this.hwpCtrl.SelectText(startInfo.Item('CurPara'), startInfo.Item('CurPos'), endInfo.Item('CurPara'), endInfo.Item('CurPos'));
+      this.actionCharShape(textColor, height, faceNameHangul, underlineType, bold);
+    }
+  }
+
+  #insertText(text) {
+    const insertAction = this.hwpCtrl.CreateAction('InsertText');
+    const set = insertAction.CreateSet();
+    insertAction.GetDefault(set);
+    set.SetItem('Text', text);
+    insertAction.Execute(set);
+  }
+
+  actionCharShape(textColor = null, height = null, faceNameHangul = null, underlineType = null, bold = null) {
+    const hwpAction = this.hwpCtrl.CreateAction('CharShape');
+    const hwpSet = hwpAction.CreateSet();
+    hwpAction.GetDefault(hwpSet);
+    if (textColor !== null) {
+      hwpSet.SetItem('TextColor', ColorUtils.colorNameToHex(textColor));
+    }
+    if (height !== null) {
+      hwpSet.SetItem('Height', height);
+    }
+    if (faceNameHangul !== null) {
+      hwpSet.SetItem('FaceNameHangul', faceNameHangul);
+    }
+    if (underlineType !== null) {
+      hwpSet.SetItem('UnderlineType', underlineType);
+    }
+    if (bold !== null) {
+      hwpSet.SetItem('Bold', bold);
+    }
+
+    hwpAction.Execute(hwpSet);
+    super.runCancel();
   }
 
   /**
@@ -375,13 +416,13 @@ export default class FeEditor extends FeHwpCtrl {
     }
   }
 
-  async insert(url, format) {
-    let res = await super.insert(url, format);
-    console.debug('insert', res);
-    if (!res.result) {
-      throw new Error('insert Error. url=' + url + ' format=' + format);
-    }
-  }
+  // async insert(url, format, arg) {
+  //   let res = await super.insert(url, format, arg);
+  //   console.debug('insert', res);
+  //   if (!res.result) {
+  //     throw new Error('insert Error. url=' + url + ' format=' + format);
+  //   }
+  // }
 
   /**
    * 안 추가
@@ -405,7 +446,7 @@ export default class FeEditor extends FeHwpCtrl {
 
     let jsonData = await super.getTextFile('JSON', 'saveblock');
 
-    await super.run('Cancel');
+    super.runCancel();
 
     await super.run('MoveDocEnd');
     await super.run('BreakPage');
@@ -440,10 +481,10 @@ export default class FeEditor extends FeHwpCtrl {
           this.hwpCtrl.PutFieldText(Cell.DOC_TITLE + '_' + this.contentCount, title);
 
           // 본문
-          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + (this.contentCount - 1), true, true, true);
+          this.moveToField(Cell.CBODY + '_' + (this.contentCount - 1), true, true, true);
           let bodyText = await super.getTextFile('JSON', 'saveblock');
 
-          this.hwpCtrl.MoveToField(Cell.CBODY + '_' + this.contentCount, true, true, true);
+          this.moveToField(Cell.CBODY + '_' + this.contentCount, true, true, true);
           await super.run('Erase');
 
           let ret = await super.setTextFile(bodyText, 'JSON', 'insertfile');
@@ -517,11 +558,10 @@ export default class FeEditor extends FeHwpCtrl {
     const cellName = getContentCellName(Cell.DOC_TITLE, contentNumber);
     console.debug('selectContent', contentNumber, cellName);
 
-    const ret1 = this.hwpCtrl.MoveToFieldEx(cellName, true, false, false);
-    console.log('MoveToFieldEx', cellName, ret1);
-    await super.run('MovePageBegin');
-    // const ret2 = this.hwpCtrl.MoveToField(cellName, true, false, false);
-    // console.log('MoveToField', cellName, ret2);
+    const ret1 = this.moveToFieldEx(cellName, true, false, false);
+
+    // TODO
+    // await super.run('MovePageBegin');
   }
 
   async moveContent(from, to) {
@@ -552,7 +592,7 @@ export default class FeEditor extends FeHwpCtrl {
 
       this.putFieldText(name, text, 0x000000);
 
-      this.hwpCtrl.MoveToField(name, true, true, true);
+      this.moveToField(name, true, true, true);
       await super.run('ParagraphShapeAlignCenter');
 
       if (doccfg.signShowSignerDataAlign === 'top') {
@@ -574,19 +614,39 @@ export default class FeEditor extends FeHwpCtrl {
    *
    * @param {string} url 관인 이미지 URL
    */
-  async doSealStamp(url) {
+  async doSealStamp(url, stampWidth, stampHeight) {
     //
     this.resolveDocInfo();
+
+    this.setEditMode(1);
+    super.toggleViewOptionCtrkMark(true);
 
     this.putFieldText(Cell.SEAL_STAMP, '');
     this.putFieldText(Cell.SEAL_OMISSION, '');
 
     const existSealStamp = this.existField(Cell.SEAL_STAMP);
+    console.log('existSealStamp', existSealStamp);
     if (!existSealStamp) {
-      await super.run('MoveDocEnd');
-      // await this.insert(`${location.origin}${PROJECT_CODE}/js/com/hs/gwweb/appr/editor/stamptable.hwp`, 'HWP');
+      // TODO 안이 여러개 있을 경우  추가 작업 필요
+      const ret = this.moveToField(Cell.SENDERNAME);
+      // this.#insertText('발신명의위치');
+      // await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
 
-      await this.insert(this.stamptableHwpjson, 'JSON');
+      console.log('moveToField(Cell.SENDERNAME)', ret, this.hwpCtrl.GetCurFieldName(1));
+      // 발신명의로 이동
+      this.hwpCtrl.MovePos(24, null, null);
+      // this.#insertText('발신명의 표 탈출');
+
+      // await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+      this.hwpCtrl.MovePos(23, null, null);
+      // this.#insertText('줄 끝으로');
+
+      // await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+
+      // await super.run('MoveDocEnd');
+      await this.insert(`${location.origin}${PROJECT_CODE}/js/com/hs/gwweb/appr/editor/stamptable.hwp`, 'HWP');
+
+      // await this.insert(this.stamptableHwpjson, 'JSON');
     }
 
     const existSenderName = this.existField(Cell.SENDERNAME);
@@ -594,21 +654,25 @@ export default class FeEditor extends FeHwpCtrl {
       throw new Error('Error: not found cell ' + Cell.SENDERNAME);
     }
 
-    this.hwpCtrl.MoveToField(Cell.SEAL_STAMP, true, true, false);
-    super.run('MoveLeft');
+    // this.moveToField(Cell.SEAL_STAMP, true, true, false);
+    // await super.run('MoveLeft');
 
-    this.hwpCtrl.MoveToField(Cell.SEAL_STAMP, true, true, false);
+    this.moveToField(Cell.SEAL_STAMP, true, true, false);
 
-    await super.insertPicture(url, true, 3, false, false, 0);
+    if (stampWidth && stampHeight) {
+      await super.insertPicture(url, true, 1, false, false, 0, stampWidth, stampHeight);
+    } else {
+      await super.insertPicture(url, true, 0, false, false, 0);
+    }
 
     // 날인된 도장의 위치 이동
-    super.toggleViewOptionCtrkMark(true);
+    // super.toggleViewOptionCtrkMark(true);
 
     const senderNameCellInfo = super.getCellInfo(Cell.SENDERNAME);
     const senderNameTableInfo = super.getTableInfo(Cell.SENDERNAME);
     const sealStampTableInfo = super.getTableInfo(Cell.SEAL_STAMP);
 
-    this.hwpCtrl.MoveToField(Cell.SENDERNAME, true, true, false);
+    this.moveToField(Cell.SENDERNAME, true, true, false);
 
     let yPos = senderNameTableInfo.Item('Height') - (sealStampTableInfo.Item('Height') + senderNameCellInfo.Item('Height')) / 2;
     let xPos = senderNameTableInfo.Item('HorzOffset') + (senderNameTableInfo.Item('Width') - sealStampTableInfo.Item('Width')) / 2;
@@ -648,7 +712,7 @@ export default class FeEditor extends FeHwpCtrl {
     para.SetItem('AlignType', 3);
     this.hwpCtrl.ParaShape = para;
 
-    this.hwpCtrl.MoveToFieldEx(Cell.SEAL_STAMP);
+    this.moveToFieldEx(Cell.SEAL_STAMP);
     const hwpAction = this.hwpCtrl.CreateAction('TablePropertyDialog');
     const hwpSet = hwpAction.CreateSet();
     hwpAction.GetDefault(hwpSet);
@@ -677,6 +741,7 @@ export default class FeEditor extends FeHwpCtrl {
     hwpAction.Execute(hwpSet);
 
     super.toggleViewOptionCtrkMark(false);
+    this.setEditMode(2);
 
     console.debug('doSealStamp', url);
   }
@@ -686,7 +751,7 @@ export default class FeEditor extends FeHwpCtrl {
     this.putFieldText(Cell.SEAL_STAMP, '');
     this.putFieldText(Cell.SEAL_OMISSION, '');
 
-    this.hwpCtrl.MoveToField(Cell.SEAL_OMISSION, true, true, false);
+    this.moveToField(Cell.SEAL_OMISSION, true, true, false);
 
     super.toggleViewOptionCtrkMark(true);
     await super.insertPicture(url, true, 3, false, false, 0);
@@ -825,7 +890,7 @@ export default class FeEditor extends FeHwpCtrl {
    * @returns
    */
   async getCellBodyAsJSON() {
-    this.hwpCtrl.MoveToField(Cell.CBODY, true, true, true);
+    this.moveToField(Cell.CBODY, true, true, true);
     return await super.getTextFile('JSON', 'saveblock');
   }
 
@@ -834,7 +899,7 @@ export default class FeEditor extends FeHwpCtrl {
    * @param {string} jsonData
    */
   async setCellBodyAsJSON(jsonData) {
-    this.hwpCtrl.MoveToField(Cell.CBODY, true, true, true);
+    this.moveToField(Cell.CBODY, true, true, true);
     await super.run('Erase');
 
     super.toggleViewOptionCtrkMark(true);
@@ -845,7 +910,7 @@ export default class FeEditor extends FeHwpCtrl {
   }
 
   focusToField(cellName) {
-    this.hwpCtrl.MoveToFieldEx(cellName, true, true, false);
+    this.moveToFieldEx(cellName, true, true, false);
   }
 
   /**
@@ -878,6 +943,154 @@ export default class FeEditor extends FeHwpCtrl {
 
   setDocumentUpdated(isModified) {
     this.hwpCtrl.IsModified = isModified ? 1 : 0;
+  }
+
+  /**
+   *
+   * @param {string} fieldName
+   * @param {*} shape
+   */
+  setCharShape(fieldName, shape) {
+    if (StringUtils.isNotBlank(fieldName)) {
+      const matched = fieldName.match(/{{|}}/g);
+      if (matched && matched.length === 2) {
+        // 인덱스가 있으면, 해당 필드만 처리
+        this.moveToField(fieldName, true, true, true);
+        this.#setCharShape(shape);
+      } else {
+        // 인덱스가 없으면, loop 돌면서 전체 처리
+        const fieldCount = this.getFieldCount(fieldName, 'cell');
+        for (var i = 0; i < fieldCount; i++) {
+          this.moveToField(fieldName + '{{' + i + '}}', true, true, true);
+          this.#setCharShape(shape);
+        }
+      }
+    } else {
+      this.#setCharShape(shape);
+    }
+  }
+
+  getFieldCount(fieldName, option) {
+    if (StringUtils.isBlank(fieldName)) return 0;
+
+    const fieldList = this.#getFieldListEx('count', option, fieldName);
+    if (fieldList.iFieldCnt == 0) return 0;
+
+    const field = fieldList.lpFields[0];
+    if (!field || field.indexOf(fieldName) < 0) return 0;
+
+    const startIndex = field.indexOf('{{');
+    const endIndex = field.lastIndexOf('}}');
+    if (startIndex < 0 || endIndex < 0) return 1;
+
+    const count = parseInt(field.substring(startIndex + 2, endIndex), 10);
+    if (isNaN(count)) return 1;
+    else return count;
+  }
+
+  #setCharShape(shape) {
+    var action = this.hwpCtrl.CreateAction('CharShape');
+    var set = action.CreateSet();
+    action.GetDefault(set);
+    // color
+    if (shape.color != null) {
+      var colorCode = 0x000000;
+      if (shape.color == 'blue') colorCode = 0xff0000;
+      else if (shape.color == 'green') colorCode = 0x00ff00;
+      else if (shape.color == 'red') colorCode = 0x0000ff;
+      else if (shape.color == 'white') colorCode = 0xffffff;
+      set.SetItem('TextColor', colorCode);
+      //alert("[vect3] colorCode = " + colorCode);
+    }
+    // height
+    if (shape.height != null) {
+      set.SetItem('Height', shape.height);
+      //alert("[vect3] Height = " + shape.height);
+    }
+    // bold
+    if (shape.bold != null) set.SetItem('Bold', shape.bold);
+
+    action.Execute(set);
+
+    // 블럭 해제
+    super.runCancel();
+  }
+
+  #getFieldListEx(nFieldFormat, nFieldType, lpField) {
+    const lpFieldArray = new Object();
+    lpFieldArray.lpFields = new Array();
+    lpFieldArray.lpTexts = new Array();
+    lpFieldArray.lpObjs = new Array();
+    lpFieldArray.iFieldCnt = 0;
+
+    let fieldList = '';
+    if (nFieldType == HWPFIELDALL) {
+      // 한글 2010에서는 all 옵션이 동작하지 않음
+      fieldList = this.hwpCtrl.GetFieldList(HWPFIELDPLAIN, HWPFIELDCELL);
+      fieldList += String.fromCharCode(2);
+      fieldList += this.hwpCtrl.GetFieldList(HWPFIELDPLAIN, HWPFIELDCLICKHERE);
+    } else {
+      fieldList = this.hwpCtrl.GetFieldList(HWPFIELDPLAIN, nFieldType); //viNumber.iVal = (short)HWPFIELDPLAIN;//iType;
+    }
+
+    const fields = fieldList.split(String.fromCharCode(2));
+    const fieldMap = new Map();
+    let fieldCnt = 0;
+
+    const strArrayFldList = new Array();
+    for (let i = 0; i < fields.length; i++) {
+      const strField = fields[i];
+      if (strField == '') {
+        continue;
+      }
+      if (lpField && strField != lpField) continue;
+
+      if (!fieldMap.get(strField)) fieldCnt = 0;
+
+      fieldMap.set(strField, ++fieldCnt);
+
+      if (nFieldFormat != HWPFIELDCOUNT) {
+        let strFieldNumbering = strField;
+        if (nFieldFormat == HWPFIELDNUMBER) strFieldNumbering += '{{' + (fieldCnt - 1) + '}}';
+        strArrayFldList.push(strFieldNumbering);
+      }
+    }
+    fieldMap.forEach((nCount, strField) => {
+      if (nFieldFormat == HWPFIELDCOUNT) {
+        strArrayFldList.push(strField + '{{' + nCount + '}}');
+      }
+    });
+    if (strArrayFldList.length > 0) {
+      lpFieldArray.iFieldCnt = strArrayFldList.length;
+      for (let i = 0; i < lpFieldArray.iFieldCnt; i++) {
+        lpFieldArray.lpFields.push(strArrayFldList[i]);
+      }
+    }
+    return lpFieldArray;
+  }
+
+  /**
+   * 지정한 필드로 캐럿을 이동한다
+   * @param {string} field 필드 이름
+   * @param {boolean} text   true: 누름틀 내부의 텍스트로 이동, false: 누름틀 코드로 이동. 생략시 true
+   * @param {boolean} start  true: 필드의 처음으로 이동,        false: 끝으로 이동.        생략시 true
+   * @param {boolean} select true: 필드 내용을 블록으로 선택,   false: 캐럿만 이동.        생략시 false
+   * @returns {boolean} 성공 여부
+   */
+  moveToField(field, text = true, start = true, select = false) {
+    return this.hwpCtrl.MoveToField(field, text, start, select);
+  }
+
+  /**
+   * 지정한 필드로 캐럿을 이동 후 캐럿 위치로 화면을 이동한다
+   * @param {string} field 필드 이름
+   * @param {boolean} text   true: 누름틀 내부의 텍스트로 이동, false: 누름틀 코드로 이동. 생략시 true
+   * @param {boolean} start  true: 필드의 처음으로 이동,        false: 끝으로 이동.        생략시 true
+   * @param {boolean} select true: 필드 내용을 블록으로 선택,   false: 캐럿만 이동.        생략시 false
+   * @returns {boolean} 성공 여부
+   */
+  moveToFieldEx(field, text = true, start = true, select = false) {
+    return this.hwpCtrl.MoveToFieldEx(field, text, start, select);
   }
 
   set title(title) {

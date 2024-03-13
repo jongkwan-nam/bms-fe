@@ -16,7 +16,9 @@ import FeContentNavigator from './main/FeContentNavigator';
 import FeContentSplitter from './main/FeContentSplitter';
 import FeEditor from './main/FeEditor';
 import { FeMode, getFeMode } from './main/FeMode';
+import PubDoc from './main/PubDoc';
 import ButtonController from './main/button/ButtonController';
+import { DRAFTSRC_LDAP, ET_FLAG_WITHBODY } from './main/const/CommonConst';
 import initiateHoxForAccept from './main/logic/init/initiateHoxForAccept';
 import initiateHoxForControl from './main/logic/init/initiateHoxForControl';
 import initiateHoxForDraft from './main/logic/init/initiateHoxForDraft';
@@ -46,6 +48,7 @@ class FeMain {
   splitedExamDocMap = null; // 분리한 시행문 모음
   cmd = null;
   apprComptList = []; // 결재완료된 문서아이디 목록. TODO doccfg.useSancPasswd doccfg.sancPasswordOnlyFirst 옵션에서 결재 비번 체크시 사용
+  isPubDistDoc = false; // 유통문서 여부
 
   async start() {
     console.time('main');
@@ -72,7 +75,7 @@ class FeMain {
 
         this.cmd = 'draftDoc';
 
-        postProcessFunction = () => {
+        postProcessFunction = async () => {
           this.feEditor1.foldRibbon(false); // 리본메뉴
           this.feEditor1.setReadMode(false);
 
@@ -89,7 +92,7 @@ class FeMain {
 
         this.cmd = 'procDoc';
 
-        postProcessFunction = () => {
+        postProcessFunction = async () => {
           this.feEditor1.foldRibbon(true);
 
           initiateHoxForKyul(this.hox);
@@ -107,7 +110,7 @@ class FeMain {
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
 
-        postProcessFunction = () => {
+        postProcessFunction = async () => {
           this.feEditor1.setReadMode(true); // 읽기 전용
 
           initiateHoxForView(this.hox);
@@ -119,18 +122,30 @@ class FeMain {
       case FeMode.ACCEPT: {
         document.title = 'FE 접수';
 
+        // 유통문서
+        this.isPubDistDoc = rInfo.draftsrc == DRAFTSRC_LDAP && rInfo.externaldocf == ET_FLAG_WITHBODY;
+
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSancLineXmlInfoByTrid.act?TRID=${hoxTRID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
 
-        orgHoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=sanckyul&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}&_NOARG=${Date.now()}`;
+        if (this.isPubDistDoc) {
+          docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/downloadFormFile.act?K=${szKEY}&formID=${rInfo.objForm1.formID}&USERID=${rInfo.user.ID}&WORDTYPE=${wordType}&_NOARG=${Date.now()}`;
+        } else {
+          orgHoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=sanckyul&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}&_NOARG=${Date.now()}`;
+        }
 
-        postProcessFunction = () => {
+        postProcessFunction = async () => {
           this.feEditor1.foldRibbon(true);
           this.feEditor1.setReadMode(true);
 
           initiateHoxForAccept(this.hox);
 
-          QDBTimingLoadLogic();
+          if (this.isPubDistDoc) {
+            const pubDoc = new PubDoc(this.hox, this.feEditor1);
+            await pubDoc.open();
+          } else {
+            QDBTimingLoadLogic();
+          }
         };
         break;
       }
@@ -140,7 +155,7 @@ class FeMain {
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
 
-        postProcessFunction = () => {
+        postProcessFunction = async () => {
           initiateHoxForRequest(this.hox);
 
           addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
@@ -155,7 +170,7 @@ class FeMain {
         hoxURL = `${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnXmlInfo.act?appType=ctrlmana&UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${rInfo.apprMsgID}&applID=${rInfo.applID}&APPRDEPTID=${rInfo.apprDeptID}`;
         docURL = `${location.origin}${PROJECT_CODE}/com/hs/gwweb/appr/retrieveOpenApiDocFile.act?UID=${rInfo.user.ID}&DID=${rInfo.user.deptID}&apprID=${IDUtils.getObjectID(rInfo.apprMsgID, 1)}&sancApprID=${rInfo.apprMsgID}&APPLID=${rInfo.applID}&WORDTYPE=${wordType}&K=${szKEY}&_NOARG=${Date.now()}`;
 
-        postProcessFunction = () => {
+        postProcessFunction = async () => {
           initiateHoxForControl(this.hox);
 
           addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
@@ -183,15 +198,17 @@ class FeMain {
     this.feEditor1.show();
     await this.feEditor1.init(); // 에디터 로딩
     this.feEditor1.setViewZoom(doccfg.docViewRatio); // 보기 모드 설정
+
     await this.feEditor1.open(docURL); // 문서 열기
 
     /* ------------------------------------------------------------------------
       문서 오픈 후 할 것들
      */
-    postProcessFunction();
     this.feEditor1.setEditMode(2); // 편집모드 0: 읽기, 1: 편집, 2: 양식
-    this.feEditor1.selectContent(1); // 첫 페이지 이동
+    await this.feEditor1.selectContent(1); // 첫 페이지 이동
     this.feEditor1.start(); // 에디터의 이벤트 시작. 제목변경, hox 이벤트(안 관련)
+
+    await postProcessFunction();
 
     /* ------------------------------------------------------------------------
       첨부박스

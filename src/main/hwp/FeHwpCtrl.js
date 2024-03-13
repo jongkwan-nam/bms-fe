@@ -228,16 +228,32 @@ export default class FeHwpCtrl extends HTMLElement {
 
   /**
    * 액션을 실행한다
+   * - HWPFIX API명세에는 callback이 있으나, 내부로직에서 불리지 않는 액션이 있음
+   * - Cancel은 runCancel을 사용할 것
    *
    * @param {string} actionID 액션ID
    * @returns
    */
   async run(actionID) {
     return new Promise((resolve, reject) => {
-      // HWPFIX API명세에는 callback이 있으나, 내부로직에서 불리지 않음
-      this.hwpCtrl.Run(actionID);
-      resolve();
+      //
+      console.log('Run', actionID);
+      this.hwpCtrl.Run(actionID, () => {
+        console.log('Run callback', actionID);
+        resolve();
+      });
+      setTimeout(() => {
+        console.warn('Run no callback', actionID);
+        resolve();
+      }, 1000);
     });
+  }
+
+  /**
+   * Cancel 액션 수행
+   */
+  runCancel() {
+    this.hwpCtrl.Run('Cancel');
   }
 
   /**

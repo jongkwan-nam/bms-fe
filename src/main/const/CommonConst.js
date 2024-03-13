@@ -41,3 +41,105 @@ export const WORDTYPE_HWPWEB = 5; // HWP WEB
 export const WORDTYPE_TWE = 6; // TagFree Active Designer
 export const WORDTYPE_HTML32 = 7; // HTML Editor
 export const FORMTYPE_ONLY_ATTACH = 8;
+
+/*****************************************************************************/
+/* 기안소스(DraftSrc) INDEX : 0 ~ 6 */
+/*****************************************************************************/
+export const DRAFTSRC_GENERAL = 0;
+export const DRAFTSRC_GENERAL_RECEIPT = 1;
+export const DRAFTSRC_LDAP = 2; // 전자문서유통
+export const DRAFTSRC_EXCHANGE = 3; // 행정정보시스템(연계)
+export const DRAFTSRC_APPR_IMG = 4; // 결재방
+export const DRAFTSRC_OFFICE = 5; // 그룹간문서유통
+export const DRAFTSRC_WORKMNG = 6; // 업무관리시스템(연계)
+
+export const ET_FLAG_NORMAL = 0; // 일반문서
+export const ET_FLAG_WITHBODY = 1; // 본문있음(외부문서)
+export const ET_FLAG_ONLYTITLE = 2; // 제목만 등록(외부문서)
+
+/*****************************************************************************/
+/* HWP API */
+/*****************************************************************************/
+// GetFieldList number용
+export const HWPFIELDPLAIN = 0; //아무 기호 없이 순서대로 필드 이름이 나열된다.
+export const HWPFIELDNUMBER = 1; //필드 이름 뒤에 일련번호가 {{#}}와 같은 형식으로 붙는다.
+export const HWPFIELDCOUNT = 2; //필드 이름뒤에 그 이름의 필드가 몇 개 있는지 {{#}}와 같은 형식으로 붙는다.
+
+// GetFieldList option용
+export const HWPFIELDCELL = 1; //셀에 부여된 필드 리스트만을 구한다. hwpFieldClickHere와는 함께 지정할 수 없다.
+export const HWPFIELDCLICKHERE = 2; //누름틀에 부여된 필드 리스트만을 구한다. hwpFieldCell과는 함께 지정할 수 없다.
+export const HWPFIELDSELECTION = 4; //셀렉션 내에 존재하는 필드 리스트를 구한다.
+export const HWPFIELDALL = 8; //셀, 누름틀 포함.
+
+/** 일반 최종 결재 일 경우 사용 */
+export const stamp_method_finish_approval_hwp = [
+  {
+    itemType: 'text',
+    color: 'black',
+    height: 800, //8pt
+    text: '_date_',
+    fontName: 'serif',
+    bold: false,
+  },
+  {
+    itemType: 'text',
+    color: 'black',
+    height: 1000, //10pt
+    width: 53,
+    text: '_altstart_' + '_value_',
+    fontName: 'serif',
+    bold: true,
+  },
+];
+
+/** 전결 최종 결재일 경우 사용 */
+export const stamp_method_jeonkyul_hwp = [
+  {
+    itemType: 'text',
+    color: 'black',
+    height: 800, //8pt
+    text: '_method_ _date_',
+    fontName: 'serif',
+    bold: false,
+  },
+  {
+    itemType: 'text',
+    color: 'black',
+    height: 1000, //10pt
+    text: '_altstart_' + '_value_',
+    fontName: 'serif',
+    bold: true,
+  },
+];
+
+/** 대결 최종 결재일 경우 사용 */
+export const stamp_method_daekyul_hwp = [
+  {
+    itemType: 'text',
+    color: 'black',
+    height: 800, //8pt
+    text: '_method_ _date_',
+    fontName: 'serif',
+    bold: false,
+  },
+  {
+    itemType: 'text',
+    color: 'black',
+    height: 1000, //10pt
+    text: '_altstart_' + '_value_',
+    fontName: 'serif',
+    bold: true,
+  },
+];
+
+/** 일반 결재의 경우 */
+export const stamp_method_approval_hwp = [
+  {
+    itemType: 'text',
+    color: 'black',
+    height: 1000, //10pt
+    text: '_altstart_' + '_value_',
+    fontName: 'serif',
+    bold: true,
+  },
+];

@@ -7,19 +7,22 @@ import StringUtils from './StringUtils';
 
 const domParser = new DOMParser();
 const xmlSerializer = new XMLSerializer();
+const euckrDecoder = new TextDecoder('euc-kr');
 
 /**
  * 서버에서 xml을 로딩
  * @param {string} url
+ * @param {boolean} isEucKr euc-kr 인코딩이 필요할때
  * @returns
  */
-export const loadXml = async (url) => {
+export const loadXml = async (url, isEucKr = false) => {
   const res = await fetch(url);
-  const xmlText = await res.text();
-
-  const xmlDoc = domParser.parseFromString(xmlText, 'application/xml');
-  console.debug(xmlDoc);
-
+  const xmlText = isEucKr ? euckrDecoder.decode(await res.arrayBuffer()) : await res.text();
+  const xmlDoc = domParser.parseFromString(xmlText.trim(), 'application/xml');
+  console.debug('loadXml', url, xmlDoc);
+  if (xmlDoc.querySelector('parseerror')) {
+    throw new Error('XML parse error: ' + xmlDoc.querySelector('parseerror').textContent);
+  }
   return xmlDoc;
 };
 
