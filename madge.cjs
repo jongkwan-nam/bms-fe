@@ -26,6 +26,6 @@ let svgList = [];
   }
 
   fs.writeFile('./src/dependencies-viewer.json', JSON.stringify(svgList), 'utf8', () => {
-    console.log('write dependencies-viewer.json');
+    console.log('write ./src/dependencies-viewer.json');
   });
 })();
