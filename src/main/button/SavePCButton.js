@@ -20,6 +20,7 @@ export default class SavePCButton extends HTMLButtonElement {
       <div id="saveBtnWrap">
         <button type="button" id="saveHwpx">${GWWEBMessage.cmsg_624} hwpx</button>
         <button type="button" id="saveDist">${GWWEBMessage.cmsg_624} ${GWWEBMessage.appr_webhwp_distributeformat}</button>
+        <button type="button" id="saveFully">${GWWEBMessage.cmsg_624} 전체</button>
       </div>
       `;
     this.classList.add('btn', 'save-btn');
@@ -39,6 +40,7 @@ export default class SavePCButton extends HTMLButtonElement {
     this.querySelector('#saveHwp').addEventListener('click', this.#saveHwp);
     this.querySelector('#saveHwpx').addEventListener('click', this.#saveHwpx);
     this.querySelector('#saveDist').addEventListener('click', this.#saveDist);
+    this.querySelector('#saveFully').addEventListener('click', this.#saveFully); // FIXME 디버그용. 서명,관인 제거하지 않고 저장
   }
 
   async #doAction(e) {
@@ -93,6 +95,10 @@ export default class SavePCButton extends HTMLButtonElement {
     feMain.feEditor1.saveDistributeHwp();
 
     addActionLogSave(getText(feMain.hox, 'docInfo apprID'), getText(feMain.hox, 'docInfo title'));
+  }
+
+  async #saveFully() {
+    feMain.feEditor1.saveHwp();
   }
 }
 
