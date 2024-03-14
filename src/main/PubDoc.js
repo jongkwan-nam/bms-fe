@@ -24,19 +24,48 @@ export default class PubDoc {
   async open() {
     const isModified = this.feEditor.modified;
 
-    await this.loadPubDocXml();
-    await this.setAttach();
-    await this.setPubDoc();
-    await this.setBody();
-    await this.setLogo();
-    await this.setSymbol();
-    await this.setTextToFieldIfTextExist();
-    await this.setSealToDoc();
+    await this.#loadPubDocXml();
+    await this.#setAttach();
+    await this.#setPubDoc();
+    await this.#setBody();
+    await this.#setLogo();
+    await this.#setSymbol();
+    await this.#setTextToFieldIfTextExist();
+    await this.#setSealToDoc();
 
     this.feEditor.modified = isModified;
   }
 
-  async loadPubDocXml() {
+  /**
+   *
+   * @returns 수신처에 LDAP 이 있는지 여부
+   */
+  isLdap() {
+    const recNodes = getNodes(this.domHox1, 'docInfo content receiptInfo recipient rec');
+
+    const isLdap1 = recNodes.filter((rec) => getAttr(rec, null, 'type') === 'rectype_ldap').length > 0;
+    if (isLdap1) return true;
+
+    const isLdap2 = getNodes(recNodes, 'recSymbolItems recSymbolItem').filter((recSymbolItem) => getAttr(recSymbolItem, null, 'rectype_ldap')).length > 0;
+    if (isLdap2) return true;
+
+    const isLdap3 = this.#containsLdapMemner(recNodes.filter((rec) => getAttr(rec, null, 'type') === 'rectype_unifiedgroup'));
+    if (isLdap3) return true;
+
+    return false;
+  }
+
+  /**
+   * 수신처 ID등에 LDAP이 포함되어 있는지 여부
+   * @param {Element[]} recList
+   */
+  #containsLdapMemner(recList) {
+    const ids = recList.map((rec) => getText(rec, 'ID')).join(',');
+    const contains = syncFetch(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveLdapMember.act?groupIDs=${ids}`).json();
+    return contains.ok;
+  }
+
+  async #loadPubDocXml() {
     if (!rInfo.pubdocFileTRID) {
       throw new Error('rInfo.pubdocFileTRID is undefined');
     }
@@ -46,7 +75,7 @@ export default class PubDoc {
     console.log('this.pubDocDom', this.pubDocDom);
   }
 
-  async setAttach() {
+  async #setAttach() {
     // addAttachToDoc
     if (rInfo.attachFileTRID && rInfo.attachFileNames && rInfo.attachFileSizes) {
       const trids = rInfo.attachFileTRID.split(',');
@@ -87,7 +116,7 @@ export default class PubDoc {
    * - 결재선 등
    * - 본문
    */
-  async setPubDoc() {
+  async #setPubDoc() {
     // setOrgDraftDeptIDNullToHox
     setText(this.domHox1, 'docInfo orgDraftDept ID', '00000000000000000000');
 
@@ -196,7 +225,7 @@ export default class PubDoc {
   }
 
   // setBodyContentToDoc
-  async setBody() {
+  async #setBody() {
     const domPubForBody = await loadXml(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnTmplPubDocXmlInfo.act`); // loadTemplatePubDocXML();
     const contentNode = getNode(this.pubDocDom, 'pubdoc body content');
     var oldnode = getNode(domPubForBody, 'pubdoc body content');
@@ -277,7 +306,7 @@ export default class PubDoc {
   /**
    * 로고 삽입. 발신기관명 좌측
    */
-  async setLogo() {
+  async #setLogo() {
     this.feEditor.putFieldText(Cell.LOGO, '');
     if (rInfo.logoFileTRID) {
       var url = PROJECT_CODE + '/com/hs/gwweb/appr/manageFileDwld.act?TRID=' + rInfo.logoFileTRID + '&fileName=logo&K=' + szKEY;
@@ -289,7 +318,7 @@ export default class PubDoc {
   /**
    * 심볼 삽입. 발신기관명 우측
    */
-  async setSymbol() {
+  async #setSymbol() {
     this.feEditor.putFieldText(Cell.SYMBOL, '');
     if (rInfo.symbolFileTRID) {
       var url = PROJECT_CODE + '/com/hs/gwweb/appr/manageFileDwld.act?TRID=' + rInfo.symbolFileTRID + '&fileName=symbol&K=' + szKEY;
@@ -317,7 +346,7 @@ export default class PubDoc {
    * 부가 정보를 본문에 반영
    * - 머리표어,  공개여부, 이메일, 주소, 시행일자, 문서번호 등
    */
-  async setTextToFieldIfTextExist() {
+  async #setTextToFieldIfTextExist() {
     const PUBDOC_EMAIL_CELL = this.#getPubDocFindField(doccfg.pubdocEmail);
     const PUBDOC_FAX_CELL = this.#getPubDocFindField(doccfg.pubdocFax);
     const PUBDOC_TELEPHONE_CELL = this.#getPubDocFindField(doccfg.pubdocTelephone);
@@ -376,7 +405,7 @@ export default class PubDoc {
   /**
    * 관인 추가
    */
-  async setSealToDoc() {
+  async #setSealToDoc() {
     const omit = getAttr(this.pubDocDom, 'pubdoc foot seal', 'omit');
     // this.feEditor.loadStampTable();
     if (omit === 'true') {

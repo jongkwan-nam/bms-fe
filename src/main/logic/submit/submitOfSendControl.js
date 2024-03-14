@@ -2,6 +2,7 @@ import DateUtils from '../../../utils/DateUtils';
 import IDUtils from '../../../utils/IDUtils';
 import { addNode, existsNode, getAttr, getNode, getNodes, getText, serializeXmlToString, setAttr, setText } from '../../../utils/xmlUtils';
 import Cell from '../../CellNames';
+import PubDocSave from '../../PubDocSave';
 import { makeEnforceHox4MultiDoc } from '../makeEnforceHox';
 
 /**
@@ -125,6 +126,8 @@ export default async () => {
         throw new Error('웹한글 파일 저장 오류.');
       }
 
+      // LDAP 유통 문서 만들기
+
       formData.append('ref_' + IDUtils.getObjectID(enforceDocInfo.apprID, 1), bodyFileInfo.TRID);
       formData.append('block_' + IDUtils.getObjectID(enforceDocInfo.apprID, 2), serializeXmlToString(enforceDocInfo.hox));
 
@@ -144,6 +147,8 @@ export default async () => {
       console.error('downloadURL=%s, bodyFileInfo=%s', saveRet.downloadURL, bodyFileInfo);
       throw new Error('웹한글 파일 저장 오류.');
     }
+
+    // LDAP 유통 문서 만들기
 
     // 원문 hox
     formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyFileInfo.TRID);
@@ -165,4 +170,12 @@ export default async () => {
   } else {
     throw new Error('발송처리에 실패하였습니다.');
   }
+};
+
+const processPubDoc = async (hox, feEditor1, feEditorExtra) => {
+  const pubDocSave = new PubDocSave(hox, feEditor1);
+  if (!pubDocSave.isLdap()) {
+    return null;
+  }
+  await pubDocSave.process();
 };

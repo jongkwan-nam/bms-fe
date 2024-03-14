@@ -1,5 +1,6 @@
 import { getContentCellName } from '../../utils/HoxUtils';
 import Cell from '../CellNames';
+import { EDITMODE_NORMAL } from '../const/CommonConst';
 
 /**
  * 웹한글 API wrapper class
@@ -296,6 +297,47 @@ export default class FeHwpCtrl extends HTMLElement {
   renameField(oldNames, newNames) {
     for (let i = 0; i < oldNames.length; i++) {
       this.hwpCtrl.RenameField(oldNames[i], newNames[i]);
+    }
+  }
+
+  isFieldEmpty(fieldName) {
+    var isModified = this.hwpCtrl.IsModified;
+
+    if (!this.hwpCtrl.MoveToField(fieldName, true, true)) {
+      this.hwpCtrl.IsModified = isModified;
+      return true;
+    }
+    this.hwpCtrl.IsModified = isModified; //TODO: MoveToField 후 IsModified가 true로 바뀌는 경우가 있어서.
+    var start = this.getDocumentInfo(false);
+    if (start == null) {
+      return true;
+    }
+    var oldEditMode = this.hwpCtrl.EditMode;
+    this.hwpCtrl.EditMode = EDITMODE_NORMAL;
+
+    if (!this.hwpCtrl.MoveToField(fieldName, true, false)) {
+      this.hwpCtrl.EditMode = oldEditMode;
+      this.hwpCtrl.IsModified = isModified; //TODO: MoveToField 후 IsModified가 true로 바뀌는 경우가 있어서.
+      return true;
+    }
+
+    var end = this.getDocumentInfo(false);
+    this.hwpCtrl.EditMode = oldEditMode;
+    this.hwpCtrl.IsModified = isModified;
+    if (end == null) {
+      return true;
+    }
+
+    var paraStart = start.Item('CurPara');
+    var posStart = start.Item('CurPos');
+    var paraEnd = end.Item('CurPara');
+    var posEnd = end.Item('CurPos');
+
+    // 파일의 내용이 빈 경우 블럭을 설정하지 않음
+    if (paraStart == paraEnd && posStart == posEnd) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

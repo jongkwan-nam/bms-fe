@@ -143,3 +143,54 @@ export const stamp_method_approval_hwp = [
     bold: true,
   },
 ];
+
+//HWP
+export const EDITMODE_READONLY = 0; // ReadOnly 모드
+export const EDITMODE_NORMAL = 1; // 일반편집 모드 (서식 작성기)
+export const EDITMODE_USEFORM = 2; // 양식편집모드 (기안/결재기)
+export const EDITMODE_DISTRIBUTE = 16; // 배포용 문서
+
+//hox/approvalFlow/participant/approvalType
+export const USER_DRAFT_STR = 'user_draft';
+export const USER_APPROVAL_STR = 'user_approval';
+export const USER_NOAPPROVAL_STR = 'user_noapproval';
+export const USER_DAEKYUL_STR = 'user_daekyul';
+export const USER_HOOYUL_STR = 'user_hooyul';
+export const USER_REFER_STR = 'user_refer';
+export const DEPT_MERGE_STR = 'dept_merge';
+export const USER_MERGE_STR = 'user_merge';
+export const USER_JEONKYUL_STR = 'user_jeonkyul';
+export const USER_INJIDAE_STR = 'user_injidae';
+export const USER_NOSIGN_STR = 'user_nosign';
+export const USER_AGREE_S_STR = 'user_agree_s';
+export const USER_JOJEONG_STR = 'user_jojeong';
+export const USER_AGREE_P_STR = 'user_agree_p';
+export const USER_SKIP_STR = 'user_skip';
+export const USER_AGENCY_STR = 'user_agency';
+export const USER_AUDIT_STR = 'user_audit';
+export const USER_AUDITBOX_STR = 'user_auditbox';
+export const USER_JEONHOO_STR = 'user_jeonhoo';
+export const USER_PUBSHOW_STR = 'user_pubshow';
+export const USER_SKIP_AGREE_S_STR = 'user_skip_agree_s';
+export const USER_SKIP_AGREE_P_STR = 'user_skip_agree_p';
+export const USER_SKIP_AUDIT_STR = 'user_skip_audit';
+export const USER_VIEW_STR = 'user_view';
+export const USER_PASS_STR = 'user_pass';
+export const DEPT_AUDIT_STR = 'dept_audit';
+export const DEPT_AGREE_P_STR = 'dept_agree_p';
+export const DEPT_AGREE_S_STR = 'dept_agree_s';
+export const DEPT_REF_STR = 'dept_ref';
+export const DEPT_SKIP_STR = 'dept_skip';
+export const DEPT_SKIP_AUDIT_STR = 'dept_skip_audit';
+export const DEPT_SKIP_AGREE_P_STR = 'dept_skip_agree_p';
+export const DEPT_SKIP_AGREE_S_STR = 'dept_skip_agree_s';
+export const DEPT_AUDITBOX_STR = 'dept_auditbox';
+export const DEPT_PUBSHOW_STR = 'dept_pubshow';
+export const DEPT_DELIBERATION_STR = 'dept_deliberation';
+export const DEPT_SKIP_DELIBERATION_STR = 'dept_skip_deliberation';
+export const USER_CONFIRM_STR = 'user_confirm';
+export const USER_SKIP_CONFIRM_STR = 'user_skip_confirm';
+export const USER_COMPLIANCE_STR = 'user_compliance';
+export const USER_SKIP_COMPLIANCE_STR = 'user_skip_compliance';
+export const DEPT_COMPLIANCE_STR = 'dept_compliance';
+export const DEPT_SKIP_COMPLIANCE_STR = 'dept_skip_compliance';
