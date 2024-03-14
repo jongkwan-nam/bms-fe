@@ -1,3 +1,4 @@
+import Capi from '../../utils/Capi';
 import { getNumber, getText } from '../../utils/xmlUtils';
 import { addActionLogSave } from '../ActionLog';
 
@@ -28,12 +29,7 @@ export default class SendMainButton extends HTMLButtonElement {
     // save hwp to pdf
     const saveRet = await feEditor.saveServer(title, 'PDF', ';code:ks');
 
-    const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-    if (!bodyFileInfo.ok) {
-      console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, bodyFileInfo);
-      throw new Error('웹한글 파일 저장 오류.');
-    }
-    const bodyTRID = bodyFileInfo.TRID;
+    const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
     const formData = new FormData();
     formData.append('title', title);
@@ -43,7 +39,7 @@ export default class SendMainButton extends HTMLButtonElement {
     formData.append('app', 1); // APP_MAIL = 1
     formData.append('isAttachSecurityDoc', isAttachSecurity ? 'Y' : 'N');
     formData.append('WORDTYPE', 5);
-    formData.append('extBodyTRID', bodyTRID);
+    formData.append('extBodyTRID', bodyFileInfo.TRID);
     formData.append('extBodyTRIDSuffix', 'pdf');
     const sendRet = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/extSend.act`, { method: 'POST', body: formData }).then((res) => res.json());
 

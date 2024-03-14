@@ -1,3 +1,4 @@
+import Capi from '../../../utils/Capi';
 import IDUtils from '../../../utils/IDUtils';
 import { getText, serializeXmlToString } from '../../../utils/xmlUtils';
 import { dialogSign } from '../dialog/sign';
@@ -62,12 +63,7 @@ export default async () => {
 
   const apprID = getText(hox, 'apprID');
   const saveRet = await feEditor1.saveServer(apprID);
-  const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-  if (!bodyFileInfo.ok) {
-    console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, bodyFileInfo);
-    throw new Error('웹한글 파일 저장 오류.');
-  }
-  const bodyTRID = bodyFileInfo.TRID;
+  const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
   // bms로 submit
   /**
@@ -78,7 +74,7 @@ export default async () => {
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
   // 본문
-  formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyTRID);
+  formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyFileInfo.TRID);
   // 첨부
   feAttachBox.listFileIDs().forEach((trid, i) => {
     formData.append('ref_' + IDUtils.getObjectID(apprID, 100 + i), trid);

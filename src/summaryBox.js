@@ -3,6 +3,7 @@ import Cell from './main/CellNames';
 import './main/FeEditor';
 import { FeMode, getFeMode } from './main/FeMode';
 import './summaryBox.scss';
+import Capi from './utils/Capi';
 import IDUtils from './utils/IDUtils';
 import popupSizeRestorer from './utils/popupSizeRestorer';
 import { createNode, existsFlag, getAttr, getNode, getNodes, getText, toggleFlag } from './utils/xmlUtils';
@@ -106,11 +107,7 @@ window.onerror = (error) => {
 document.querySelector('#btnSave').addEventListener('click', async () => {
   // 저장
   const saveRet = await feEditor.saveServer(apprID + '_summary');
-  const { ok, location, TRID, size } = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-  console.log('summaryFileInfo', ok, location, TRID, size);
-  if (!ok) {
-    throw new Error('요약전 저장 실패');
-  }
+  const { ok, location, TRID, size } = Capi.getFileFromURL(saveRet.downloadURL);
 
   // hox 처리
   toggleFlag(hox, 'docInfo approvalFlag', 'apprflag_summary', true);

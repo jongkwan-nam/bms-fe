@@ -1,3 +1,4 @@
+import Capi from '../../../utils/Capi';
 import IDUtils from '../../../utils/IDUtils';
 import { getText, serializeXmlToString } from '../../../utils/xmlUtils';
 import { dialogSign } from '../dialog/sign';
@@ -59,19 +60,14 @@ export default async () => {
   const apprID = getText(hox, 'apprID');
   const orgApprID = getText(hox, 'orgApprID');
   const saveRet = await feEditor1.saveServer(apprID);
-  const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-  if (!bodyFileInfo.ok) {
-    console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, bodyFileInfo);
-    throw new Error('웹한글 파일 저장 오류.');
-  }
-  const bodyTRID = bodyFileInfo.TRID;
+  const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
   const formData = new FormData();
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
   formData.append('apprID', apprID);
   formData.append('orgApprID', orgApprID);
-  formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyTRID); // 본문
+  formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyFileInfo.TRID); // 본문
   formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeXmlToString(hox)); // hox
 
   const ret = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/manageDocRceptDrft.act`, { method: 'POST', body: formData }).then((res) => res.text());

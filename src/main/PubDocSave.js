@@ -177,11 +177,7 @@ export default class PubDocSave {
     //
     this.feEditor.moveToField(field, true, true, false);
     const saveRet = await this.feEditor.saveServer(tempFileName, 'PUBDOCBODY', 'fieldtype:clickhere;fieldname:' + field);
-    const fileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-    if (!fileInfo.ok) {
-      console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, fileInfo);
-      throw new Error('웹한글 파일 저장 오류.');
-    }
+    const fileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
     const fieldXmlPubDoc = await loadXml(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveXmlFromWasByTrid.act?TRID=${fileInfo.TRID}&encoding=utf-8`);
 

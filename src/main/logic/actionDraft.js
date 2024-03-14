@@ -1,3 +1,4 @@
+import Capi from '../../utils/Capi';
 import DateUtils from '../../utils/DateUtils';
 import IDUtils from '../../utils/IDUtils';
 import StringUtils from '../../utils/StringUtils';
@@ -229,17 +230,7 @@ export const process = async (hox) => {
 
   // 웹한글 본문 저장
   const saveRet = await feEditor1.saveServer(newDocId);
-  console.log('downloadURL', saveRet.downloadURL);
-  /**
-   * /bms/com/hs/gwweb/appr/getFileFromURL.act  K: 00G392eYq, url: https://fewebhwp.handysoft.co.kr/webhwpctrl/get/6e6cb75c-a921-4f66-b6ab-793a54affc9a/a9203aef-8f20-4e44-98ac-82ab27d895b7.hwp
-   * > {"size":0,"location":"com/hs/gwweb/appr/manageFileDwld.act?TRID=2f3...", "ok":true, "TRID":"2f323..."}
-   */
-  const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-  console.log('bodyFileInfo', bodyFileInfo);
-  if (!bodyFileInfo.ok) {
-    throw new Error('웹한글 본문 파일 정보 구하기 실패');
-  }
-  const bodyTRID = bodyFileInfo.TRID;
+  const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
   // bms로 submit
   /**
@@ -250,7 +241,7 @@ export const process = async (hox) => {
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
   // 본문
-  formData.append('ref_' + IDUtils.getObjectID(newDocId, 1), bodyTRID);
+  formData.append('ref_' + IDUtils.getObjectID(newDocId, 1), bodyFileInfo.TRID);
   // 첨부
   feAttachBox.listFileIDs().forEach((trid, i) => {
     formData.append('ref_' + IDUtils.getObjectID(newDocId, 100 + i), trid);

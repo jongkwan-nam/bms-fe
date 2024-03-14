@@ -1,3 +1,4 @@
+import Capi from '../utils/Capi';
 import IDUtils from '../utils/IDUtils';
 import StringUtils from '../utils/StringUtils';
 import { getText, serializeXmlToString } from '../utils/xmlUtils';
@@ -108,12 +109,7 @@ export default class FeTmprDocSaveDialog extends HTMLElement {
 
     // 본문 저장
     const saveRet = await feMain.feEditor1.saveServer(apprID);
-    const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-    if (!bodyFileInfo.ok) {
-      console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, bodyFileInfo);
-      throw new Error('웹한글 파일 저장 오류.');
-    }
-    const bodyTRID = bodyFileInfo.TRID;
+    const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
     // /bms/com/hs/gwweb/appr/createTmprDoc.act
     // - apprID, UID, DID, ref_~~001, ref_~~003, block_~~~002
@@ -124,7 +120,7 @@ export default class FeTmprDocSaveDialog extends HTMLElement {
     formData.append('tempTitle', title);
     formData.append('WORDTYPE', 5);
     // 본문
-    formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyTRID);
+    formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyFileInfo.TRID);
     // 첨부
     feMain.feAttachBox.listFileIDs().forEach((trid, i) => {
       formData.append('ref_' + IDUtils.getObjectID(apprID, 100 + i), trid);

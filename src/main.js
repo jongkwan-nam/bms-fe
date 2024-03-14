@@ -141,7 +141,7 @@ class FeMain {
           initiateHoxForAccept(this.hox);
 
           if (this.isPubDistDoc) {
-            const pubDoc = new PubDoc(this.hox, this.feEditor1);
+            const pubDoc = new PubDoc(this.hox, this.feEditor1, this.feAttachBox);
             await pubDoc.open();
           } else {
             QDBTimingLoadLogic();
@@ -202,6 +202,11 @@ class FeMain {
     await this.feEditor1.open(docURL); // 문서 열기
 
     /* ------------------------------------------------------------------------
+      첨부박스
+     */
+    this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
+
+    /* ------------------------------------------------------------------------
       문서 오픈 후 할 것들
      */
     this.feEditor1.setEditMode(2); // 편집모드 0: 읽기, 1: 편집, 2: 양식
@@ -209,11 +214,6 @@ class FeMain {
     this.feEditor1.start(); // 에디터의 이벤트 시작. 제목변경, hox 이벤트(안 관련)
 
     await postProcessFunction();
-
-    /* ------------------------------------------------------------------------
-      첨부박스
-     */
-    this.feAttachBox = document.querySelector('.attach-wrap').appendChild(new FeAttachBox());
 
     /* ------------------------------------------------------------------------
       버튼 컨트롤러
