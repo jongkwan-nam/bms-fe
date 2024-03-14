@@ -296,10 +296,23 @@ export default class FeAttachBox extends HTMLElement {
    */
   #addFoldEventListener() {
     this.foldBtn.addEventListener('click', (e) => {
-      //
-      this.wrapper.classList.toggle('fold');
-      this.parentElement.closest('main').classList.toggle('fold-attachbox');
+      this.#toggle();
     });
+  }
+
+  #fold() {
+    this.wrapper.classList.add('fold');
+    this.parentElement.closest('main').classList.add('fold-attachbox');
+  }
+
+  #toggle() {
+    this.wrapper.classList.toggle('fold');
+    this.parentElement.closest('main').classList.toggle('fold-attachbox');
+  }
+
+  #unfold() {
+    this.wrapper.classList.remove('fold');
+    this.parentElement.closest('main').classList.remove('fold-attachbox');
   }
 
   /**
@@ -675,7 +688,7 @@ export default class FeAttachBox extends HTMLElement {
       feAttach.setUploadedFile(file, this.contentSelector.value);
     });
 
-    this.#foldIfEmpty();
+    this.#unfold();
     this.renderSummary();
   }
 
@@ -717,7 +730,7 @@ export default class FeAttachBox extends HTMLElement {
 
   #foldIfEmpty() {
     if (this.shadowRoot.querySelectorAll('fe-attach').length === 0) {
-      this.foldBtn.click();
+      this.#fold();
     }
   }
 }
