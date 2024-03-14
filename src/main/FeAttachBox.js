@@ -11,9 +11,15 @@
  * 전체 파일 다운로드 -> /bms/com/hs/gwweb/appr/makeZipFile.act
  * 모든 안의 첨부 표현
  * 첨부 순서 및 안 이동 기능
+ * 첨부 추가 방식
+ * 1. 화면으로 파일 드래그
+ * 2. 내PC 클릭으로 파일 추가
+ * 3. 문서함 팝업에서 문서 추가
+ * 4. 외부에서 trid로 전달된 파일 추가
  */
 
 import syncFetch from 'sync-fetch';
+import Capi from '../utils/Capi';
 import FileUtils from '../utils/FileUtils';
 import IDUtils from '../utils/IDUtils';
 import StringUtils from '../utils/StringUtils';
@@ -253,11 +259,7 @@ export default class FeAttachBox extends HTMLElement {
 
         // 서버로 저장
         const saveRet = await editor.saveServer(apprId);
-        const bodyFileInfo = await fetch(`${PROJECT_CODE}/com/hs/gwweb/appr/getFileFromURL.act?url=${saveRet.downloadURL}`).then((res) => res.json());
-        if (!bodyFileInfo.ok) {
-          console.error('downloadURL=%d, bodyFileInfo=%d', saveRet.downloadURL, bodyFileInfo);
-          throw new Error('웹한글 파일 저장 오류.');
-        }
+        const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
         fileObj.orgFileName += '.hwp';
         fileObj.attachFileSize = saveRet.size;
@@ -277,6 +279,16 @@ export default class FeAttachBox extends HTMLElement {
         this.uploadSuccessCallback({ files: [fileObj] });
       }
     }
+  }
+
+  /**
+   * 외부에서 trid로 첨부 추가
+   * @param {string} trid
+   * @param {string} name
+   * @param {number} size
+   */
+  addAttach(trid, name, size) {
+    this.uploadSuccessCallback({ files: [{ orgFileName: name, attachFileSize: parseInt(size), fileID: trid }] });
   }
 
   /**
@@ -663,6 +675,7 @@ export default class FeAttachBox extends HTMLElement {
       feAttach.setUploadedFile(file, this.contentSelector.value);
     });
 
+    this.#foldIfEmpty();
     this.renderSummary();
   }
 

@@ -2,6 +2,7 @@ import syncFetch from 'sync-fetch';
 import StringUtils from '../utils/StringUtils';
 import { getAttr, getNode, getNodes, getText, loadXml, serializeXmlToString, setText } from '../utils/xmlUtils';
 import Cell from './CellNames';
+import FeAttachBox from './FeAttachBox';
 import FeEditor from './FeEditor';
 import { stamp_method_approval_hwp, stamp_method_daekyul_hwp, stamp_method_finish_approval_hwp, stamp_method_jeonkyul_hwp } from './const/CommonConst';
 
@@ -10,15 +11,18 @@ export default class PubDoc {
   pubDocDom = null;
   domHox1;
   feEditor;
+  feAttachBox;
 
   /**
    *
    * @param {XMLDocument} domHox1
    * @param {FeEditor} feEditor
+   * @param {FeAttachBox} feAttachBox
    */
-  constructor(domHox1, feEditor) {
+  constructor(domHox1, feEditor, feAttachBox) {
     this.domHox1 = domHox1;
     this.feEditor = feEditor;
+    this.feAttachBox = feAttachBox;
   }
 
   async open() {
@@ -88,8 +92,8 @@ export default class PubDoc {
           throw new Error(msg);
         }
 
-        // TODO FeAttachBox에 추가
-        // Attach.element.AddItem(mk_FileTransURL(trids[i], names[i], sizes[i]), names[i], sizes[i]);
+        // FeAttachBox에 추가
+        this.feAttachBox.addAttach(trids[i], names[i], sizes[i]);
       }
     }
 
@@ -105,8 +109,8 @@ export default class PubDoc {
           throw new Error(msg);
         }
 
-        // TODO FeAttachBox에 추가
-        // Attach.element.AddItem(mk_FileTransURL(trids[i], names[i], sizes[i]), names[i], sizes[i]);
+        // FeAttachBox에 추가
+        this.feAttachBox.addAttach(trids[i], names[i], sizes[i]);
       }
     }
   }
