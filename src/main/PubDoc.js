@@ -254,6 +254,7 @@ export default class PubDoc {
     //현재 캐럿 위치에 문서 파일을 삽입
 
     var pubdocurl = location.origin + PROJECT_CODE + '/com/hs/gwweb/appr/manageFileDwld.act?TRID=' + bodyObj.TRID + '&fileName=body.xml&K=' + szKEY;
+    this.feEditor.setEditMode(1);
     this.feEditor.moveToField(Cell.CBODY, true, true, true);
     await this.feEditor.insert(pubdocurl, 'PUBDOCBODY', 'lock:FALSE;versionwarning:FALSE');
 
