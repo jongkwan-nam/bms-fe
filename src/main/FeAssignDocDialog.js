@@ -126,7 +126,7 @@ export default class FeAssignDocDialog extends HTMLElement {
   }
 
   renderOrgTree() {
-    this.shadowRoot.querySelector('.body').appendChild(new FeAssignOrgTree());
+    this.shadowRoot.querySelector('.body').prepend(new FeAssignOrgTree());
     this.shadowRoot.addEventListener('select', (e) => {
       if (e.detail.isSelected) {
         this.#setUser(e.detail.dtnode);
