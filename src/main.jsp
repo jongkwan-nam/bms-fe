@@ -1,7 +1,37 @@
 <%@ page language="java" pageEncoding="utf-8" contentType="text/html; charset=utf-8" %>
+<%@ taglib prefix="c"       uri="http://java.sun.com/jsp/jstl/core" %>
+<%!
+	public String getClientIP(HttpServletRequest request) {
+		String ip = request.getHeader("X-Forwarded-For");
+		System.out.println("> X-FORWARDED-FOR : " + ip);
 
-<link rel="stylesheet" type="text/css" href="/bms/fe/main.css" />
-<script defer type="text/javascript" src="/bms/fe/main.js"></script>
+		if (ip == null) {
+			ip = request.getHeader("Proxy-Client-IP");
+			System.out.println("> Proxy-Client-IP : " + ip);
+		}
+		if (ip == null) {
+			ip = request.getHeader("WL-Proxy-Client-IP");
+			System.out.println(">  WL-Proxy-Client-IP : " + ip);
+		}
+		if (ip == null) {
+			ip = request.getHeader("HTTP_CLIENT_IP");
+			System.out.println("> HTTP_CLIENT_IP : " + ip);
+		}
+		if (ip == null) {
+			ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+			System.out.println("> HTTP_X_FORWARDED_FOR : " + ip);
+		}
+		if (ip == null) {
+			ip = request.getRemoteAddr();
+			System.out.println("> getRemoteAddr : "+ip);
+		}
+		System.out.println("> Result : IP Address : "+ip);
+
+		return ip;
+	}
+%>
+<link rel="stylesheet" type="text/css" href="/bms/fe/<%=getClientIP(request)%>/main.css" />
+<script defer type="text/javascript" src="/bms/fe/<%=getClientIP(request)%>/main.js"></script>
 <c:if test="${use_qdb_context}">
   <link type="text/css" href="<c:out value='${qdb_context}' />/js/lib/jquery.simplemodal/confirm.css" rel="stylesheet" />
   <script type="text/javascript" src="/js/lib/jQuery/jquery-1.12.3.js"></script>
@@ -38,6 +68,9 @@
   //
   rInfo.sendID = '<c:out value="${param.SENDIDLIST}"/>';
   rInfo.docattr = '<c:out value="${param.DOCATTRLIST}"/>';
+
+  // 개발자 IP
+  rInfo.clientIp = '<%=getClientIP(request)%>';
 
   // param EXTERNALATTACHINFOPATH 외부 첨부
   const externalBodyFileID = '<c:out value="${EXTERNALBODYFILEID}" />';

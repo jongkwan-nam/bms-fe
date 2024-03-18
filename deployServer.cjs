@@ -71,7 +71,7 @@ const getAllFiles = (dir) =>
   }, []);
 
 const ftpServerUrl = 'sftp://hso10:handy21@123.212.190.176';
-const bmsFePath = './webapps/bms/fe';
+const bmsFePath = './webapps/bms/fe/10.30.8.83';
 const localDistName = 'dist';
 
 (async () => {
@@ -88,7 +88,7 @@ const localDistName = 'dist';
 
     await client.uploadFile(file, serverPath);
   }
-  console.log(`Uploaded ${files.length} files`);
+  console.log(`Uploaded ${files.length} files to ${bmsFePath}`);
 
   await client.disconnect();
 
