@@ -1,6 +1,22 @@
 const Client = require('ssh2-sftp-client');
 const fs = require('fs');
 const path = require('path');
+const { networkInterfaces } = require('os');
+
+const nets = networkInterfaces();
+const results = [];
+for (const name of Object.keys(nets)) {
+  for (const net of nets[name]) {
+    // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+    // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
+    const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4;
+    if (net.family === familyV4Value && !net.internal) {
+      results.push(net.address);
+    }
+  }
+}
+const myIP = results.filter((address) => address.startsWith('10.'))[0];
+console.log('myIP', myIP);
 
 class SFTPClient {
   constructor() {
@@ -71,7 +87,7 @@ const getAllFiles = (dir) =>
   }, []);
 
 const ftpServerUrl = 'sftp://hso10:handy21@123.212.190.176';
-const bmsFePath = './webapps/bms/fe/10.30.8.83';
+const bmsFePath = './webapps/bms/fe/' + myIP;
 const localDistName = 'dist';
 
 (async () => {
