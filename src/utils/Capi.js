@@ -1,8 +1,9 @@
 import syncFetch from 'sync-fetch';
 
-export default {
+const Capi = {
   callObject: (url, param) => {
-    return syncFetch(PROJECT_CODE + url, { method: 'POST', body: new URLSearchParams(param).toString() }).json();
+    // return syncFetch(PROJECT_CODE + url, { method: 'POST', body: new URLSearchParams(param).toString() }).json();
+    return syncFetch(PROJECT_CODE + url + '?' + new URLSearchParams(param).toString()).json();
   },
   /**
    * 입력 url을 서버로 다운받은 후 TRID를 반환한다.
@@ -11,7 +12,7 @@ export default {
    * @returns {object} TRID: '...', location: '...', ok: true, size: 0
    */
   getFileFromURL: (url) => {
-    return this.callObject('/com/hs/gwweb/appr/getFileFromURL.act', {
+    return Capi.callObject('/com/hs/gwweb/appr/getFileFromURL.act', {
       K: szKEY,
       url: url,
     });
@@ -20,6 +21,8 @@ export default {
     const param = { xmlText: xmlText };
     if (sharedStore) param['sharedStore'] = sharedStore;
     if (encoding) param['encoding'] = encoding;
-    return this.callObject('/com/hs/gwweb/appr/manageFileUploadXMLFile.act', param);
+    return Capi.callObject('/com/hs/gwweb/appr/manageFileUploadXMLFile.act', param);
   },
 };
+
+export default Capi;
