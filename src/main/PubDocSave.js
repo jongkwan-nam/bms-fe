@@ -24,7 +24,27 @@ export default class PubDocSave {
    * @returns 수신처에 LDAP 이 있는지 여부
    */
   isLdap() {
+    if (pInfo.formType !== 'formtype_uniform') {
+      console.log('통합서식이 아니면 유통파일 생성 필요없음');
+      return false;
+    }
+
     const recNodes = getNodes(this.hox, 'docInfo content receiptInfo recipient rec');
+
+    const isLdap1 = recNodes.filter((rec) => getAttr(rec, null, 'type') === 'rectype_ldap').length > 0;
+    if (isLdap1) return true;
+
+    const isLdap2 = getNodes(recNodes, 'recSymbolItems recSymbolItem').filter((recSymbolItem) => getAttr(recSymbolItem, null, 'rectype_ldap')).length > 0;
+    if (isLdap2) return true;
+
+    const isLdap3 = this.#containsLdapMemner(recNodes.filter((rec) => getAttr(rec, null, 'type') === 'rectype_unifiedgroup'));
+    if (isLdap3) return true;
+
+    return false;
+  }
+
+  isLdapByContent(contentNode) {
+    const recNodes = getNodes(contentNode, 'receiptInfo recipient rec');
 
     const isLdap1 = recNodes.filter((rec) => getAttr(rec, null, 'type') === 'rectype_ldap').length > 0;
     if (isLdap1) return true;
@@ -48,14 +68,31 @@ export default class PubDocSave {
     return contains.ok;
   }
 
-  async process() {
+  async processPubDocList() {
+    const contentNodes = getNodes(this.hox, 'docInfo content');
+    for (let i = 0; i < contentNodes.length; i++) {
+      const contentNode = contentNodes[i];
+      // ladp 수신처가 있나?
+      if (!this.isLdapByContent(contentNode)) {
+        continue;
+      }
+      // 있으면, 안 별로 로딩
+      const splitedExamDoc = feMain.splitedExamDocMap.get('content' + (i + 1));
+      const editorForPubdoc = feMain.getEditor4Extra();
+      await editorForPubdoc.openByJSON(splitedExamDoc.hwpJson);
+
+      await this.makePubDoc();
+    }
+
+    this.upload();
+  }
+
+  async makePubDoc() {
     this.domPub = await loadXml(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnTmplPubDocXmlInfo.act`);
     this.makeHead();
     await this.makeBody();
     this.makeFoot();
     this.makeAttach();
-
-    this.upload();
   }
 
   makeHead() {

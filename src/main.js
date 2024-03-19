@@ -324,7 +324,9 @@ class FeMain {
   }
 
   /**
-   * PC저장용 에디터 로딩
+   * 추가 에디터 로딩
+   * - PC저장
+   * - Pubdoc
    * @returns {FeEditor}
    */
   async getEditor4Extra() {

@@ -149,6 +149,11 @@ export default async () => {
     formData.append('sendApprID', apprID);
   }
 
+  const pubDocSave = new PubDocSave(feMain.hox, feMain.feEditor1);
+  if (pubDocSave.isLdap()) {
+    await pubDocSave.processPubDocList();
+  }
+
   let url = `${PROJECT_CODE}/com/hs/gwweb/appr/manageDocSndngEnfoce.act`;
 
   const ret = await fetch(url, {
@@ -170,5 +175,5 @@ const processPubDoc = async (hox, feEditor1, feEditorExtra) => {
   if (!pubDocSave.isLdap()) {
     return null;
   }
-  await pubDocSave.process();
+  await pubDocSave.makePubDoc();
 };

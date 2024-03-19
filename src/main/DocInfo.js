@@ -3,6 +3,7 @@ import { getAttr, getNodes, getText } from '../utils/xmlUtils';
 export default class DocInfo {
   myApprType;
   apprStatus;
+  formType;
   isAbsentOrgUser;
   auditCommentID;
   auditCommentFilePath; // TODO 담겨있으면 submit시 포함되어야 한다
@@ -12,6 +13,7 @@ export default class DocInfo {
   constructor() {
     this.docApprType = getText(feMain.hox, 'docInfo approvalType');
     this.apprStatus = getText(feMain.hox, 'docInfo approvalStatus');
+    this.formType = getText(feMain.hox, 'docInfo formInfo formType');
 
     // set current participant
     const participantNodes = getNodes(feMain.hox, 'approvalFlow participant');
