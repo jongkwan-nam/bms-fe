@@ -285,10 +285,47 @@ export default class FeRecList extends FeApprovalBox {
     //
   }
   #addLdap(dtnode) {
+    this.LIST.querySelector(`[uuid="rectype_ldap_${dtnode.data.key}"]`)?.remove();
     //
+    let name, displayString;
+    const level = parseInt(dtnode.data.ouLevel);
+    if (level > 1) {
+      // 최상위가 아님
+      const level1dtnode = this.#getParents(dtnode, level);
+      name = level1dtnode.data.title + '(' + dtnode.data.title + ')';
+      displayString = level1dtnode.data.ucChiefTitle + '(' + dtnode.data.ucChiefTitle + ')';
+    } else {
+      name = dtnode.data.title;
+      displayString = dtnode.data.ucChiefTitle;
+    }
+
+    let xmlText = `
+    <rec type="rectype_ldap">
+      <ID>${dtnode.data.key}</ID>
+      <name>${name}</name>
+      <XToCode>${dtnode.data.ouCode}</XToCode>
+      <flag>PUBDOCBODY</flag>
+      <displayString>${displayString}</displayString>
+    </rec>`;
+
+    console.log(this.contentNumber, this.contentNode);
+    let recNode = getNode(this.contentNode, 'receiptInfo recipient').appendChild(createNode(xmlText));
+    let li = this.LIST.appendChild(document.createElement('li'));
+    li.setAttribute('uuid', `rectype_ldap_${dtnode.data.key}`);
+    li.appendChild(new FeRec()).set(recNode);
   }
   #addDoc24(dtnode) {
     //
+  }
+
+  #getParents(dtnode, level) {
+    //
+    let parentDtnode = dtnode;
+    for (let i = 1; i < level; i++) {
+      //
+      parentDtnode = parentDtnode.parent;
+    }
+    return parentDtnode;
   }
 
   /**

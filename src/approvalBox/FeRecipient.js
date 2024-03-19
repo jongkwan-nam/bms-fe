@@ -1,5 +1,6 @@
 import syncFetch from 'sync-fetch';
 import FeRecGroupTree from '../tree/FeRecGroupTree';
+import FeRecLdapTree from '../tree/FeRecLdapTree';
 import FeRecOrgTree from '../tree/FeRecOrgTree';
 import ArrayUtils from '../utils/ArrayUtils';
 import StringUtils from '../utils/StringUtils';
@@ -41,7 +42,6 @@ export default class FeRecipient extends FeApprovalBox {
             <div id="manual" class="folder"></div>
           </div>
           <div class="tab-content" role="tabpanel" id="ldapTreePanel">
-            <div id="ldapTree" class="folder"></div>
           </div>
           <div class="tab-content" role="tabpanel" id="doc24TreePanel">
             <div id="doc24Tree" class="folder"></div>
@@ -256,7 +256,16 @@ export default class FeRecipient extends FeApprovalBox {
   }
 
   renderLdapTree() {
-    // TODO
+    if (!this.feRecLdapTree) {
+      this.feRecLdapTree = this.shadowRoot.querySelector('#ldapTreePanel').appendChild(new FeRecLdapTree());
+      this.feRecLdapTree.addEventListener('select', (e) => {
+        if (e.detail.isSelected) {
+          this.feRecList.add(e.detail.dtnode, 'ldap');
+        } else {
+          this.feRecList.delete(e.detail.dtnode, 'ldap');
+        }
+      });
+    }
   }
 
   renderDoc24() {

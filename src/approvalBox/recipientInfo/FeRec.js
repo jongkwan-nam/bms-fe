@@ -102,7 +102,7 @@ export default class FeRec extends HTMLElement {
       case 'rectype_ldap': {
         recType.innerHTML = GWWEBMessage.rectype_ldap;
         imgProfile.style.backgroundImage = `url('/user/img/profile_photo_blank.png')`;
-        name.innerHTML = getText(rec, 'name');
+        name.innerHTML = getText(rec, 'displayString');
         break;
       }
       default:
