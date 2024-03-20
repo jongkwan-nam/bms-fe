@@ -97,12 +97,6 @@ export default async () => {
     // 단일안 발송
     setText(feMain.hox, 'docInfo content receiptInfo senderID', rInfo.user.ID);
     setText(feMain.hox, 'docInfo content receiptInfo senderDeptID', rInfo.dept.ID);
-
-    enforceDocInfos.push({
-      apprID: getText(feMain.hox, 'apprID'),
-      contentNumber: 1,
-      hox: feMain.hox,
-    });
   }
 
   // submit
@@ -114,7 +108,15 @@ export default async () => {
   formData.append('UID', rInfo.user.ID);
   formData.append('DID', rInfo.user.deptID);
 
+  const pubDocSave = new PubDocSave(feMain.hox, feMain.feEditor2);
+
+  let url;
+
   if (isMultiDraft) {
+    url = `${PROJECT_CODE}/com/hs/gwweb/appr/manageDocSndngEnfoce.act`;
+
+    formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeXmlToString(feMain.hox));
+
     const sendApprIDs = [];
 
     for (const enforceDocInfo of enforceDocInfos) {
@@ -124,7 +126,7 @@ export default async () => {
 
       // submit전에 문서에 표시할 내용들
       feMain.feEditor2.putFieldText(Cell.DOC_NUM, getText(enforceDocInfo.hox, 'docInfo docNumber displayDocNumber')); // 문서번호
-      feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(enforceDocInfo.hox, 'docInfo enforceDate')); // 시행일자
+      feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(enforceDocInfo.hox, 'docInfo enforceDate').substring(0, 10)); // 시행일자
 
       const saveRet = await feMain.feEditor2.saveServer(enforceDocInfo.apprID);
       const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
@@ -133,14 +135,18 @@ export default async () => {
       formData.append('block_' + IDUtils.getObjectID(enforceDocInfo.apprID, 2), serializeXmlToString(enforceDocInfo.hox));
 
       sendApprIDs.push(enforceDocInfo.apprID);
+
+      await pubDocSave.processPubDoc(enforceDocInfo.hox); // 시행문별로 LDAP 여부 검사하여, 공문서 처리
     }
     if (sendApprIDs.length > 0) {
       formData.append('sendApprID', sendApprIDs.join(','));
     }
   } else {
+    url = `${PROJECT_CODE}/com/hs/gwweb/appr/manageDocSndng.act`;
+
     // 단일안
     feMain.feEditor2.putFieldText(Cell.DOC_NUM, getText(feMain.hox, 'docInfo docNumber displayDocNumber')); // 문서번호
-    feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(feMain.hox, 'docInfo enforceDate')); // 시행일자
+    feMain.feEditor2.putFieldText(Cell.ENFORCE_DATE, getText(feMain.hox, 'docInfo enforceDate').substring(0, 10)); // 시행일자
 
     const saveRet = await feMain.feEditor2.saveServer(apprID);
     const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
@@ -149,14 +155,9 @@ export default async () => {
     formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyFileInfo.TRID);
     formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeXmlToString(feMain.hox));
     formData.append('sendApprID', apprID);
-  }
 
-  const pubDocSave = new PubDocSave(feMain.hox, feMain.feEditor1);
-  if (pubDocSave.isLdap()) {
-    await pubDocSave.processPubDocList(enforceDocInfos);
+    await pubDocSave.processPubDoc(feMain.hox); // 단일안 LDAP 여부 검사하여, 공문서 처리
   }
-
-  let url = `${PROJECT_CODE}/com/hs/gwweb/appr/manageDocSndngEnfoce.act`;
 
   const ret = await fetch(url, {
     method: 'POST',
@@ -170,12 +171,4 @@ export default async () => {
   } else {
     throw new Error('발송처리에 실패하였습니다.');
   }
-};
-
-const processPubDoc = async (hox, feEditor1, feEditorExtra) => {
-  const pubDocSave = new PubDocSave(hox, feEditor1);
-  if (!pubDocSave.isLdap()) {
-    return null;
-  }
-  await pubDocSave.makePubDoc();
 };

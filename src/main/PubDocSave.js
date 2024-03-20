@@ -15,36 +15,33 @@ export default class PubDocSave {
   /**
    * 공문서 서버 저장
    * @param {XMLDocument} hox
+   * @param {feEditor} feEditor
    */
-  constructor(hox) {
+  constructor(hox, feEditor) {
     this.hox = hox;
+    this.feEditor = feEditor;
   }
 
   /**
-   * 문서 전체 수신자 중에 LDAP이 있는지
-   * @returns 수신처에 LDAP 이 있는지 여부
+   * 수신처에에 LDAP이 있는지
+   * @param {XMLDocument} hox
+   * @returns
    */
-  isLdap() {
+  #isLdap(hox) {
     if (pInfo.formType !== 'formtype_uniform') {
       console.log('통합서식이 아니면 유통파일 생성 필요없음');
       return false;
     }
 
-    this.#isLdapByContent(this.hox);
-  }
-
-  /**
-   * 해당 안에 LDAP이 있는지
-   * @param {Element} contentNode
-   * @returns
-   */
-  #isLdapByContent(contentNode) {
-    const recNodes = getNodes(contentNode, 'receiptInfo recipient rec');
+    const recNodes = getNodes(hox, 'receiptInfo recipient rec');
 
     const isLdap1 = recNodes.filter((rec) => getAttr(rec, null, 'type') === 'rectype_ldap').length > 0;
     if (isLdap1) return true;
 
-    const isLdap2 = getNodes(recNodes, 'recSymbolItems recSymbolItem').filter((recSymbolItem) => getAttr(recSymbolItem, null, 'rectype_ldap')).length > 0;
+    const isLdap2 = recNodes.reduce((sum, recNode) => {
+      sum += getNodes(recNode, 'recSymbolItems recSymbolItem').filter((recSymbolItem) => getAttr(recSymbolItem, null, 'rectype_ldap')).length;
+      return sum;
+    }, 0);
     if (isLdap2) return true;
 
     const isLdap3 = this.#containsLdapMemner(recNodes.filter((rec) => getAttr(rec, null, 'type') === 'rectype_unifiedgroup'));
@@ -64,44 +61,26 @@ export default class PubDocSave {
   }
 
   /**
-   * 공문서 처리 메인 함수
-   *
-   * @param {*} enforceDocInfos 시행문의 hox 모음
+   * 시행문 기준 1개 안에 대한 공문서 처리
+   * @param {XMLDocument} enforceHox
+   * @returns
    */
-  async processPubDocList(enforceDocInfos) {
-    const contentNodes = getNodes(this.hox, 'docInfo content');
-    for (let i = 0; i < contentNodes.length; i++) {
-      const contentNode = contentNodes[i];
-      const enforceDocInfo = enforceDocInfos[i];
-
-      // ladp 수신처가 있나?
-      if (!this.#isLdapByContent(contentNode)) {
-        continue;
-      }
-
-      // 있으면, 안 별로 로딩
-      const splitedExamDoc = feMain.splitedExamDocMap.get('content' + (i + 1));
-      this.feEditor = await feMain.getEditor4Extra();
-      await this.feEditor.openByJSON(splitedExamDoc.hwpJson);
-
-      await this.makePubDoc(enforceDocInfo.hox);
+  async processPubDoc(enforceHox) {
+    if (!this.#isLdap(enforceHox)) {
+      return;
     }
 
-    // 서버로 업로드
-    await this.upload();
-  }
+    // 시행문은 this.feEditor에 열려 있다
 
-  /**
-   * 안별 공문서 처리
-   * @param {XMLDocument} hox 시행문 hox
-   */
-  async makePubDoc(hox) {
+    // 템플릿 pubdoc.xml 로딩
     this.pubdocXml = await loadXml(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveSanctnTmplPubDocXmlInfo.act`);
 
-    this.#makeHead(hox);
-    await this.#makeBody(hox);
-    await this.#makeFoot(hox);
-    this.#makeAttach(hox);
+    this.#makeHead(enforceHox);
+    await this.#makeBody(enforceHox);
+    await this.#makeFoot(enforceHox);
+    this.#makeAttach(enforceHox);
+
+    await this.#upload(enforceHox);
   }
 
   /**
@@ -113,31 +92,27 @@ export default class PubDocSave {
     // head/organ, 기관명
     setText(this.pubdocXml, 'pubdoc head organ', this.feEditor.getFieldText(Cell.ORGAN));
 
-    // head/receiptinfo/recipient/rec, 수신자 및 참조
-    // head/receiptinfo/recipient@refer
-    // 1개 refer="false", 2개 이상 true
     const recNodes = getNodes(hox, 'docInfo content receiptInfo recipient rec');
-    if (recNodes) {
-      const recipientNodeDomPub = getNode(this.pubdocXml, 'pubdoc head receiptinfo recipient');
-
-      let refer = 'false';
-      let rec = '';
-      if (recNodes.length === 1) {
-        const recType = recNodes[0].getAttribute('type');
-        if (recType != null && (recType == 'rectype_unifiedgroup' || recType == 'rectype_deptgroup' || recType == 'rectype_ldapgroup')) {
-          refer = 'true';
-          rec = this.feEditor.getFieldText(Cell.RECLIST);
-        } else {
-          refer = 'false';
-          rec = this.feEditor.getFieldText(Cell.RECEIVE);
-        }
-      } else if (recNodes.length > 1) {
-        refer = 'true';
+    let refer = false;
+    let rec = '';
+    if (recNodes.length === 1) {
+      const recType = recNodes[0].getAttribute('type');
+      if (recType != null && (recType == 'rectype_unifiedgroup' || recType == 'rectype_deptgroup' || recType == 'rectype_ldapgroup')) {
+        refer = true;
         rec = this.feEditor.getFieldText(Cell.RECLIST);
+      } else {
+        refer = false;
+        rec = this.feEditor.getFieldText(Cell.RECEIVE);
       }
-      recipientNodeDomPub.setAttribute('refer', refer);
-      setText(this.pubdocXml, 'pubdoc head receiptinfo recipient rec', rec);
+    } else if (recNodes.length > 1) {
+      refer = true;
+      rec = this.feEditor.getFieldText(Cell.RECLIST);
     }
+
+    // head/receiptinfo/recipient/rec, 수신자 및 참조
+    setText(this.pubdocXml, 'pubdoc head receiptinfo recipient rec', rec);
+    // head/receiptinfo/recipient@refer 1개 refer="false", 2개 이상 true
+    setAttr(this.pubdocXml, 'pubdoc head receiptinfo recipient', 'refer', refer);
 
     // head/receiptinfo/via, 경유
     setText(this.pubdocXml, 'pubdoc head receiptinfo via', this.feEditor.getFieldText(Cell.VIA));
@@ -160,10 +135,7 @@ export default class PubDocSave {
       throw new Error('makeBody error BODY CELL is EMPTY');
     } else {
       await this.#setBodyContent();
-      // await this.getNodeByField(Cell.CBODY, 'tempbody.xml', 'pubdoc body content');
     }
-    //TODO: filterBodyValue 		pubdocBodySize 구해야함.
-    //if(window.console) console.log('[PubDoc.makeBody] filterBodyValue 		pubdocBodySize 구해야함.')
     console.log('makeBody END', this.pubdocXml);
   }
 
@@ -178,47 +150,60 @@ export default class PubDocSave {
 
     // foot/seal, 관인
     // foot/seal@omit
-    // 본문에서 관인정보를 추출하여 pubdoc에 추가.
     if (!this.feEditor.isFieldEmpty(Cell.SEAL_STAMP)) {
+      // 본문에서 관인정보를 추출하여 pubdoc에 추가.
+      setAttr(this.pubdocXml, 'pubdoc foot seal', 'omit', false);
       await this.#setFootSeal();
-      // await this.getNodeByField(Cell.SEAL_STAMP, 'tempseal.xml', 'img');
+    } else {
+      setAttr(this.pubdocXml, 'pubdoc foot seal', 'omit', true); // 관인생략
+      getNode(this.pubdocXml, 'pubdoc foot seal image').remove(); // img 태그 제거
     }
 
     // foot/approvalinfo
-    this.processApproval(hox); // FIXME
+    this.#makeFootApprovalinfo(hox);
 
-    // foot/processinfo/regnumber, 문서번호
+    // foot/processinfo
     // <regnumber regnumbercode="4545456000039">회신3팀:2010-39</regnumber>
+    // foot/processinfo/regnumber, 문서번호
     setText(this.pubdocXml, 'pubdoc foot processinfo regnumber', this.feEditor.getFieldText(Cell.DOC_NUM));
-
-    // foot/processinfo/regnumber@regnumbercode, 문서등록번호
-    // 기관코드 7자리 + 일련번호 6자리
-    const regno = getText(hox, 'docInfo docNumber regNumber');
-    setAttr(this.pubdocXml, 'pubdoc foot processinfo regnumber', 'regnumbercode', rInfo.dept.deptCode + this.getRegNumberFromRegNo(regno));
-
+    // foot/processinfo/regnumber@regnumbercode, 문서등록번호. 기관코드 7자리 + 일련번호 6자리
+    let regNumber = getText(hox, 'docInfo docNumber regNumber');
+    if (!regNumber) regNumber = 0;
+    if (regNumber.length <= 6) regNumber = 0;
+    regNumber = regNumber.substring(regNumber.length - 6); // 뒤에서부터 6자리를 잘라서 반환한다.
+    setAttr(this.pubdocXml, 'pubdoc foot processinfo regnumber', 'regnumbercode', rInfo.dept.deptCode + regNumber);
     // foot/processinfo/enforcedate, 시행일자
-    var enforceDate = this.feEditor.getFieldText(Cell.ENFORCE_DATE);
-    setText(this.pubdocXml, 'pubdoc foot processinfo enforcedate', this.#convertEnforceDateToPubDocFormat(enforceDate));
-
-    if (getText(this.pubdocXml, 'pubdoc foot processinfo enforcedate') == '') {
-      console.error('enforcedate is empty');
+    let enforceDate = this.feEditor.getFieldText(Cell.ENFORCE_DATE);
+    if (StringUtils.isBlank(enforceDate)) {
       throw new Error('enforcedate is empty');
     }
+    if (enforceDate.indexOf('.') >= 0) {
+      enforceDate = enforceDate
+        .split('.')
+        .filter((t) => StringUtils.isNotBlank(t))
+        .map((t) => t.trim())
+        .map((t, i) => {
+          if (i > 0 && t.length === 1) {
+            return '0' + t;
+          }
+          return t;
+        })
+        .join('-');
+    }
+    setText(this.pubdocXml, 'pubdoc foot processinfo enforcedate', enforceDate);
 
     // foot/sendinfo
-
-    // foot/sendinfo/zipcode, ...
-    this.setSendInfo(hox);
+    this.#setSendInfo(hox);
 
     // foot/sendinfo/publication
-    this.setPublicationCode(hox);
+    this.#setPublicationCode(hox);
 
     // foot/sendinfo/symbol
     if (!this.feEditor.isFieldEmpty(Cell.SYMBOL)) {
       await this.#setFootSymbol();
     }
 
-    // get logo node
+    // foot/sendinfo/logo
     if (!this.feEditor.isFieldEmpty(Cell.LOGO)) {
       await this.#setFootLogo();
     }
@@ -238,51 +223,28 @@ export default class PubDocSave {
     console.log('makeAttach START');
     // attach
     const attach = getNode(this.pubdocXml, 'pubdoc attach');
-    attach.textContent = null; // 기존첨부 정보 클리어
+    attach.textContent = null;
 
     getNodes(hox, 'docInfo objectIDList objectID')
       .filter((objectID) => {
         return objectID.getAttribute('type') === 'objectidtype_attach' && objectID.getAttribute('dirty') !== 'deleted';
       })
       .forEach((objectID) => {
-        addNode(attach, 'title', getText(objectID, 'name')); // 진짜 파일명이 들어가게
+        addNode(attach, 'title', getText(objectID, 'name'));
       });
 
     console.log('makeAttach END');
-  }
-
-  getRegNumberFromRegNo(regNo) {
-    if (!regNo) return 0;
-    if (regNo.length <= 6) return 0;
-
-    return regNo.substring(regNo.length - 6); // 뒤에서부터 6자리를 잘라서 반환한다.
-  }
-
-  #convertEnforceDateToPubDocFormat(enforceDate) {
-    if (enforceDate.indexOf('.') >= 0) {
-      return enforceDate
-        .split('.')
-        .filter((t) => StringUtils.isNotBlank(t))
-        .map((t) => t.trim())
-        .map((t, i) => {
-          if (i > 0 && t.length === 1) {
-            return '0' + t;
-          }
-          return t;
-        })
-        .join('-');
-    } else {
-      return enforceDate;
-    }
   }
 
   /**
    * foot/approvalinfo
    * @param {XMLDocument} hox
    */
-  async processApproval(hox) {
+  async #makeFootApprovalinfo(hox) {
     // 기존결재 정보 클리어
     getNode(this.pubdocXml, 'pubdoc foot approvalinfo').textContent = null;
+
+    const AgreeTypes = ['user_agree_s', 'user_skip_agree_s', 'user_agree_p', 'user_skip_agree_p', 'dept_agree_s', 'dept_skip_agree_s', 'dept_agree_p', 'dept_skip_agree_p', 'user_simsa', 'user_skip_simsa'];
 
     const signPartNodes = new Array(); // 결재 모음
     const agreePartNodes = new Array(); // 협조 모음
@@ -300,7 +262,7 @@ export default class PubDocSave {
       }
 
       const approvalType = getText(partNode, 'approvalType');
-      if (this.isAgreeType(approvalType)) {
+      if (AgreeTypes.includes(approvalType)) {
         agreePartNodes.push(partNode);
       } else {
         if (!cellName.startsWith(Cell.SIGN)) {
@@ -364,14 +326,14 @@ export default class PubDocSave {
       }
 
       const approvalinfo = getNode(this.pubdocXml, 'pubdoc foot approvalinfo');
-      const approval = addNode(approvalinfo, 'approvalinfo');
+      const approval = addNode(approvalinfo, 'approval');
       setAttr(approval, null, 'order', order);
 
       addNode(approval, 'signposition', position);
       addNode(approval, 'type', approvalTypeDisplay);
 
       if (signStyle === 'image') {
-        const node = addNode(approval, 'signimage', '');
+        const node = addNode(approval, 'signimage');
         node.setAttribute('cellName', cellName);
 
         await this.#setFootSign(node);
@@ -418,11 +380,10 @@ export default class PubDocSave {
       addNode(assist, 'type', approvalTypeDisplay);
 
       if (signStyle == 'image') {
-        const node = addNode(assist, 'signimage', '');
+        const node = addNode(assist, 'signimage');
         node.setAttribute('cellName', cellName);
 
-        await this.#setFootSign(cellName);
-        // await this.getNodeByField(cellName, 'tempsign.xml', 'img');
+        await this.#setFootSign(node);
       } else {
         addNode(assist, 'name', name);
       }
@@ -434,23 +395,19 @@ export default class PubDocSave {
     }
   }
 
-  isAgreeType(approvalType) {
-    return ['user_agree_s', 'user_skip_agree_s', 'user_agree_p', 'user_skip_agree_p', 'dept_agree_s', 'dept_skip_agree_s', 'dept_agree_p', 'dept_skip_agree_p', 'user_simsa', 'user_skip_simsa'].includes(approvalType);
-  }
-
   /**
    * foot/sendinfo
    */
-  setSendInfo() {
-    setText(this.pubdocXml, 'pubdoc foot sendinfo zipcode', this.getFindCellData(doccfg.pubdocZipcode));
-    setText(this.pubdocXml, 'pubdoc foot sendinfo address', this.getFindCellData(doccfg.pubdocAddress));
-    setText(this.pubdocXml, 'pubdoc foot sendinfo homeurl', this.getFindCellData(doccfg.pubdocHomeurl));
-    setText(this.pubdocXml, 'pubdoc foot sendinfo telephone', this.getFindCellData(doccfg.pubdocTelephone));
-    setText(this.pubdocXml, 'pubdoc foot sendinfo fax', this.getFindCellData(doccfg.pubdocFax));
-    setText(this.pubdocXml, 'pubdoc foot sendinfo email', this.getFindCellData(doccfg.pubdocEmail));
+  #setSendInfo() {
+    setText(this.pubdocXml, 'pubdoc foot sendinfo zipcode', this.#getFindCellData(doccfg.pubdocZipcode));
+    setText(this.pubdocXml, 'pubdoc foot sendinfo address', this.#getFindCellData(doccfg.pubdocAddress));
+    setText(this.pubdocXml, 'pubdoc foot sendinfo homeurl', this.#getFindCellData(doccfg.pubdocHomeurl));
+    setText(this.pubdocXml, 'pubdoc foot sendinfo telephone', this.#getFindCellData(doccfg.pubdocTelephone));
+    setText(this.pubdocXml, 'pubdoc foot sendinfo fax', this.#getFindCellData(doccfg.pubdocFax));
+    setText(this.pubdocXml, 'pubdoc foot sendinfo email', this.#getFindCellData(doccfg.pubdocEmail));
   }
 
-  getFindCellData(strCells) {
+  #getFindCellData(strCells) {
     var data = '';
     var cells = [];
     if (strCells) {
@@ -469,7 +426,7 @@ export default class PubDocSave {
    * foot/sendinfo/publication
    * @param {XMLDocument} hox
    */
-  setPublicationCode(hox) {
+  #setPublicationCode(hox) {
     // foot/sendinfo/publication, 공개여부
     // <publication code="1NNNNNNNN">공개</publication></sendinfo>
     setText(this.pubdocXml, 'pubdoc foot sendinfo publication', this.feEditor.getFieldText(Cell.DOC_PUBLIC));
@@ -504,164 +461,6 @@ export default class PubDocSave {
   }
 
   /**
-   * 서버로 업로드
-   */
-  async upload() {
-    const apprID = getText(this.hox, 'docInfo apprID');
-
-    // seal
-    const sealNode = getNode(this.pubdocXml, 'pubdoc foot seal img');
-    let fnameOfSeal = '';
-    let tridOfSeal = '';
-    if (sealNode) {
-      const imgUrl = getAttr(sealNode, null, 'src');
-      if (imgUrl.indexOf('http') > -1) {
-        const obj = Capi.getFileFromURL(imgUrl);
-        if (obj && obj.TRID) {
-          tridOfSeal = obj.TRID;
-        }
-        fnameOfSeal = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
-        setAttr(sealNode, null, 'src', fnameOfSeal); // URL을 다시 파일이름으로 변경
-      } else {
-        fnameOfSeal = imgUrl;
-      }
-    }
-
-    // symbol
-    const symbolNode = getNode(this.pubdocXml, 'pubdoc foot sendinfo symbol img');
-    let fnameOfSymbol = '';
-    let tridOfSymbol = '';
-    if (symbolNode) {
-      const imgUrl = getAttr(symbolNode, null, 'src');
-      if (imgUrl.indexOf('http') > -1) {
-        const obj = Capi.getFileFromURL(imgUrl);
-        if (obj && obj.TRID) {
-          tridOfSymbol = obj.TRID;
-        }
-        fnameOfSymbol = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
-        setAttr(symbolNode, null, 'src', fnameOfSymbol); // URL을 다시 파일이름으로 변경
-      }
-    }
-
-    // logo
-    const logoNode = getNode(this.pubdocXml, 'pubdoc foot sendinfo logo img');
-    let fnameOflogo = '';
-    let tridOflogo = '';
-    if (logoNode) {
-      const imgUrl = getAttr(logoNode, null, 'src');
-      if (imgUrl.indexOf('http') > -1) {
-        const obj = Capi.getFileFromURL(imgUrl);
-        if (obj && obj.TRID) {
-          tridOflogo = obj.TRID;
-        }
-        fnameOflogo = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
-        setAttr(logoNode, null, 'src', fnameOflogo);
-      }
-    }
-
-    // sign
-    const signImageNodes = getNodes(this.pubdocXml, 'pubdoc foot approvalinfo img');
-    const fnamesOfSign = [];
-    const tridsOfSign = [];
-    if (signImageNodes) {
-      for (let i = 0, iEnd = signImageNodes.length; i < iEnd; i++) {
-        const signImageNode = signImageNodes[i];
-        const url = getAttr(signImageNode, null, 'src');
-        const obj = Capi.getFileFromURL(url);
-        if (obj && obj.TRID) {
-          tridsOfSign.push(obj.TRID);
-        }
-        const signImageName = url.substring(url.lastIndexOf('/') + 1);
-        fnamesOfSign.push(signImageName);
-        setText(signImageNode, null, 'src', signImageName); // URL을 다시 파일이름으로 변경
-      }
-    }
-
-    // this.makePubDocTRID();
-    const pubdocXmlHeader = `<?xml version="1.0" encoding="euc-kr"?>\r\n<?xml-stylesheet type="text/xsl" href="siheng.xsl"?>\r\n<!DOCTYPE pubdoc SYSTEM "pubdoc.dtd">\r\n`;
-    let xmlText = pubdocXmlHeader + serializeXmlToString(this.pubdocXml);
-    xmlText = xmlText.replace(/\xA0/g, ' '); // &nbsp;를 공백으로
-    const xmlPubdoc = Capi.putXMLFile(xmlText, '', 'euc-kr');
-    const pubdocTRID = xmlPubdoc.TRID;
-
-    // this.resetDocumentListUsingEnforceHox();
-    const documentIDList = [];
-    const documentNameList = [];
-    const documentContentNumList = [];
-    getNodes(this.hox, ' docInfo objectIDList objectID')
-      .filter((obj) => 'deleted' !== obj.getAttribute('dirty'))
-      .filter((obj) => 'objectidtype_attach' === obj.getAttribute('type'))
-      .forEach((obj) => {
-        documentIDList.push(getText(obj, 'ID'));
-        documentNameList.push(encodeURIComponent(getText(obj, 'name')));
-        documentContentNumList.push(getText(obj, 'contentNumber'));
-      });
-
-    const senderName = encodeURIComponent(getText(this.pubdocXml, 'pubdoc foot sendername'));
-
-    let isMultiDraft = false;
-    let contentCount = 1;
-
-    const contentIsLdapList = []; // false,true,true
-    if (pInfo.isMultiDraft() && rInfo.cltType !== 'control') {
-      isMultiDraft = true;
-
-      const contentNodes = getNodes(this.hox, 'hox docInfo content');
-      contentCount = contentNodes.length;
-      contentNodes.forEach((content) => contentIsLdapList.push(this.#isLdapByContent(content)));
-    }
-
-    const url = PROJECT_CODE + '/com/hs/gwweb/appr/uploadPubDoc.act';
-    const formData = new FormData();
-    formData.append('UID', rInfo.user.ID);
-    formData.append('DID', rInfo.user.deptID);
-    formData.append('APPRID', apprID);
-    formData.append('TRIDOFPUBDOC', pubdocTRID);
-    formData.append('FNAMEOFPUBDOC', 'pubdoc.xml');
-    formData.append('TRIDOFSEAL', tridOfSeal); // 관인 TRID
-    formData.append('FNAMEOFSEAL', fnameOfSeal); // 관인 파일명
-    formData.append('TRIDSOFSIGN', tridsOfSign.join(',')); // 서명 TRID
-    formData.append('FNAMESOFSIGN', fnamesOfSign.join(',')); // 서명 파일명
-    formData.append('TRIDOFSYMBOL', tridOfSymbol); // 심볼 TRID
-    formData.append('FNAMEOFSYMBOL', fnameOfSymbol); // 심볼 파일명
-    formData.append('TRIDOFLOGO', tridOflogo); // 로고 TRID
-    formData.append('FNAMEOFLOGO', fnameOflogo); // 로고 파일명
-    formData.append('SENDERNAME', senderName);
-    formData.append('ISMULTIDRAFT', isMultiDraft); // 일괄기안 여부
-    formData.append('CONTENTCOUNT', contentCount); // 안 갯수
-
-    if (documentIDList.length > 0) {
-      formData.append('DOCUMENTIDLIST', documentIDList.join(','));
-      formData.append('DOCUMENTNAMELIST', documentNameList.join('|'));
-    }
-
-    if (pInfo.isMultiDraft() && rInfo.cltType !== 'control') {
-      formData.append('DOCUMENTCONTENTNUMLIST', documentContentNumList.join(','));
-      formData.append('CONTENTISLDAPLIST', contentIsLdapList.join(',')); // 안별 LDAP 수신처가 있는지 여부
-    }
-
-    const ret = await fetch(url, { method: 'POST', body: formData }).then((res) => res.json());
-
-    console.log('uploadPubDoc END', ret);
-  }
-
-  async getNodeByField(field, tempFileName, nodePath) {
-    let arg = 'fieldtype:cell;fieldname:' + field;
-    if (field === Cell.CBODY) arg = 'fieldtype:clickhere;fieldname:' + field;
-    //
-    this.feEditor.moveToField(field, true, true, false);
-    const saveRet = await this.feEditor.saveServer(tempFileName, 'PUBDOCBODY', arg);
-    const fileInfo = Capi.getFileFromURL(saveRet.downloadURL);
-
-    const fieldXmlPubDoc = await loadXml(`${PROJECT_CODE}/com/hs/gwweb/appr/retrieveXmlFromWasByTrid.act?TRID=${fileInfo.TRID}&encoding=utf-8`);
-    console.log('getNodeByField', field, fieldXmlPubDoc);
-
-    const node = getNode(fieldXmlPubDoc, nodePath);
-    const oldNode = getNode(this.pubdocXml, nodePath);
-    getNode(this.pubdocXml, 'body').replaceChild(node, oldNode);
-  }
-
-  /**
    * 본문을 PUBDOCBODY 변환하여, pubdoc body content에 삽입
    */
   async #setBodyContent() {
@@ -683,10 +482,6 @@ export default class PubDocSave {
     const saveRet = await this.feEditor.saveServer('tempseal.xml', 'PUBDOCBODY', 'fieldtype:cell;fieldname:' + Cell.SEAL_STAMP);
     const tempSealXml = await loadXml(saveRet.downloadURL);
 
-    const sealNode = getNode(this.pubdocXml, 'pubdoc foot seal');
-    sealNode.setAttribute('omit', false);
-    const sealImgNode = getNode(this.pubdocXml, 'pubdoc foot seal img');
-
     const imgNode = getNode(tempSealXml, 'img');
     const src = imgNode.getAttribute('src');
     // src: ./PIC55ECA293.png
@@ -694,6 +489,9 @@ export default class PubDocSave {
     // fullyURL:            https://fewebhwp.handysoft.co.kr/webhwpctrl/get/5517D706-5381-41A8-AA46-3CEBB320BDF1/PIC55ECA293.png
     const fullyURL = saveRet.downloadURL.substring(0, saveRet.downloadURL.lastIndexOf('/') + 1) + src.substring(src.indexOf('/') + 1);
     imgNode.setAttribute('src', fullyURL);
+
+    const sealNode = getNode(this.pubdocXml, 'pubdoc foot seal');
+    const sealImgNode = getNode(this.pubdocXml, 'pubdoc foot seal img');
 
     sealNode.replaceChild(imgNode, sealImgNode);
   }
@@ -751,5 +549,148 @@ export default class PubDocSave {
     imgNode.setAttribute('src', fullyURL);
 
     signImageNode.append(imgNode);
+  }
+
+  /**
+   * 서버로 업로드
+   * @param {XMLDocument} hox
+   */
+  async #upload(hox) {
+    const apprID = getText(hox, 'docInfo apprID');
+
+    // seal
+    const sealNode = getNode(this.pubdocXml, 'pubdoc foot seal img');
+    let fnameOfSeal = '';
+    let tridOfSeal = '';
+    if (sealNode) {
+      const imgUrl = getAttr(sealNode, null, 'src');
+      if (imgUrl.indexOf('http') > -1) {
+        const obj = Capi.getFileFromURL(imgUrl);
+        if (obj && obj.TRID) {
+          tridOfSeal = obj.TRID;
+        }
+        fnameOfSeal = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+        setAttr(sealNode, null, 'src', fnameOfSeal); // URL을 다시 파일이름으로 변경
+      } else {
+        fnameOfSeal = imgUrl;
+      }
+    }
+
+    // symbol
+    const symbolNode = getNode(this.pubdocXml, 'pubdoc foot sendinfo symbol img');
+    let fnameOfSymbol = '';
+    let tridOfSymbol = '';
+    if (symbolNode) {
+      const imgUrl = getAttr(symbolNode, null, 'src');
+      if (imgUrl.indexOf('http') > -1) {
+        const obj = Capi.getFileFromURL(imgUrl);
+        if (obj && obj.TRID) {
+          tridOfSymbol = obj.TRID;
+        }
+        fnameOfSymbol = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+        setAttr(symbolNode, null, 'src', fnameOfSymbol); // URL을 다시 파일이름으로 변경
+      }
+    }
+
+    // logo
+    const logoNode = getNode(this.pubdocXml, 'pubdoc foot sendinfo logo img');
+    let fnameOflogo = '';
+    let tridOflogo = '';
+    if (logoNode) {
+      const imgUrl = getAttr(logoNode, null, 'src');
+      if (imgUrl.indexOf('http') > -1) {
+        const obj = Capi.getFileFromURL(imgUrl);
+        if (obj && obj.TRID) {
+          tridOflogo = obj.TRID;
+        }
+        fnameOflogo = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+        setAttr(logoNode, null, 'src', fnameOflogo);
+      }
+    }
+
+    // sign
+    const signImgNodes = getNodes(this.pubdocXml, 'pubdoc foot approvalinfo approval signimage img');
+    const fnamesOfSign = [];
+    const tridsOfSign = [];
+    if (signImgNodes) {
+      for (let i = 0, iEnd = signImgNodes.length; i < iEnd; i++) {
+        const signImageNode = signImgNodes[i];
+        const url = getAttr(signImageNode, null, 'src');
+        const obj = Capi.getFileFromURL(url);
+        if (obj && obj.TRID) {
+          tridsOfSign.push(obj.TRID);
+        }
+        const signImageName = url.substring(url.lastIndexOf('/') + 1);
+        fnamesOfSign.push(signImageName);
+        setAttr(signImageNode, null, 'src', signImageName); // URL을 다시 파일이름으로 변경
+      }
+    }
+
+    // this.makePubDocTRID();
+    const pubdocXmlHeader = `<?xml version="1.0" encoding="euc-kr"?>\r\n<?xml-stylesheet type="text/xsl" href="siheng.xsl"?>\r\n<!DOCTYPE pubdoc SYSTEM "pubdoc.dtd">\r\n`;
+    let xmlText = pubdocXmlHeader + serializeXmlToString(this.pubdocXml);
+    xmlText = xmlText.replace(/\xA0/g, ' '); // &nbsp;를 공백으로
+    const xmlPubdoc = Capi.putXMLFile(xmlText, '', 'euc-kr');
+    const pubdocTRID = xmlPubdoc.TRID;
+
+    // this.resetDocumentListUsingEnforceHox();
+    const documentIDList = [];
+    const documentNameList = [];
+    const documentContentNumList = [];
+    getNodes(hox, ' docInfo objectIDList objectID')
+      .filter((obj) => 'deleted' !== obj.getAttribute('dirty'))
+      .filter((obj) => 'objectidtype_attach' === obj.getAttribute('type'))
+      .forEach((obj) => {
+        documentIDList.push(getText(obj, 'ID'));
+        documentNameList.push(encodeURIComponent(getText(obj, 'name')));
+        documentContentNumList.push(getText(obj, 'contentNumber'));
+      });
+
+    const senderName = encodeURIComponent(getText(this.pubdocXml, 'pubdoc foot sendername'));
+
+    let isMultiDraft = false;
+    let contentCount = 1;
+
+    const contentIsLdapList = []; // false,true,true
+    if (pInfo.isMultiDraft() && rInfo.cltType !== 'control') {
+      isMultiDraft = true;
+
+      const contentNodes = getNodes(hox, 'hox docInfo content');
+      contentCount = contentNodes.length;
+      contentNodes.forEach((content) => contentIsLdapList.push(this.#isLdap(content)));
+    }
+
+    const url = PROJECT_CODE + '/com/hs/gwweb/appr/uploadPubDoc.act';
+    const formData = new FormData();
+    formData.append('UID', rInfo.user.ID);
+    formData.append('DID', rInfo.user.deptID);
+    formData.append('APPRID', apprID);
+    formData.append('TRIDOFPUBDOC', pubdocTRID);
+    formData.append('FNAMEOFPUBDOC', 'pubdoc.xml');
+    formData.append('TRIDOFSEAL', tridOfSeal); // 관인 TRID
+    formData.append('FNAMEOFSEAL', fnameOfSeal); // 관인 파일명
+    formData.append('TRIDSOFSIGN', tridsOfSign.join(',')); // 서명 TRID
+    formData.append('FNAMESOFSIGN', fnamesOfSign.join(',')); // 서명 파일명
+    formData.append('TRIDOFSYMBOL', tridOfSymbol); // 심볼 TRID
+    formData.append('FNAMEOFSYMBOL', fnameOfSymbol); // 심볼 파일명
+    formData.append('TRIDOFLOGO', tridOflogo); // 로고 TRID
+    formData.append('FNAMEOFLOGO', fnameOflogo); // 로고 파일명
+    formData.append('SENDERNAME', senderName);
+    formData.append('ISMULTIDRAFT', isMultiDraft); // 일괄기안 여부
+    formData.append('CONTENTCOUNT', contentCount); // 안 갯수
+
+    if (documentIDList.length > 0) {
+      formData.append('DOCUMENTIDLIST', documentIDList.join(','));
+      formData.append('DOCUMENTNAMELIST', documentNameList.join('|'));
+    }
+
+    if (pInfo.isMultiDraft() && rInfo.cltType !== 'control') {
+      formData.append('DOCUMENTCONTENTNUMLIST', documentContentNumList.join(','));
+      formData.append('CONTENTISLDAPLIST', contentIsLdapList.join(',')); // 안별 LDAP 수신처가 있는지 여부
+    }
+
+    const ret = await fetch(url, { method: 'POST', body: formData }).then((res) => res.json());
+
+    console.log('uploadPubDoc END', ret);
   }
 }
