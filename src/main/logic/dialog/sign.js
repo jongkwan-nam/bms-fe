@@ -61,6 +61,8 @@ export const dialogSign = async (hox) => {
   await feEditor1.doSign(cellName, signExtraText, signImageURL);
   console.log('feEditor1.setSign', cellName);
 
+  participant.setAttribute('signStyle', 'image');
+
   // 서명창 닫기
   modalContainer.classList.remove('open');
 

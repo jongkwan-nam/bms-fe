@@ -97,6 +97,12 @@ export default async () => {
     // 단일안 발송
     setText(feMain.hox, 'docInfo content receiptInfo senderID', rInfo.user.ID);
     setText(feMain.hox, 'docInfo content receiptInfo senderDeptID', rInfo.dept.ID);
+
+    enforceDocInfos.push({
+      apprID: getText(feMain.hox, 'apprID'),
+      contentNumber: 1,
+      hox: feMain.hox,
+    });
   }
 
   // submit
@@ -123,8 +129,6 @@ export default async () => {
       const saveRet = await feMain.feEditor2.saveServer(enforceDocInfo.apprID);
       const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
-      // LDAP 유통 문서 만들기
-
       formData.append('ref_' + IDUtils.getObjectID(enforceDocInfo.apprID, 1), bodyFileInfo.TRID);
       formData.append('block_' + IDUtils.getObjectID(enforceDocInfo.apprID, 2), serializeXmlToString(enforceDocInfo.hox));
 
@@ -141,8 +145,6 @@ export default async () => {
     const saveRet = await feMain.feEditor2.saveServer(apprID);
     const bodyFileInfo = Capi.getFileFromURL(saveRet.downloadURL);
 
-    // LDAP 유통 문서 만들기
-
     // 원문 hox
     formData.append('ref_' + IDUtils.getObjectID(apprID, 1), bodyFileInfo.TRID);
     formData.append('block_' + IDUtils.getObjectID(apprID, 2), serializeXmlToString(feMain.hox));
@@ -151,7 +153,7 @@ export default async () => {
 
   const pubDocSave = new PubDocSave(feMain.hox, feMain.feEditor1);
   if (pubDocSave.isLdap()) {
-    await pubDocSave.processPubDocList();
+    await pubDocSave.processPubDocList(enforceDocInfos);
   }
 
   let url = `${PROJECT_CODE}/com/hs/gwweb/appr/manageDocSndngEnfoce.act`;

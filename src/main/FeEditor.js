@@ -1093,6 +1093,10 @@ export default class FeEditor extends FeHwpCtrl {
     return this.hwpCtrl.MoveToFieldEx(field, text, start, select);
   }
 
+  getFieldText(field) {
+    return this.hwpCtrl.GetFieldText(field);
+  }
+
   set title(title) {
     this.hwpCtrl.PutFieldText(Cell.DOC_TITLE, title);
   }

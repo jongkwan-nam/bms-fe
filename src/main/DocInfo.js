@@ -14,6 +14,7 @@ export default class DocInfo {
     this.docApprType = getText(feMain.hox, 'docInfo approvalType');
     this.apprStatus = getText(feMain.hox, 'docInfo approvalStatus');
     this.formType = getText(feMain.hox, 'docInfo formInfo formType');
+    this.hoxType = getAttr(feMain.hox, 'hox', 'type');
 
     // set current participant
     const participantNodes = getNodes(feMain.hox, 'approvalFlow participant');
@@ -72,5 +73,9 @@ export default class DocInfo {
 
   isComplianceDoc() {
     return ['apprtype_compliance'.includes(this.docApprType)];
+  }
+
+  isMultiDraft() {
+    return this.hoxType === 'multiDraft';
   }
 }

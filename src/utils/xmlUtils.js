@@ -13,13 +13,13 @@ const euckrDecoder = new TextDecoder('euc-kr');
  * 서버에서 xml을 로딩
  * @param {string} url
  * @param {boolean} isEucKr euc-kr 인코딩이 필요할때
- * @returns
+ * @returns {Promise<XMLDocument>} xml
  */
 export const loadXml = async (url, isEucKr = false) => {
   const res = await fetch(url);
   const xmlText = isEucKr ? euckrDecoder.decode(await res.arrayBuffer()) : await res.text();
   const xmlDoc = domParser.parseFromString(xmlText.trim(), 'application/xml');
-  console.debug('loadXml', url, xmlDoc);
+  // console.debug('loadXml', url, xmlDoc);
   if (xmlDoc.querySelector('parseerror')) {
     throw new Error('XML parse error: ' + xmlDoc.querySelector('parseerror').textContent);
   }
