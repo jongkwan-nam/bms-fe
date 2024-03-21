@@ -15,13 +15,13 @@ export default class FeRecLdapTree extends FeDynatree {
   }
 
   connectedCallback() {
-    //
-    this.dynatree = super.renderTree(
-      super.getOrgData({
-        acton: 'initLdapTree',
-      })
-    );
-    console.log('dynatree', this.dynatree);
+    const orgData = super.getOrgData({
+      acton: 'initLdapTree',
+    });
+    orgData[0].expand = true; // 최상위 펼치기
+
+    this.dynatree = super.renderTree(orgData);
+    console.debug('dynatree', this.dynatree);
   }
 
   onSelect(isSelected, dtnode) {
