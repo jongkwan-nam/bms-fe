@@ -7,6 +7,7 @@
  */
 
 import FeConfig from './config/FeConfig';
+import { HANDYDEF } from './ini/handydefini';
 import './main.scss';
 import { addActionLogView } from './main/ActionLog';
 import DocInfo from './main/DocInfo';
@@ -50,7 +51,12 @@ class FeMain {
   apprComptList = []; // 결재완료된 문서아이디 목록. TODO doccfg.useSancPasswd doccfg.sancPasswordOnlyFirst 옵션에서 결재 비번 체크시 사용
   isPubDistDoc = false; // 유통문서 여부
 
+  constructor() {}
+
   async start() {
+    // test code
+    console.log('Clipboard.OpenRetryCount', HANDYDEF.System['Clipboard.OpenRetryCount']);
+
     console.time('main');
 
     const hoxTRID = rInfo.hoxFileTRID;
