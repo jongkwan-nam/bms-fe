@@ -87,7 +87,7 @@ export const HANDYDEF = {
     'AuditTab.Signer.Auto.Insert': true,
     CanDeleteGamsa: true,
     SecurityLevel_Use: false,
-    ViewRange: 'all,org',
+    ViewRange: 'all,org,dept',
   },
   ControlInfo: {
     DefaultSendDeptID: '',

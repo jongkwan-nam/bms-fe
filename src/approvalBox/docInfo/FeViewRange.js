@@ -13,19 +13,13 @@ export default class FeViewRange extends FeApprovalBox {
 
   connectedCallback() {
     const wrapper = super.init();
+
     let viewRangeSplit = HANDYDEF.Sanction['ViewRange'].split(',');
     let viewRanges = [];
-    for (let i = 0; i < viewRangeSplit.length; this.id++) {
-      viewRanges = [viewRangeSplit[i], 'cabinet_msg_' + [i + 1]];
+    for (let i = 0; i < viewRangeSplit.length; i++) {
+      viewRanges.push([viewRangeSplit[i], 'cabinet_msg_' + [i + 1]]);
     }
 
-    /*let viewRanges = [
-      ['all', 'cabinet_msg_1'],
-      ['org', 'cabinet_msg_2'],
-      ['dept', 'cabinet_msg_3'],
-    ];*/
-
-    console.log(viewRanges);
     for (let viewRange of viewRanges) {
       let input = wrapper.appendChild(document.createElement('input'));
       input.type = 'radio';
