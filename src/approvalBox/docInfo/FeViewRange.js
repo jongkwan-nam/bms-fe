@@ -54,6 +54,8 @@ export default class FeViewRange extends FeApprovalBox {
 
   changeContentNumberCallback() {
     this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
+    let ViewRangeDefault = HANDYDEF.Sanction['ViewRangeDefault'];
+    this.shadowRoot.querySelector('#viewRange_' + ViewRangeDefault)?.click();
   }
 }
 

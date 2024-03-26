@@ -88,6 +88,7 @@ export const HANDYDEF = {
     CanDeleteGamsa: true,
     SecurityLevel_Use: false,
     ViewRange: 'all,org,dept',
+    ViewRangeDefault: 'dept',
   },
   ControlInfo: {
     DefaultSendDeptID: '',
