@@ -4,7 +4,7 @@ import FeApprovalBox from '../FeApprovalBox';
 import './FeViewRange.scss';
 
 /**
- * 열람법위
+ * 열람범위
  */
 export default class FeViewRange extends FeApprovalBox {
   constructor() {
@@ -13,13 +13,18 @@ export default class FeViewRange extends FeApprovalBox {
 
   connectedCallback() {
     const wrapper = super.init();
+    let viewRangeSplit = HANDYDEF.Sanction['ViewRange'].split(',');
+    let viewRanges = [];
+    for (let i = 0; i < viewRangeSplit.length; this.id++) {
+      viewRanges = [viewRangeSplit[i], 'cabinet_msg_' + [i + 1]];
+    }
 
     /*let viewRanges = [
       ['all', 'cabinet_msg_1'],
       ['org', 'cabinet_msg_2'],
       ['dept', 'cabinet_msg_3'],
     ];*/
-    let viewRanges = HANDYDEF.Sanction['ViewRange'].split(',');
+
     console.log(viewRanges);
     for (let viewRange of viewRanges) {
       let input = wrapper.appendChild(document.createElement('input'));
