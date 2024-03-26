@@ -1,3 +1,4 @@
+import { HANDYDEF } from '../../ini/handydefini';
 import { getText, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeViewRange.scss';
@@ -13,11 +14,13 @@ export default class FeViewRange extends FeApprovalBox {
   connectedCallback() {
     const wrapper = super.init();
 
-    let viewRanges = [
+    /*let viewRanges = [
       ['all', 'cabinet_msg_1'],
       ['org', 'cabinet_msg_2'],
       ['dept', 'cabinet_msg_3'],
-    ];
+    ];*/
+    let viewRanges = HANDYDEF.Sanction['ViewRange'].split(',');
+    console.log(viewRanges);
     for (let viewRange of viewRanges) {
       let input = wrapper.appendChild(document.createElement('input'));
       input.type = 'radio';
