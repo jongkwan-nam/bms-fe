@@ -92,4 +92,13 @@ export default class TabUI {
     console.debug('Tab select', nth);
     root.querySelectorAll('[role="tab"]')[nth - 1].click();
   }
+
+  /**
+   * 탭 hidden 처리. 화면에서 숨김
+   * @param {ShadowRoot | Document} root
+   * @param {*} nth 탭 순번. (1부터)
+   */
+  static hidden(root, nth) {
+    root.querySelectorAll('[role="tab"]')[nth - 1].style.display = 'none';
+  }
 }

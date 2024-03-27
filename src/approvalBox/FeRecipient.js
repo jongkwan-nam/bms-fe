@@ -1,4 +1,5 @@
 import syncFetch from 'sync-fetch';
+import { HANDYDEF } from '../ini/handydefini';
 import FeRecGroupTree from '../tree/FeRecGroupTree';
 import FeRecLdapTree from '../tree/FeRecLdapTree';
 import FeRecOrgTree from '../tree/FeRecOrgTree';
@@ -159,6 +160,12 @@ export default class FeRecipient extends FeApprovalBox {
       }
     });
     TagUI.select(this.shadowRoot, 1);
+    if (HANDYDEF.System.bUseRecipientGroupMode === false) {
+      TagUI.hidden(this.shadowRoot, 2);
+    }
+    if (HANDYDEF.System.UseLDAP === false) {
+      TagUI.hidden(this.shadowRoot, 4);
+    }
 
     this.active = true;
 
