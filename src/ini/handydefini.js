@@ -3,41 +3,564 @@
  */
 export const HANDYDEF = {
   System: {
+    /**
+     * 수신처지정방식(참조관련)을 6.0 방식으로 변경
+     * * 미지원
+     */
+    Version: 6.0,
+    /**
+     * Format 문자열을 통하여 표시되는 시행일자, 접수일자등의 날짜, 시간형식 정의
+     */
+    DateFormat: '%Y.%m.%d.',
+    /**
+     * HTML 페이지의 OnClose 스크립트가 실행되지 않는 경우 처리를 위해서 결재 ActiveX control인 XSClient가 작업을 완료시 HTML 페이지의 OnClose 스크립트를 호출하기 전에 delay time을 줘서 delay time 경과후 OnClose 스크립트를 호출
+     */
+    XSClientCloseDelayTime: 300,
+    /**
+     * 수신자지정 시 수신자그룹 사용 여부 설정
+     */
+    bUseRecipientGroupMode: true,
+    /**
+     * 수신자지정 시 LDAP 사용 여부 설정
+     * ※ 관련 설정 (각 옵션 동일하게 설정)
+     *    intranet_SYSTEM.ini의  bUseLDAP=0/1
+     *    globals.properties 의 UseLDAP=true/false
+     */
+    UseLDAP: false,
+    /**
+     * 수신자지정 시 LDAP Tab내의 검색 버튼 사용 여부 설정 <국세청>
+     * [ true : LDAP Tab 내의 검색버튼 보임 (default)
+     *  false : LDAP Tab 내의 검색버튼 숨김 ]
+     */
+    'UseLDAP.UseFind': true,
+    /**
+     * 수신자지정 시 그룹간연동 사용 여부 설정
+     */
+    UseIOC: false,
+    /**
+     * 문서24 사용여부 설정 - 기안 시 문서24 조직도에서 수신자 선택 기능 <GW-18651 전기안전공사> 라이선스 'ESN9' 기능
+     */
+    UseDoc24: false,
+    /**
+     * 결재정보창의 수신자지정 Tab 순서 조정 기능
+     *  [ 1 : 수기입력,   2 : 조직도,      3 : 수신자그룹,    4 : LDAP,
+     *    5 : not used,   6 : 그룹간연동,  7 : not used,      8 : 수신자기호,
+     *    9 : 그룹사 (v6.7.5.5에 추가, 철도공사),  10 : 문서24 ]
+     */
+    RecipientTabOrder: '',
+    /**
+     * 대외문서(일반기안)일때 수신자 Tab 활성화 설정 <GW-21427 한국수자원공사>
+     *  [ NAME : 수기 입력,   DEPT : 조직도 부서,  GROUP : 수신처그룹,  LDAP : LDAP
+     *    FAX : 팩스,  EMAIL : 이메일,   IOC : 그룹간연동,  RECP_SYMBEX : 수신자기호,
+     *    STR_AFFILIATE : 그룹사/계열사,  DOC24 : 문서24,  FAVORITES : 즐겨찾기,  IOC2 : 그룹간연동2 ]
+     *
+     * * 설정하지 않는 경우, 지금까지 지원된 기본 수신자 Tab 표시
+     *    : 조직도(활성화), 수신자그룹(활성화), 수기입력(활성화), LDAP(활성화)
+     *    : 수기입력 활성화 여부는 [Sanction]의 ManualInputDept.Use 에 따름
+     * * 그룹간연동 / 문서24 사용 시, UseIOC=true / UseDOC24=true 설정 필요
+     */
+    'RecipientTabEnable.External': '',
+    /**
+     * 대내문서(협조문)일때 수신자 Tab 활성화 설정 <GW-21427 한국수자원공사>
+     *  [ NAME : 수기 입력,   DEPT : 조직도 부서,  GROUP : 수신처그룹,  LDAP : LDAP
+     *    FAX : 팩스,  EMAIL : 이메일,   IOC : 그룹간연동,  RECP_SYMBEX : 수신자그룹,
+     *    STR_AFFILIATE : 그룹사/계열사,  DOC24 : 문서24,  FAVORITES : 즐겨찾기,  IOC2 : 그룹간연동2 ]
+     * * 설정하지 않는 경우, 지금까지 지원된 기본 수신자 Tab 표시
+     *    : 조직도(활성화), 수신자그룹(활성화), 수기입력(비활성화), LDAP(비활성화)
+     *    : 수기입력 활성화 여부는 [Sanction]의 ManualInputDept.Use 에 따름
+     */
+    'RecipientTabEnable.Internal': '',
+    /**
+     * 배부 시, 대외문서(일반기안) 수신자 Tab 활성화 설정 <GW-24174 한국장학재단>
+     *  [ DEPT : 조직도 부서,  GROUP : 수신처그룹, NAME : 수기 입력 ]
+     *   * 미지정 시, RecipientTabEnable.External 설정을 따름
+     *     NAME 수기입력 활성화 여부는 [Sanction]의 ManualInputDept.Use 에 따름
+     */
+    'Dist.RecipientTabEnable.External': '',
+    /**
+     * 배부 시, 대내문서(협조문) 수신자 Tab 활성화 설정 <GW-24174 한국장학재단>
+     *  [ DEPT : 조직도 부서,  GROUP : 수신처그룹, NAME : 수기 입력 ]
+     *  * 미지정시, RecipientTabEnable.Internal 설정을 따름
+     *    NAME 수기입력 활성화 여부는 [Sanction]의 ManualInputDept.Use 에 따름
+     */
+    'Dist.RecipientTabEnable.Internal': '',
+    /**
+     * 대외문서(일반기안)일때 사용할 수신자그룹 설정 <GW-21427 한국수자원공사>
+     * (default : 통합서식일때 아래 항목 모두, 그 외 서식일때 DEPT, MANUAL)
+     *  [ DEPT : 수신자그룹,  UNIFIED : 통합그룹,  MANUAL : 수기수신자그룹
+     *    LDAP : LDAP그룹,  IOC : 그룹간연동 그룹,  DOC24 : 문서24 수신자그룹,
+     *    IOC2 : 그룹간연동2 - 폐쇄망 ldap (ucorg2) 수신자그룹 사용 (10.2.0.0 <HSO-9845 K사>)  ]
+     */
+    'RecipientGroupItem.External': '',
+    /**
+     * 대내문서(협조문)일때 사용할 수신자그룹 설정  (default : DEPT) <GW-21427 한국수자원공사>
+     * [ DEPT : 수신자그룹,  UNIFIED : 통합그룹,  MANUAL : 수기수신자그룹
+     *   LDAP : LDAP그룹,  IOC : 그룹간연동 그룹,  DOC24 : 문서24 수신자그룹 ]
+     */
+    'RecipientGroupItem.Internal': 'DEPT',
+    /**
+     * 배부 시 그룹간연동 수신자 지정 가능  <국방부>
+     */
+    UseDistributeLdap: false,
+    /**
+     * handydef.ini 를 레지스트리에서 읽어와 기능수행 속도 개선
+     */
+    UseRegistry: false,
+    /**
+     * 그룹웨어 로그아웃 시 결재 클라이언트 자동종료 여부 설정 <한국자산관리공사>
+     *  [ true : 결재 클라이언트 실행중 그룹웨어 로그아웃시 종료 할 수 있도록 메시지 창 팝업
+     *            (기안기/결재기/뷰어 등 적용,  모듈관리기/관인관리기는 제외)
+     *   false : 결재 클라이언트 실행중 그룹웨어 로그아웃시에도 계속 유지 (default)]
+     *
+     * * Win7, Win10 OS, IE9, IE10, IE11, CHROME 브라우저 지원
+     */
+    ShutdownOnLogout: false,
+    /**
+     * 첨부파일 저장 시 저장완료 메시지 표시 여부
+     *  [ true : 저장완료 메시지 표시 ]
+     */
+    ShowSaveEnd: false,
+    /**
+     * 서명과 관계없는 이미지가 서명으로 들어가는 오류를 Trace 하기 위해 서버에서 받은 이미지와 해당 비트맵을 로드한 이미지를 Backup하도록 처리. Trace용
+     * 백업위치: $그룹웨어Client설치디렉터리$/hoffice/backup/[ApprvalID]/백업이미지(*.*)
+     */
+    BackupMode: false,
+    /**
+     * 연동Type 설정
+     * [ 0 : 기존 sanc0.dll 연동, 1 : 메시지허브 연동 ]
+     */
+    LinkType: 0,
+    /**
+     * 기안기 종료시 지연 시간 설정(단위 : msec) <하나은행>
+     *  (윈도우2000, IE6.0에서 기안기 종료 시에 메인 그룹웨어 IE 응답없음 상태 되는 현상 수정)
+     * HTML(tagFree) 결재만 유효. 하나은행 테스트로는 600 정도 권장
+     */
+    GianCloseDelayTime: 0,
+    /**
+     * 로그를 남길 수 있도록 설정 (기안기나 뷰어뜰때 명령 프롬프트, 디버그 메시지가 남음)
+     * [ 1 : 연동 버튼 클릭시 외부API 호출하기 직전, 우리가 호출하는 API 와 Param 정보를 메시지창으로 표시,
+     *   0 : 표시하지 않음 (default)  ]
+     */
+    Debugmode: 0,
+    /**
+     * Debugmode=0 일 때, 결재기만 로그를 남길 수 있도록 설정
+     */
+    'DebugMode.Kyul': 0,
+    /**
+     * 오류 트레이스를 위해 LOG4C 모듈 적용 (디버그 메시지없이 로그만 남음)
+     * [ 0 :로그생성 안함 (default)
+     *   1 : trace를 위해 bin 폴더에 trace_msgs.log 파일 생성
+     *   2 : 상세 로그생성 ]
+     */
+    LoggingMode: 0,
+    /**
+     * 클라이언트 Crash 발생 시 덤프와 로그를 서버로 전송하는 기능으로 덤프 레벨 설정 <GW-21555>
+     *   [ 0 : 덤프남기지 않음,  1 : 미니덤프(default),  2 : 풀덤프 ]
+     *
+     * * 관련 설정
+     *   jhomscfg.xml의 jhoms.system.client_dumplevel, jhoms.system.client_dumpupload, jhoms.system.client_dumpupload.user, jhoms.system.client_dumpupload.path
+     */
+    dumplevel: 0,
+    /**
+     * 클라이언트 창의 정렬 방식을 center, right, left, none 중 하나를 지정
+     * [ center : 클라이언트 창을 화면 중앙에 정렬 (default)
+     * - left : 클라이언트 창을 화면 왼쪽에 정렬
+     * - right : 클라이언트 창을 화면 오른쪽에 정렬
+     * - none : 클라이언트 창을 기존과 동일하게 전체 화면으로 ]
+     */
+    'ClientWindow.Align': 'center',
+    /**
+     * 클라이언트 의 폭비율을 %로 지정 (높이는 기존과 동일하게 화면 전체 높이)
+     * - ClientWindow.Align이 center, right, left인 경우에만 동작하며, none 으로 지정된 경우 이 option은 작동하지 않는다 (default 80)
+     */
+    'ClientWindow.WidthRatio': 80,
+    /**
+     * 클라이언트 창 가로폭을 픽셀로 지정 (default 값은 0)
+     * - ClientWindow.WidthPixel 설정 시, ClientWindow.WidthRatio 옵션(비율)은 무시
+     */
+    'ClientWindow.WidthPixel': 0,
+    /**
+     * 다국어 지원을 위해 hsframework 유니코드방식으로 변경
+     * [ true : 유니코드방식(default),
+     *   false : Ascii 방식의 String Marshal/UnMarshal 사용 (세팅하지 않으면 조직도 한글깨짐현상 발생) ]
+     */
+    UseUnicodeCapi: true,
+    /**
+     * 일정 시간이 경과하면, 결재 클라이언트를 종료시키는 기능
+     * 분 단위로 설정, default 는 1440 분 (24시간)
+     * 해당 시간이 경과하면 "결재 프로그램 시작 후, n분이 경과하였습니다.\n오동작을 방지하기 위해서, 결재 프로그램을 종료 후 재 시작하여 주시기 바랍니다.\n\n결재 프로그램을 종료하시겠습니까?"라고 표시 후, 확인을 누르면 결재 클라이언트가 종료됨
+     */
+    MaxSessionTime: 1440,
+    /**
+     * 결재기 실행 시 기존 결재프로그램이 실행중일때, 강제 종료할 것인지 여부 설정
+     * [ true : 강제 종료할지 묻는 메시지 실행
+     *           "이미 결재 프로그램이 실행중입니다.
+     *             기존에 실행중인 결재 프로그램을 강제로 종료시키고 계속 진행하시겠습니까?"
+     *             [예] - 이전 결재기 강제종료 후 새 결재기 실행,
+     *             [아니오] - 이전 결재기 그대로 유지, 새 결재기 실행안됨.
+     *  false : 결재기가 이미 실행중이라는 메시지만 실행. 사용자가 별도로 종료해야함.
+     *            "이미 결재 프로그램이 실행중입니다.
+     *             기존에 실행중인 결재 프로그램을 종료시킨 후, 다시 실행하여 주시기 바랍니다. ]
+     */
+    ConfirmKillClient: false,
+    /**
+     * 조직도에서 하위부서 또는 사용자가 없는경우 + 아이콘이 나오지 않도록 지원 <유정사업본부>
+     * (실제 하위부서를 미리 가져와야 하므로, 최초 조직도가 뜰때 시간이 조금 더 소요됨)
+     * ※ 우정사업본부 버전에만 반영
+     *
+     *  [ true : 조직도에서 하위부서 또는 사용자가 없는경우 + 아이콘이 나오지 않음.
+     *    false : 기존과 동일. + 아이콘이 나오고 클릭 시 하위조직도 정보 가져옴  ]
+     */
+    UsePreparedOrg: false,
+    /**
+     * 조직도 - 사용자 검색 시 동명이인 등으로 결과값이 같을때 사용자 리스트에서,  보여줄 부서이름의 단계 지정.
+     * "기관"에 관계없이 단계 계산  <우정사업본부>
+     *  [ 1 : 사용자소속부서명
+     *    2 : 상위부서명.사용자소속부서명 (default)
+     *    3 : 상위부서의상위부서명.상위부서명.사용자소속부서명 ]
+     *
+     * ※ 관련설정 : Web 공람 설정
+     * directory.xml
+     *  user.search.displaydeptlevel  //사용자 검색 시 보여줄 부서이름의 단계 지정
+     *   [ 1 : 사용자소속부서명
+     *     2 : 상위부서명.사용자소속부서명
+     *     3 : 상위부서의상위부서명.상위부서명.사용자소속부서명 ]
+     *
+     *  user.search.userepdeptname  //user.search.displaydeptlevel 이 2, 3 인 경우, 보여지는 최상위 단계의 부서명을 기관명으로 보여줄지 여부 설정
+     *   [ 0 : 기관 상관없이 부서명 표시
+     *     1 : user.search.displaydeptlevel=2일때, 상위부서명에 기관명 표시,
+     *          user.search.displaydeptlevel=3일때, 상위부서의상위부서명에 기관명 표시 ]
+     *
+     * ※ 우정사업본부 버전에만 반영.
+     *    우정사업본부의 경우, user.search.displaydeptlevel=3, user.search.userepdeptname =0 으로 설정
+     */
+    'user.search.displaydeptlevel': 2,
+    /**
+     * 영문셀명 사용 여부 설정 <영원무역>
+     */
+    UseEnglishCellName: false,
+    /**
+     * 한글결재 시, 한글/영문 설정  <영원무역>
+     *  [ ko_KR : 한글리소스 사용 (default),
+     *    en_US : 영문리소스 사용, UseEnglishCellName 설정과는 상관없이 무조건 영문셀 모드로 동작 ]
+     *
+     * - 영문 리소스 DLL 파일명은 Apprres_en_US.dll
+     * - 기타 영문을 위한 파일명은 "기존 파일명_en_US.확장자" 형식을 가진다.
+     * - 기타 영문용 파일들 : comment_en_US.html, CustomUI_en_US.xml, handydef_en_US.ini, hdtoolbar_en_US.bmp, hdtoolbar_en_US.ini
+     */
+    Locale: 'ko_KR',
+    /**
+     * 클라이언트 기안/접수/결재기에서 시스템로케일정보 체크 <HSO-15016 코트라>
+     * [ true : 시스템로케일정보가 올바르지 않으면 에러 메시지 출력 후 닫힘,
+     *   false : 체크하지 않음 (default) ]
+     * * 메시지는 CustomUI.xml 에서 변경 가능
+     *   <strings>
+     *     <string id="10911">
+     */
+    CheckWindowsLocale: false,
+    /**
+     * 기안기/결재기 중복실행 체크 재시도 회수 설정 <대구은행>
+     * [ 1로 설정 시 한번만 검사,  0 이하는 설정 불가,  default=20 ]
+     */
+    'CheckClient.RetryCount': 20,
+    /**
+     * DRM 버전 체크 기능 <금융감독원>
+     *  CheckDRMVersion = MarkAny   (현재 MarkAny 만 지원)
+     * Handydef.ini  [MarkAny] Section 설정 필요
+     */
+    CheckDRMVersion: '',
+    /**
+     * 기안기를 두개 이상 동시(다중) 실행 여부 설정 <광주과학기술원>
+     * [ true : 기안기 다중 실행 가능(default),  false : 기안기 다중 실행 불가능. 한 개만 실행 ]
+     */
+    UseMultipleDraft: true,
+    /**
+     * 클라이언트 로딩 시 "워드프로세서 컨트롤 생성중입니다." 다이얼로그 실행여부 설정 <한국자산관리공사>
+     * [ true : 다이얼로그 실행,  false : 다이얼로그 실행안됨(default) ]
+     */
+    ShowCreateControlMsg: false,
+    /**
+     * 클라이언트 로딩 시, 로딩중 프로그래스바 표시여부 설정 <HSO-14110 한국원자력연구원>
+     * [ true : 로딩중 표시 (default),  false : 표시안함 ]
+     */
+    UseProgressBar: true,
+    /**
+     * 한글 2010 사용 시, 문서비교API 순서 조정여부 설정 <GW-19764 건설공제조합>
+     * * 한컴 문서비교 API가 한글2010과 그이후 버전의 파라메터 순서가 달라 발생하는 현상으로,
+     *   한컴에서 수정 제공하기로 하였으나, 그전까지 한글2010 사용 site 에서는 예외처리하여 사용하도록 옵션 제공
+     * [ true : 파라메터 순서조정,  false : 파라메터 순서조정 안함 (default) ]
+     */
+    'MakeDiff.HWP10.Exception': false,
+    /**
+     * 한글 결재문서 열람 시, 생성되는 임시파일들(%temp%handy8폴더) 삭제 여부 설정 <GW-19665 국민연금공단>
+     * 삭제할 파일 확장자 지정 (구분자는 ,)
+     *  Ex) HDTempCleaner.DeleteAfterFile.Filter=.hox,.flw,.org
+     */
+    'HDTempCleaner.DeleteAfterFile.Filter': '',
+    /**
+     * 실행한 시간에서 설정한 시간(분단위) 이후의 파일을 삭제 (default : -1)  <GW-19665 국민연금공단>
+     * Ex) HDTempCleaner.DeleteAfterFile.Time=1
+     */
+    'HDTempCleaner.DeleteAfterFile.Time': -1,
+    /**
+     * 구문서 파싱을 위한 문서버전 정의 <HSO-7854 신용협동조합중앙회>
+     * [ 6 : GW6점대 (default),  7 : GW7점대 ]
+     */
+    OldGWVersion: 6,
+    /**
+     * 머리표어/꼬리표어 표시방법 설정 <GW-25564,HSO-8883 한국국제협력단>
+     *   [ true : 서버에서 가져오지 않고 로컬 파일인 CustomUI.xml 파일에 설정된 표어 설정,
+     *     false : 표어관리에서 설정된 표어 설정, 서버에서 가지고옴 (default) ]
+     */
+    'LocalCampaignMode.Use': false,
+    /**
+     * 한글 개방형 포맷 사용 여부 <HSO-10515>
+     *   [ true : HWPX 포맷 사용,  false : 기존 hwp 포맷 사용(default) ]
+     * * true 설정 : 본문파일(001)의 포맷이 hwpx포맷으로 저장이 되고,
+     *                   PC저장 시 hwx, hwp(배포), hwp(비배포), hwpx(배포), hwpx(비배포) 포맷 선택
+     */
+    UseHwpxFormat: false,
+    /**
+     * 기안/결재 시, 결재정보창에 있는 준법공람/일삼감사 checkbox 사용여부 설정 <HSO-13636 MG새마을금고 특화>
+     * * 관련 설정
+     *   ~bin/CustomUI.xml  <control id="2465">  <control id="2461"> 주석제거
+     *   jhomscfg.xml 의 jhoms.site.mg.use_repdept_audit, jhoms.site.mg.repauditdept.기관부서ID
+     */
+    UseRepInfo: false,
+    /**
+     * 클라이언트 오른쪽 "붙임목록(보기)" 영역 폭 지정 <HSO-14156 코트라>
+     *  [ 100 이상의 숫자 설정, default=100 ]
+     */
+    AttachbarWidth: 100,
+    /**
+     * 일괄기안문 안분리 시, 본문 처리방식 설정 <GW-30092 건설공제조합>
+     *  [ true : 파일 방식 (default),  false : 클립보드 방식(기존 방식) ]
+     * * 단, [본문복사] 기능은 옵션에 관계없이 클립보드 방식 사용 <HSO-16286>
+     */
+    FileClipboardMode: true,
+    /**
+     * [클라우드 환경] 클라이언트 http request에서 사용할 http 라이브러리 설정
+     * [ 1: wininet (default),  2: curl ]
+     */
+    httplib: 1,
+    /**
+     * [클라우드 환경] Temp경로 설정
+     * [ 1: 기존경로(default),  2: C:\Users\Public\Temp\,  3: 모듈경로\Temp\ ]
+     */
+    TempPathMode: 1,
+    /**
+     * 문자서명 이미지 생성 시, 내부포맷 설정 <HSO-16300 국가과학기술인력개발원>
+     *  [ bmp : 서명 이미지를 bmp로 생성 (default),  wmf:  서명 이미지를 wmf로 생성 ]
+     * ※ bmp/wmf 이외의 값은 서명 시 결재기가 강제 종료될 수 있으니 유의할 것
+     */
+    SignImgFormat: 'bmp',
+
+    // **** HANDY_HSO_Approval_ini 에 없는 내용 ***
+
     /** 클립보드 open 실패 시 재시도 회수 */
     'Clipboard.OpenRetryCount': 1,
-    /** 기안기 복수개 실행 */
-    UseMultipleDraft: '',
-    DebugMode: '',
-    LoggingMode: '',
     ExceptCompressExtensions: '',
-    CheckDRMVersion: '',
     /** 결재문서가 마이그레이션된 구문서인지 검사 */
     CheckOldDocID: '',
-    ShowCreateControlMsg: '',
-    /** 행자부 유통 LDAP 수신처 사용 여부 */
-    UseLDAP: '',
-    /** 그룹간연동 수신처 사용 여부 */
-    UseIOC: '',
-    /** 서명 이미지를 다룰때 BMP로 다룰 것인지 WMF로 다룰 것인지 선택 */
-    SignImgFormat: '',
     /** 그룹간연동2 수신처 사용 여부 */
     UseIOC2: '',
-    /** 행자부 민원24 수신처 사용 여부 */
-    UseDoc24: '',
     /** 수신자 기호 사용 여부 */
     UseRecSymbol: '',
-    'MakeDiff.HWP10.Exception': '',
     UseServerDateFormat: '',
-    'RecipientTabEnable.Internal': '',
-    'RecipientTabEnable.External': '',
-    'LocalCampaignMode.Use': '',
     'LocalResourceMode.Use': '',
     'LocalLogoSymbolMode.Use': '',
     'LocalDefaultfldrname.Use': '',
-    'Dist.RecipientTabEnable.Internal': '',
-    'Dist.RecipientTabEnable.External': '',
-    UseProgressBar: '',
-    UseRepInfo: '',
+  },
+  LDAP: {
+    /**
+     * "GccLdap이 느려서 추가함. 아이템을 선택할때 추가정보를 얻어오며, 아이템이 선택되지 않은 상태에서는 추가정보가 없기 때문에 이전처럼 아이콘을 구분해주지 못함.
+     * 트리를 펼칠때 서브트리를 검색, 아이템을 선택하면 추가정보를 가져옴."
+     */
+    FastMode: true,
+    /**
+     * LDAP 종류 설정   [ ServerCache,  GccLdap(default) ]
+     */
+    Driver: 'GccLdap',
+    /**
+     * 행자부의 LDAP 테스트서버 IP
+     * doc.dir.go.kr
+     */
+    HostIP: '',
+    /**
+     * 행자부의 LDAP 테스트서버 Port
+     */
+    HostPort: 389,
+    BaseDN: 'o=Government of Korea, c=KR',
+    UserDN: '',
+    UserPW: '',
+    /**
+     * 정부유통 검색 범위 설정  [0: 전체검색(default)  1: 하위검색]     <국방부>
+     */
+    SearchOpt: 0,
+    /**
+     * 디폴트 검색 필터
+     */
+    Filter: 'objectclass=ucorg2',
+  },
+  LDAP2: {
+    /**
+     * 그룹간연동 LDAP 종류 설정 (ServerCache / GccLdap)
+     */
+    Driver: 'ServerCache',
+    /**
+     * 서울시 교육청 학교간 유통 시 1로 setting 하여 그룹간간연동의 본문 유형을 행자부 유통 XML로 보냄
+     */
+    BodyType: 0,
+    /**
+     * 그룹간연동(군내유통) 검색 범위 설정  [0: 전체검색  1: 하위검색(default)]     <국방부>
+     */
+    SearchOpt: 1,
+  },
+  LDAP3: {},
+  PubdocDist: {
+    /**
+     * 공문서 XML에 대한 유효성 검증   true/false
+     */
+    ValidatePubdocXML: true,
+    /**
+     * 통합파일 XML에 대한 유효성 검증  true/false
+     * 통합파일은 사이즈가 크고 중계모듈에서 발송시 유효성 검증으로 하므로 기본으로는 false로 setting
+     */
+    ValidatePackXML: false,
+    /**
+     * 0 : 로그를 남기지 않음 (디폴트) 1 : 로그를 남김
+     */
+    'LogLevel ': 0,
+    /**
+     * true이면 서명이미지를 Cell에 fitting, false이면 fitting하지 않음
+     */
+    FitImportedSign: false,
+    /**
+     * true이면 관인이미지를 관인Cell에 fitting, false이면 fitting하지 않음
+     */
+    FitImportedSeal: true,
+    /**
+     * 유통문서 발송 시 본문을 PDF로 첨부하여 발송
+     * 단, 한글 2010 이상만 지원
+     */
+    ConvertBodyToPDF: false,
+  },
+  Org: {
+    /**
+     * 개인수신자 기능 사용여부 설정 <대구은행>
+     * [ true : 수신자 지정 시 개인을 수신자로 지정 가능,
+     *   false : 기존과 동일. 수신자 지정 시 개인 지정 불가(default) ]
+     *
+     * true 설정 시, 기존의 업무담당자 지정(jhoms.approval.assign_recv_task_personnel) 기능은 동작하지 않음. jhoms.approval.assign_recv_task_personnel=false 로 설정해야함.
+     */
+    'UserRecipient.Use': false,
+    /**
+     * 사본수신처(참조) 기능 사용여부 설정 <금융감독원>
+     * [ true : 사본수신처(참조) 사용,   false : 사본수신처(참조) 사용하지 않음(default) ]
+     */
+    'RecReference.Use': false,
+    /**
+     * 수신자에 그룹간연동 조직도에서 기관 추가 시, 수신/참조 제한 <금융감독원>
+     *  [ 0 : 수신/참조 전부 추가 가능,  1 : 수신으로만 추가 가능(default),  2 : 참조(사본수신처)로만 추가 가능 ]
+     * * 8.3.4.0에 default값이  0=> 1 로 변경
+     */
+    'AddableType.ioc.RepDept': 1,
+    /**
+     * 수신자에 그룹간연동 조직도에서 일반 부서(처리과) 추가 시, 수신/참조 제한 <금융감독원>
+     *  [ 0 : 수신/참조 전부 추가 가능,  1 : 수신으로만 추가 가능(default),  2 : 참조(사본수신처)로만 추가 가능 ]
+     * * 8.3.4.0에 default값이  0=> 1 로 변경
+     */
+    'AddableType.ioc.ProcDept': 1,
+    /**
+     * 수신자에 LDAP조직도에서 기관 추가 시, 수신/참조 제한 <금융감독원>
+     * [ 0 : 수신/참조 전부 추가 가능,  1 : 수신으로만 추가 가능(default),  2 : 참조(사본수신처)로만 추가 가능 ]
+     */
+    'AddableType.ldap.RepDept': 1,
+    /**
+     * 수신자에 LDAP 조직도에서 일반부서(처리과) 추가 시, 수신/참조 제한 <금융감독원>
+     * [ 0 : 수신/참조 전부 추가 가능,  1 : 수신으로만 추가 가능(default),  2 : 참조(사본수신처)로만 추가 가능 ]
+     */
+    'AddableType.ldap.ProcDept': 1,
+    /**
+     * 수신자에 수신자그룹 추가 시, 수신/참조 제한 <금융감독원>
+     * [ 0 : 수신/참조 전부 추가 가능,  1 : 수신으로만 추가 가능(default),  2 : 참조(사본수신처)로만 추가 가능 ]
+     */
+    'AddableType.Group': 1,
+    /**
+     * 수신자에 수기입력 추가 시, 수신/참조 제한 <금융감독원>
+     * [ 0 : 수신/참조 전부 추가 가능,  1 : 수신으로만 추가 가능(default),  2 : 참조(사본수신처)로만 추가 가능 ]
+     */
+    'AddableType.Manual': 1,
+    /**
+     * 협조문(대내문서)인 경우 사본수신처(참조)만 있어도 상신 가능하도록 지원 <금융감독원>
+     *  [ true : 수신자에 사본수신처(참조)만 있는 경우, 상신할 수 없음 (default),
+     *    false : 협조문인 경우, 수신자에 사본수신처(참조)만 있어도 상신할 수 있음 ]
+     * * 일반기안(대외문서) 인 경우에는 ini와 관계없이 수신이 있어야 함. 사본수신처(참조)만 있으면 상신 안됨
+     */
+    'ExcludeRefFromRec.Internal': true,
+    /**
+     * 수신자 지정 시 전체 조직도/소속기관 조직도 선택 <대구은행>
+     *  [ true : 소속기관 조직도만 표시,
+     *    false : 전체 조직도 표시 (default) ]
+     * * 기안 / 발송 / 배부(클라이언트 열어 배부할때만) / 재배부 시 조직도에 적용.
+     *   단, 접수대기의 Web 배부 시에는 설정이 적용되지 않고, 전체 조직도가 나타남.
+     */
+    'useInternalDept.Recv': false,
+    /**
+     * 결재선지정 시, 조직도 검색 후 결재선에 바로 추가여부 설정 <대구은행>
+     * [ true : 조직도 검색 후 1명인 경우, 결재선에 바로 추가,
+     *   false : 조직도 검색 후 결재선에 바로 추가하지 않고, "추가" 해야 추가 (default) ]
+     */
+    AddNodeAfterSearch: false,
+    /**
+     * 결재정보 - 결재선/수신자지정 tab 검색 UI 설정 <대구은행>
+     * SearchBitmapID=2251 설정 시, 큰 "검색" 글자 UI로 변경됨
+     */
+    SearchBitmapID: '',
+    /**
+     * 재발송 시, 기존 수신자 정보 clear 여부 설정 <대구은행>
+     * [ true : 기존과 동일하게 재발송 시, 수신자 list에 원수신자를 보여줌 (default) ,
+     *   false : 재발송 시, 수신자 list에 원수신자를 보여주지 않음 ]
+     */
+    'ReusePrevRecs.Resend': true,
+    /**
+     * 의견창에서 협조부서/감사부서 의견 표시 시, 부서명 표시 설정  <금융감독원>
+     * [ 0 : 부서명 표시 (default),
+     *   1 : 부서명(통상) 표시, 부서명(통상)이 지정되지 않은 경우 부서명으로 표시  ]
+     */
+    'DeptDisplayType.Comment': 0,
+    /**
+     * 결재선 / 수신자에 기관내 조직도 사용여부 설정 (그룹사 기능)  <한국생명공학연구원>
+     * [ true : 결재선 조직도 - 자기기관 및 하위부서만 표시,
+     *           수신처 : 조직도 Tab - 자기기관 및 하위부서, 그룹사 Tab - 나머지 기관들 표시 (일반기안일때만 Enable)
+     *   false : 기관내 조직도 사용하지 않음 (default) ]
+     */
+    UseAffiliate: false,
+    /**
+     * 기안기 조직도에서 검색 결과 표시 설정 <대법원>
+     * [ true : 검색결과가 1개인 경우 검색창이 바로 닫히고 사용자/부서를 바로 focus
+     *   false : 기존과 동일하게 검색창을 계속 유지하고 사용자/부서를 focus (default) ]
+     */
+    CloseFindWindowAfterSearch: false,
+    /**
+     * 결재선 지정 시, 사용자 다중선택 여부 설정 <HSO-14809 MG새마을금고>
+     * [ 0 : 다중선택 안됨 (default),  1 : 다중선택 가능 ]
+     */
+    'Sancline.MultiSelect': 0,
+    /**
+     * 결재선 조직도에서 특정직위 사용자 제외여부 설정 <HSO-13574 코트라>
+     * [ true : directory.xml에 설정한 직위사용자 조직도에서 보여지지 않음,
+     *    false : 제외하지 않음 (default) ]
+     *
+     ** 관련 설정
+     * - jhoms : jhoms/conf/assembly/directory.xml
+     * - bms : bms/WEB-INF/config/springmvc/assembly/directory.xml
+     *
+     *<entry key="user.exclude.pos.cond">
+     *    <value>p.pos_code not in ('[직위코드]', '[직위코드]')</value>
+     *</entry>
+     */
+    GetUserList_ExcludeCond: false,
   },
   Sanction: {
     /*  */
@@ -889,12 +1412,8 @@ export const HANDYDEF = {
   /** 개인정보. 셀명에서 %로 시작하는 정보를 INI 파일에 저장 */
   PersonalInfo: {},
   FAX: {},
-  ORG: {},
   MobileAgent: {},
   Body: {},
-  LDAP: {},
-  LDAP2: {},
-  LDAP3: {},
   DCRBRule: {},
   MarkAny: {},
   CERT: {},
@@ -933,15 +1452,32 @@ export const HANDYDEF = {
 (async () => {
   // 서버의 handydef.ini와 merge
   const serverHandydef = await getServerHandydef();
-  Object.assign(HANDYDEF, serverHandydef);
-  for (const key of Object.keys(HANDYDEF)) {
-    Object.assign(HANDYDEF[key], serverHandydef[key]);
+  console.log('handydef of server', serverHandydef);
+
+  for (const [serverSectionKey, serverSectionObj] of Object.entries(serverHandydef)) {
+    for (const [localSectionKey, localSectionObj] of Object.entries(HANDYDEF)) {
+      if (serverSectionKey.toLocaleLowerCase() === localSectionKey.toLocaleLowerCase()) {
+        // 찾은 section
+        console.log('handydef section', serverSectionKey);
+        for (const [serverEntryKey, serverEntryValue] of Object.entries(serverSectionObj)) {
+          for (const localEntrykey of Object.keys(localSectionObj)) {
+            if (localEntrykey.toLocaleLowerCase() === serverEntryKey.toLocaleLowerCase()) {
+              // 찾은 entry
+              localSectionObj[localEntrykey] = serverEntryValue;
+              console.log('handydef entry', localEntrykey, serverEntryValue);
+              break;
+            }
+          }
+        }
+        continue;
+      }
+    }
   }
-  console.log('handydef', HANDYDEF);
+  console.log('handydef of merged', HANDYDEF, HANDYDEF.System.bUseRecipientGroupMode);
 })();
 
 async function getServerHandydef() {
-  const url = `${PROJECT_CODE}/resources/handydef.ini`;
+  const url = `${PROJECT_CODE}/fe/${rInfo.clientIp}/conf/handydef.ini`;
   const serverHandydefText = await fetch(url, { cache: 'no-cache' })
     .then((res) => {
       if (res.status !== 200) {
@@ -986,19 +1522,19 @@ function parseIniToJson(iniText) {
     .split(/[\r\n]+/)
     .filter((line) => !regex.comment.test(line))
     .reduce((json, line) => {
-      if (regex.param.test(line)) {
-        const matched = line.match(regex.param);
-        if (section) {
-          json[section][matched[1]] = parseValue(matched[2]);
-        } else {
-          json[matched[1]] = parseValue(matched[2]);
-        }
-      } else if (regex.section.test(line)) {
+      if (regex.section.test(line)) {
+        // 새 section을 만남
         const matched = line.match(regex.section);
-        json[matched[1]] = {};
-        section = matched[1];
-      } else if (line.length === 0 && section) {
-        section = null;
+        section = matched[1].toLocaleLowerCase();
+
+        json[section] = {};
+      } else if (regex.param.test(line)) {
+        // 현재 section에 entry 추가
+        const matched = line.match(regex.param);
+        const paramKey = matched[1].toLocaleLowerCase();
+        const paramVal = matched[2];
+
+        json[section][paramKey] = parseValue(paramVal);
       }
       return json;
     }, {});
