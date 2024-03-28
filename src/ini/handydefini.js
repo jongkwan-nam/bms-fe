@@ -573,7 +573,22 @@ export const HANDYDEF = {
     'DocNum.DisplayType.Multidraft': '',
     GianHideToolbar: '',
     ShowGianDocStyle: '',
-    GianInitCaretPosToField: '',
+    /**
+     * 기안기 오픈시 커서가 위치할 필드 지정 <정통부>
+     *
+     * 값 = Cell명,MoveMode,end
+     * - Cell명 : 초기Caret이 위치할 필드명
+     * - MoveMode
+     *   * file : 결재기 오픈 시 문서의 top이 보이게 함 (default)
+     *   * field : 결재기 오픈 시 지정된 Cell 위치가 최상단에 위치하게 함
+     * - end : 내용 맨 끝에 커서 위치 (10.2.2부터) ]
+     *
+     * * 10.2.2 부터 맨 뒤에 end 추가 지원 <HSO-14438 코트라>
+     * * 해당셀에 내용이 있는 경우, 내용 맨 끝에 커서 위치
+     *     Ex) GianInitCaretPosToField=본문,filed,end
+     * * MoveMode 와 end는 설정하지 않아도 됨.
+     */
+    GianInitCaretPosToField: '결재제목,file',
     CheckCellName: '',
     CheckBodyText: '',
     'CheckBodyText.Contents': '',
@@ -900,7 +915,22 @@ export const HANDYDEF = {
     'Refresh.OpenDoc': '',
     LastSignerReject: '',
     KyulHideToolbar: '',
-    KyulInitCaretPosToField: '',
+    /**
+     * 결재기 오픈시 Carrot이 위치할 필드 지정 ini  <정통부>
+     *
+     * 값 = Cell명,MoveMode,end
+     * - Cell명 : 초기Caret이 위치할 필드명
+     * - MoveMode
+     *   * file : 결재기 오픈 시 문서의 top이 보이게 함 (default)
+     *   * field : 결재기 오픈 시 지정된 Cell 위치가 최상단에 위치하게 함
+     * - end : 내용 맨 끝에 커서 위치 (10.2.2부터) ]
+     *
+     * * 10.2.2 부터 맨 뒤에 end 추가 지원 <HSO-14438 코트라>
+     * * 해당셀에 내용이 있는 경우, 내용 맨 끝에 커서 위치
+     *     Ex) GianInitCaretPosToField=본문,filed,end
+     * * MoveMode 와 end는 설정하지 않아도 됨.
+     */
+    KyulInitCaretPosToField: '결재제목,file',
     ViewFirstLinkDoc: '',
     'IntraUserOnlyEditable.kyul': '',
     DocTitleUpdateOnlyModifyDocinfo: '',

@@ -87,6 +87,8 @@ class FeMain {
 
           initiateHoxForDraft(this.hox);
           initiateBodyByHox(this.hox, this.feEditor1); // hox 정보를 기반으로 초기 서식의 내용 채우기
+
+          this.feEditor1.initCaretPosToField(HANDYDEF.Sanction.GianInitCaretPosToField);
         };
         break;
       }
@@ -107,6 +109,8 @@ class FeMain {
           addActionLogView(rInfo.apprMsgID, getText(this.hox, 'docInfo title'));
 
           QDBTimingLoadLogic();
+
+          this.feEditor1.initCaretPosToField(HANDYDEF.Sanction.KyulInitCaretPosToField);
         };
         break;
       }

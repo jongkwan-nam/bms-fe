@@ -1097,6 +1097,60 @@ export default class FeEditor extends FeHwpCtrl {
     return this.hwpCtrl.GetFieldText(field);
   }
 
+  moveScroll(horzPos = 0, vertPos = 0) {
+    const scrollPosSet = this.hwpCtrl.ScrollPosInfo;
+    scrollPosSet.SetItem('HorzPos', horzPos);
+    scrollPosSet.SetItem('VertPos', vertPos);
+    this.hwpCtrl.ScrollPosInfo = scrollPosSet;
+  }
+
+  moveScrollTop() {
+    this.moveScroll(0, 0);
+  }
+
+  moveScrollBottom() {
+    this.moveScroll(0, this.hwpCtrl.ScrollPosInfo.Item('VertLimitPos'));
+  }
+
+  /**
+   *
+   * @param {number} moveID
+   * @param {*} para
+   * @param {*} pos
+   */
+  movePos(moveID, para, pos) {
+    return this.hwpCtrl.MovePos(moveID, para, pos);
+  }
+
+  /**
+   * ini GianInitCaretPosToField, KyulInitCaretPosToField 옵션 수행
+   * @param {string} iniValue
+   * @returns
+   */
+  initCaretPosToField(iniValue) {
+    if (StringUtils.isBlank(iniValue)) {
+      return;
+    }
+    const [cellName, modeMode = 'file', end = ''] = iniValue.split(',');
+
+    // 웹한글 안으로 포커스 이동
+    this.shadowRoot.querySelector('iframe').contentWindow.document.querySelector('iframe')?.focus();
+
+    if (modeMode === 'file') {
+      this.moveScroll(0, 0); // 스크롤 이동
+    } else if (modeMode === 'field') {
+      // cell 위치가 최상단에 위치
+      // const pos = this.hwpCtrl.GetPos();
+      // console.log('pos', pos, pos.list, pos.para, pos.pos);
+      // this.movePos(27, pos.para, pos.pos);
+      this.moveScrollBottom();
+    }
+    this.moveToFieldEx(cellName, true, end !== 'end', false);
+    this.hwpCtrl.ShowCaret(true);
+
+    console.log('initCaretPosToField', cellName, modeMode, end);
+  }
+
   set title(title) {
     this.hwpCtrl.PutFieldText(Cell.DOC_TITLE, title);
   }
