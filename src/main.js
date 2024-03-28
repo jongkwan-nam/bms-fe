@@ -7,7 +7,7 @@
  */
 
 import FeConfig from './config/FeConfig';
-import { HANDYDEF } from './ini/handydefini';
+import { HANDYDEF, loadHandydefIni } from './ini/handydefini';
 import './main.scss';
 import { addActionLogView } from './main/ActionLog';
 import DocInfo from './main/DocInfo';
@@ -54,9 +54,6 @@ class FeMain {
   constructor() {}
 
   async start() {
-    // test code
-    console.log('Clipboard.OpenRetryCount', HANDYDEF.System['Clipboard.OpenRetryCount']);
-
     console.time('main');
 
     const hoxTRID = rInfo.hoxFileTRID;
@@ -357,6 +354,8 @@ window.onerror = (error) => {
 };
 
 (async () => {
+  await loadHandydefIni();
+
   popupSizeRestorer('feMain.window.size', 1270, 900);
 
   window.feMain = new FeMain();

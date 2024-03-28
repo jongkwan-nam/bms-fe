@@ -1,3 +1,4 @@
+import { HANDYDEF } from '../../ini/handydefini';
 import Cell from '../../main/CellNames';
 import OrgUtils from '../../utils/OrgUtils';
 import { createNode, getAttr, getNode, getNodes, getText } from '../../utils/xmlUtils';
@@ -35,6 +36,7 @@ export default class FeParticipantList extends HTMLElement {
     wrapper.innerHTML = `
       <header>
         <label>${GWWEBMessage.cmsg_543}</label>
+        <a href="#" id="UseSancLineHelp" style="display:none">${GWWEBMessage.UseSancLineHelp}</a>
         <div>
           <button type="button" id="upBtn" title="${GWWEBMessage.cmsg_1154}">△</button>
           <button type="button" id="downBtn" title="${GWWEBMessage.cmsg_1155}">▽</button>
@@ -102,6 +104,18 @@ export default class FeParticipantList extends HTMLElement {
     this.hox = hox;
     //
     this.#renderParticipantList();
+
+    // 결재선 안내 버튼 사용여부
+    if (HANDYDEF.Sanction['UseSancLineHelp.Use']) {
+      const url = HANDYDEF.Sanction['UseSancLineHelp.URL']
+        .replace(/%FORMID%/, rInfo.objForm1.formID)
+        .replace(/%USERID%/, rInfo.user.ID)
+        .replace(/%KEY%/, szKEY);
+      const [w, h] = HANDYDEF.Sanction['UseSancLineHelp.DlgOption'].split(',');
+
+      this.shadowRoot.querySelector('#UseSancLineHelp').setAttribute('onclick', `window.open('${url}', 'UseSancLineHelp', 'width=${w}px,height=${h}')`);
+      this.shadowRoot.querySelector('#UseSancLineHelp').style.display = 'inline-block';
+    }
   }
 
   /**

@@ -51,6 +51,7 @@
   GWWEBMessage['font_size'] = '글자 크기';
   GWWEBMessage['color_theme'] = '색상 테마';
   GWWEBMessage['content_split'] = '안 분리';
+  GWWEBMessage['UseSancLineHelp'] = '결재선 안내';
 
   // 신규 옵션 추가
   doccfg.summaryAddableApprover = true; // 결재자 요약전 추가 여부 설정 <대법원> [ false: 결재자가 요약전 새로 추가할 수 없음(default), true: 결재자가 요약전 새로 추가할 수 있음 ]
