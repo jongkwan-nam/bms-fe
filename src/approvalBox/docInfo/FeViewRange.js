@@ -16,11 +16,47 @@ export default class FeViewRange extends FeApprovalBox {
     const wrapper = super.init();
 
     const showViewlevel = ServerConfig.getJhomsConfig('approval', 'show_viewlevel');
-
     let viewRangeSplit = HANDYDEF.Sanction['ViewRange'].split(',');
     let viewRanges = [];
+    let viewRangesMsg = '';
     for (let i = 0; i < viewRangeSplit.length; i++) {
-      viewRanges.push([viewRangeSplit[i], 'cabinet_msg_' + [i + 1]]);
+      if (showViewlevel == true) {
+        switch (viewRangeSplit[i]) {
+          case 'none':
+            viewRangesMsg = 'cmsg_2360'; //1등급
+            break;
+          case 'dept':
+            viewRangesMsg = 'cmsg_2361'; //2등급
+            break;
+          case 'all':
+            viewRangesMsg = 'cmsg_2362'; //3등급
+            break;
+          default:
+            viewRangesMsg = '';
+            console.error("showViewlevel True / HANDYDEF.Sanction['ViewRange'] check");
+            break;
+        }
+      } else {
+        switch (viewRangeSplit[i]) {
+          case 'dept':
+            viewRangesMsg = 'cabinet_msg_3'; //부서
+            break;
+          case 'org':
+            viewRangesMsg = 'cabinet_msg_2'; //소속기관
+            break;
+          case 'all':
+            viewRangesMsg = 'cabinet_msg_1'; //전체
+            break;
+          default:
+            console.error("showViewlevel False / HANDYDEF.Sanction['ViewRange'] check");
+            viewRangesMsg = '';
+            break;
+        }
+      }
+      //오탈자 및 등록 되지 않을 경우 빼고 생성
+      if (viewRangesMsg !== '') {
+        viewRanges.push([viewRangeSplit[i], viewRangesMsg]);
+      }
     }
 
     for (let viewRange of viewRanges) {
@@ -57,8 +93,6 @@ export default class FeViewRange extends FeApprovalBox {
 
   changeContentNumberCallback() {
     this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
-    let ViewRangeDefault = HANDYDEF.Sanction['ViewRangeDefault'];
-    this.shadowRoot.querySelector('#viewRange_' + ViewRangeDefault)?.click();
   }
 }
 
