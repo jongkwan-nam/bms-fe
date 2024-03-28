@@ -596,9 +596,23 @@ export const HANDYDEF = {
     ApprovalInfoTabOrder: '',
     'DocInfo.InitialTab': '',
     DisablePageCountAndPublicUI: '',
-    'UseSancLineHelp.Use': '',
+    /**
+     * 결재선 안내 버튼 사용여부 설정 <GW-18287 원주세브란스기독병원>
+     * - [ true : 결재선안내 버튼 사용,  false : 사용하지 않음 (default) ]
+     */
+    'UseSancLineHelp.Use': false,
+    /**
+     * 결재선 안내 호출 URL 설정
+     * - [ %FORMID% : 서식ID,  %USERID% : 사용자ID,  %KEY% : 인증키 ]
+     *
+     * Ex) UseSancLineHelp.URL=https://daum.net/snaclinehelp?formid=%FORMID%
+     */
     'UseSancLineHelp.URL': '',
-    'UseSancLineHelp.DlgOption': '',
+    /**
+     * 결재선 안내 페이지 창 크기 설정
+     * - Ex) UseSancLineHelp.DlgOption=600,400
+     */
+    'UseSancLineHelp.DlgOption': '600,400',
     'ImmutalbleFlowForm.DraftDept': '',
     ImmutableTitleForm: '',
     CheckUTF8TitleLen: '',
@@ -1975,7 +1989,7 @@ export const HANDYDEF = {
   SignCellSplit: {},
 };
 
-(async () => {
+export const loadHandydefIni = async () => {
   // 서버의 handydef.ini와 merge
   const serverHandydef = await getServerHandydef();
   console.log('handydef of server', serverHandydef);
@@ -2007,7 +2021,7 @@ export const HANDYDEF = {
     }
   }
   console.log('handydef of merged', HANDYDEF, HANDYDEF.System.bUseRecipientGroupMode);
-})();
+};
 
 async function getServerHandydef() {
   const url = `${PROJECT_CODE}/fe/${rInfo.clientIp}/conf/handydef.ini`;
