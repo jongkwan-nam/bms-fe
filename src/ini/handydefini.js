@@ -602,8 +602,20 @@ export const HANDYDEF = {
     'ImmutalbleFlowForm.DraftDept': '',
     ImmutableTitleForm: '',
     CheckUTF8TitleLen: '',
-    ViewRange: '',
-    ViewRangeDefault: '',
+    /**
+     * 열람범위 항목 설정   <한국인터넷진흥원>
+     * - [ all : 전체, org : 기관, dept : 부서 ]
+     * - default = all,org,dept   (,로 구분)    소속기관을 빼려면, ViewRange=all,dept  로 설정
+     */
+    ViewRange: 'all,org,dept',
+    /**
+     * 열람범위 default 설정   <한국인터넷진흥원>
+     * - [ all : 전체, org : 기관, dept : 부서(default) ]
+     *
+     * 열람등급 사용 시(jhoms.approval.show_viewlevel=true),
+     * - [ none : 1등급(열람불가),  dept : 2등급(부서)(default),  all : 3등급(전체)  ]
+     */
+    ViewRangeDefault: 'dept',
     'RecentPublication.Use': '',
     'FIF.PassDocInfoDlg': '',
     DefaultEnforceType: '',

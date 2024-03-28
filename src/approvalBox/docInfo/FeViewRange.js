@@ -1,9 +1,10 @@
+import { HANDYDEF } from '../../ini/handydefini';
 import { getText, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
 import './FeViewRange.scss';
 
 /**
- * 열람법위
+ * 열람범위
  */
 export default class FeViewRange extends FeApprovalBox {
   constructor() {
@@ -13,11 +14,12 @@ export default class FeViewRange extends FeApprovalBox {
   connectedCallback() {
     const wrapper = super.init();
 
-    let viewRanges = [
-      ['all', 'cabinet_msg_1'],
-      ['org', 'cabinet_msg_2'],
-      ['dept', 'cabinet_msg_3'],
-    ];
+    let viewRangeSplit = HANDYDEF.Sanction['ViewRange'].split(',');
+    let viewRanges = [];
+    for (let i = 0; i < viewRangeSplit.length; i++) {
+      viewRanges.push([viewRangeSplit[i], 'cabinet_msg_' + [i + 1]]);
+    }
+
     for (let viewRange of viewRanges) {
       let input = wrapper.appendChild(document.createElement('input'));
       input.type = 'radio';
@@ -52,6 +54,8 @@ export default class FeViewRange extends FeApprovalBox {
 
   changeContentNumberCallback() {
     this.shadowRoot.querySelectorAll('input').forEach((input) => (input.disabled = this.contentNumber > 1));
+    let ViewRangeDefault = HANDYDEF.Sanction['ViewRangeDefault'];
+    this.shadowRoot.querySelector('#viewRange_' + ViewRangeDefault)?.click();
   }
 }
 
