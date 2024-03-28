@@ -1,3 +1,4 @@
+import ServerConfig from '../../ini/ServerConfig';
 import { HANDYDEF } from '../../ini/handydefini';
 import { getText, setText } from '../../utils/xmlUtils';
 import FeApprovalBox from '../FeApprovalBox';
@@ -13,6 +14,8 @@ export default class FeViewRange extends FeApprovalBox {
 
   connectedCallback() {
     const wrapper = super.init();
+
+    const showViewlevel = ServerConfig.getJhomsConfig('approval', 'show_viewlevel');
 
     let viewRangeSplit = HANDYDEF.Sanction['ViewRange'].split(',');
     let viewRanges = [];
